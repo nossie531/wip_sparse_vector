@@ -1,10 +1,10 @@
+use crate::for_test::stepper::Stepper;
 use rand::seq::index::sample as rand_sample;
 use rand::{Rng, SeedableRng};
 use rand_pcg::Pcg32;
 use sparse_vec::SparseVec;
 use std::collections::BTreeSet;
 use std::ops::RangeInclusive;
-use crate::for_test::stepper::Stepper;
 
 pub static LEN: usize = 10;
 pub static NNP: usize = 5;
@@ -161,6 +161,10 @@ impl Template {
         let original_range = self.value_range();
         let adjusted_range = *original_range.start()..=(*original_range.end() - 1);
         let trial = rng.random_range(adjusted_range);
-        if trial != na { trial } else { *original_range.end() }
+        if trial != na {
+            trial
+        } else {
+            *original_range.end()
+        }
     }
 }

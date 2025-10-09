@@ -1,5 +1,7 @@
 # sparse_vector
 
+作成中。
+
 ## Future task 1
 
 以下の実装はどれも `T` が制約されすぎている。
@@ -17,13 +19,10 @@
 [`pstd`]: https://crates.io/crates/pstd
 [my_pr]: https://github.com/georgebarwood/pstd/pull/2
 
-## Future task 2
+## TODO
 
 slice の split 系をまねた関数について。
-SparseVec のメソッドは Vec と slice のメソッドを参考にしている。
-意味論が崩れたり、需要が少なそうなもの以外は導入を目指している。
-しかし、split 系についてはそうでなく、単純に時間がなくて実装していない。
 
-もし実装するなら、戻り値のために SparseSlice のような名前の型が必要になりそうである。
+戻り値のために SparseSlice のような名前の型が必要になりそう。
 また、split_mut 系の関数では unsafe が必要になるはずだ。
 下手に実装するとバグだらけになりそうである。

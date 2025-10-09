@@ -1,6 +1,6 @@
-use std::iter::{self, repeat_with};
 use crate::for_test::template as tt;
 use sparse_vec::prelude::*;
+use std::iter::{self, repeat_with};
 
 const RANDOM_TEST_SIZE: usize = 64;
 
@@ -21,11 +21,14 @@ pub fn all_padding() -> SparseVec<i32> {
 }
 
 pub fn random_trivals(seed: u64) -> SparseVec<i32> {
-    tt::template().set_seed(seed).set_value_range(-1..=1).build()
+    tt::template()
+        .set_seed(seed)
+        .set_value_range(-1..=1)
+        .build()
 }
 
-pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>;2]> {
-    const CUSTOMS: [fn() -> [SparseVec<i32>;2]; 6] = [
+pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
+    const CUSTOMS: [fn() -> [SparseVec<i32>; 2]; 6] = [
         normal_vs_normal,
         padding_vs_normal,
         value1_vs_value2,
@@ -38,27 +41,26 @@ pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>;2]> {
     let randoms = random_trivals_pairs();
     return customs.chain(randoms);
 
-    fn custom_pairs() -> impl Iterator<Item = [SparseVec<i32>;2]> {
+    fn custom_pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
         let mut customs = CUSTOMS.iter();
-        iter::from_fn(move || {
-            Some(customs.next()?())
-        })
+        iter::from_fn(move || Some(customs.next()?()))
     }
 
-    fn random_trivals_pairs() -> impl Iterator<Item = [SparseVec<i32>;2]> {
+    fn random_trivals_pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
         let mut seed = 0;
         repeat_with(move || {
             let ret = random_trivals_pair(seed);
             seed += 1;
             ret
-        }).take(RANDOM_TEST_SIZE)
+        })
+        .take(RANDOM_TEST_SIZE)
     }
 
-    fn normal_vs_normal() -> [SparseVec<i32>;2] {
+    fn normal_vs_normal() -> [SparseVec<i32>; 2] {
         [normal(), normal()]
     }
 
-    fn padding_vs_normal() -> [SparseVec<i32>;2] {
+    fn padding_vs_normal() -> [SparseVec<i32>; 2] {
         let template = tt::template();
         let target_x = template.build();
         let mut target_y = template.build();
@@ -67,7 +69,7 @@ pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>;2]> {
         [target_x, target_y]
     }
 
-    fn value1_vs_value2() -> [SparseVec<i32>;2] {
+    fn value1_vs_value2() -> [SparseVec<i32>; 2] {
         let template = tt::template();
         let target_x = template.build();
         let mut target_y = template.build();
@@ -76,7 +78,7 @@ pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>;2]> {
         [target_x, target_y]
     }
 
-    fn padding1_vs_padding2() -> [SparseVec<i32>;2] {
+    fn padding1_vs_padding2() -> [SparseVec<i32>; 2] {
         let mut target_x = SparseVec::<i32>::with_padding(0, 0);
         let mut target_y = SparseVec::<i32>::with_padding(0, 1);
         target_x.extend([0, 1, 0]);
@@ -84,21 +86,21 @@ pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>;2]> {
         [target_x, target_y]
     }
 
-    fn normal_vs_extra_padding() -> [SparseVec<i32>;2] {
+    fn normal_vs_extra_padding() -> [SparseVec<i32>; 2] {
         let target_x = normal();
         let mut target_y = normal();
         target_y.set_len(target_y.len() + 1);
         [target_x, target_y]
     }
 
-    fn normal_vs_extra_value() -> [SparseVec<i32>;2] {
+    fn normal_vs_extra_value() -> [SparseVec<i32>; 2] {
         let target_x = normal();
         let mut target_y = normal();
         target_y.extend([42]);
         [target_x, target_y]
     }
 
-    fn random_trivals_pair(seed: u64) -> [SparseVec<i32>;2] {
+    fn random_trivals_pair(seed: u64) -> [SparseVec<i32>; 2] {
         [random_trivals(seed), random_trivals(seed + 1)]
     }
 }

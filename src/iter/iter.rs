@@ -1,6 +1,6 @@
 use crate::msg;
 use only_one::One;
-use pstd::collections::btree_map::Iter as MapIter;
+use pstd::collections::btree_map::Range as MapRange;
 use std::iter::FusedIterator;
 use std::ops::Range;
 
@@ -11,7 +11,7 @@ where
     T: PartialEq,
 {
     padding: One<&'a T>,
-    iter: One<MapIter<'a, usize, T>>,
+    iter: One<MapRange<'a, usize, T>>,
     range: Range<usize>,
     head_memo: Option<(&'a usize, &'a T)>,
     tail_memo: Option<(&'a usize, &'a T)>,
@@ -21,7 +21,7 @@ impl<'a, T> Iter<'a, T>
 where
     T: PartialEq,
 {
-    pub(crate) fn new(len: usize, padding: &'a T, iter: MapIter<'a, usize, T>) -> Self {
+    pub(crate) fn new(len: usize, padding: &'a T, iter: MapRange<'a, usize, T>) -> Self {
         Self {
             padding: One::new(padding),
             iter: One::new(iter),
@@ -35,7 +35,7 @@ where
         self.size_hint().1.unwrap() == 0
     }
 
-    fn iter(&mut self) -> &mut MapIter<'a, usize, T> {
+    fn iter(&mut self) -> &mut MapRange<'a, usize, T> {
         &mut self.iter
     }
 }

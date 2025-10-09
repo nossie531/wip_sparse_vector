@@ -6,11 +6,7 @@ pub struct Stepper {
 
 impl Stepper {
     pub fn new(m: usize, n: usize) -> Self {
-        Self {
-            m,
-            n,
-            i: 0,
-        }
+        Self { m, n, i: 0 }
     }
 }
 

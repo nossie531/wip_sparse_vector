@@ -252,19 +252,6 @@ fn to_vec() {
 }
 
 #[test]
-fn into_vec() {
-    // Arrange.
-    let template = tt::template();
-    let target = template.build();
-
-    // Act.
-    let result = target.into_vec();
-
-    // Assert.
-    assert_eq!(result, template.sample_vec());
-}
-
-#[test]
 fn fill() {
     // Arrange.
     let template = tt::template();
@@ -621,5 +608,5 @@ fn extend() {
 fn from_for_vec() {
     let sparse_vec = ts::normal();
     let result = <Vec<_> as From<SparseVec<_>>>::from(sparse_vec.clone());
-    assert!(result.iter().eq(sparse_vec.iter()));    
+    assert!(result.iter().eq(sparse_vec.iter()));
 }

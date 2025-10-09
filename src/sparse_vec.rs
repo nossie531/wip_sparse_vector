@@ -1,9 +1,9 @@
 use crate::iter::{IntoIter, Iter, SparseReader, SparseWriter};
 use crate::values::ValueEditor;
-use crate::{ElmReader, util};
+use crate::{ElmReader, SparseVecAll, util};
 use pstd::collections::btree_map::BTreeMap;
 use std::cmp::Ordering;
-use std::ops::{Bound, Index};
+use std::ops::{Bound, Deref, DerefMut, Index};
 
 /// Sparse vector.
 ///
@@ -27,8 +27,8 @@ where
     /// Padding duplicator.
     filler: fn(&T) -> T,
 
-    /// None padding elements.
-    map: BTreeMap<usize, T>,
+    /// None padding elements map.
+    pub(crate) map: BTreeMap<usize, T>,
 }
 
 impl<T> SparseVec<T>
@@ -93,7 +93,7 @@ where
 
     /// Returns an iterator.
     pub fn iter(&self) -> Iter<'_, T> {
-        Iter::new(self.len, self.padding(), self.map.iter())
+        Iter::new(self.len, self.padding(), self.map.range(..))
     }
 
     /// Resutns none padding elements reader.
@@ -139,95 +139,32 @@ where
     }
 }
 
-/// Methods implementation like [slice].
-impl<T> SparseVec<T>
-where
-    T: PartialEq,
-{
-    /// Copies `self` into a new [`Vec`].
-    pub fn to_vec(&self) -> Vec<T>
-    where
-        T: Clone,
-    {
-        Vec::from_iter(self.iter().cloned())
-    }
-
-    /// Converts `self` into a vector without clones or allocation.
-    pub fn into_vec(self) -> Vec<T> {
-        Vec::from_iter(self.into_iter())
-    }
-
-    /// Fills `self` with elements by cloning `value`.
-    pub fn fill(&mut self, value: T)
-    where 
-        T: Clone,
-    {
-        self.map.clear();
-        
-        if value.clone() == self.padding {
-            return;
-        }
-
-        for i in 0..self.len {
-            let value = value.clone();
-            if value != self.padding {
-                self.map.insert(i, value);
-            }
-        }
-    }
-
-    /// Fills `self` with elements returned by calling a closure repeatedly.
-    pub fn fill_with<F>(&mut self, mut f: F)
-    where
-        F: FnMut() -> T,
-    {
-        self.map.clear();
-
-        for i in 0..self.len {
-            let value = f();
-            if value != self.padding {
-                self.map.insert(i, f());
-            }
-        }
-    }
-
-    /// Swaps two elements.
-    ///
-    /// # Panics
-    ///
-    /// Panics if `a` or `b` are out of bounds.
-    pub fn swap(&mut self, a: usize, b: usize) {
-        assert!(a < self.len());
-        assert!(b < self.len());
-
-        if a == b {
-            return;
-        }
-
-        let a_val = self.map.remove(&a);
-        let b_val = self.map.remove(&b);
-        match (a_val, b_val) {
-            (None, None) => {}
-            (None, Some(b_val)) => {
-                self.map.insert(a, b_val);
-            }
-            (Some(a_val), None) => {
-                self.map.insert(b, a_val);
-            }
-            (Some(a_val), Some(b_val)) => {
-                self.map.insert(a, b_val);
-                self.map.insert(b, a_val);
-            }
-        }
-    }
-}
-
 impl<T> Default for SparseVec<T>
 where
     T: PartialEq + Default,
 {
     fn default() -> Self {
         Self::new(0)
+    }
+}
+
+impl<T> Deref for SparseVec<T>
+where
+    T: PartialEq,
+{
+    type Target = SparseVecAll<T>;
+
+    fn deref(&self) -> &Self::Target {
+        SparseVecAll::from_ref(self)
+    }
+}
+
+impl<T> DerefMut for SparseVec<T>
+where
+    T: PartialEq,
+{
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        SparseVecAll::from_mut(self)
     }
 }
 
@@ -266,7 +203,7 @@ where
 }
 
 impl<T, const N: usize> From<[T; N]> for SparseVec<T>
-where 
+where
     T: PartialEq + Default,
 {
     fn from(value: [T; N]) -> Self {
@@ -275,7 +212,7 @@ where
 }
 
 impl<T> From<Vec<T>> for SparseVec<T>
-where 
+where
     T: PartialEq + Default,
 {
     fn from(value: Vec<T>) -> Self {
@@ -284,11 +221,11 @@ where
 }
 
 impl<T> FromIterator<T> for SparseVec<T>
-where 
+where
     T: PartialEq + Default,
 {
     fn from_iter<I>(iter: I) -> Self
-    where 
+    where
         I: IntoIterator<Item = T>,
     {
         let mut ret = SparseVec::default();
@@ -311,7 +248,7 @@ where
 
     fn index(&self, index: usize) -> &Self::Output {
         assert!(index < self.len);
-        self.map.get(&index).unwrap_or(&self.padding)
+        self.deref().index(index)
     }
 }
 
@@ -335,7 +272,7 @@ where
     type IntoIter = Iter<'a, T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        Iter::new(self.len, &self.padding, self.map.iter())
+        Iter::new(self.len, &self.padding, self.map.range(..))
     }
 }
 
@@ -361,7 +298,7 @@ where
         let len = self.len;
         let s_padding = &self.padding;
         let o_padding = &other.padding;
-        
+
         // Prepare loop variables.
         let mut index = 0;
         let mut s_reader = self.sparse_reader();
@@ -396,7 +333,7 @@ where
                 false => return false,
             }
         }
-        
+
         true
     }
 }
@@ -456,6 +393,6 @@ where
     T: PartialEq,
 {
     fn from(value: SparseVec<T>) -> Self {
-        value.into_vec()
+        Vec::from_iter(value)
     }
 }
