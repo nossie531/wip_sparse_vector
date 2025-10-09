@@ -1,4 +1,4 @@
-use sparse_vec::Iter;
+use sparse_vector::Iter;
 
 #[test]
 fn default() {

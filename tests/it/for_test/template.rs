@@ -2,7 +2,7 @@ use crate::for_test::stepper::Stepper;
 use rand::seq::index::sample as rand_sample;
 use rand::{Rng, SeedableRng};
 use rand_pcg::Pcg32;
-use sparse_vec::SparseVec;
+use sparse_vector::prelude::*;
 use std::collections::BTreeSet;
 use std::ops::RangeInclusive;
 

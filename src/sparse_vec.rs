@@ -1,9 +1,8 @@
-use crate::iter::{IntoIter, Iter, SparseReader, SparseWriter};
-use crate::values::ValueEditor;
-use crate::{ElmReader, SparseVecAll, util};
+use crate::iter::{IntoIter, Iter};
+use crate::{util, SparseVecPart, SparseVecPartMut, SparseVecView};
 use pstd::collections::btree_map::BTreeMap;
 use std::cmp::Ordering;
-use std::ops::{Bound, Deref, DerefMut, Index};
+use std::ops::{Deref, DerefMut, Index, RangeBounds};
 
 /// Sparse vector.
 ///
@@ -19,13 +18,13 @@ where
     T: PartialEq,
 {
     /// Vector length.
-    len: usize,
+    pub(crate) len: usize,
 
     /// Padding value.
-    padding: T,
+    pub(crate) padding: T,
 
     /// Padding duplicator.
-    filler: fn(&T) -> T,
+    pub(crate) filler: fn(&T) -> T,
 
     /// None padding elements map.
     pub(crate) map: BTreeMap<usize, T>,
@@ -91,27 +90,22 @@ where
         &self.padding
     }
 
-    /// Returns an iterator.
-    pub fn iter(&self) -> Iter<'_, T> {
-        Iter::new(self.len, self.padding(), self.map.range(..))
-    }
-
-    /// Resutns none padding elements reader.
-    pub fn sparse_reader(&self) -> SparseReader<'_, T> {
-        SparseReader::new(self.map.iter())
-    }
-
-    /// Returns value editor.
-    ///
-    /// # Panics
-    ///
-    /// Panics if `index` is not less than vector length.
     #[must_use]
-    pub fn edit(&mut self, index: usize) -> ValueEditor<'_, T> {
-        assert!(index < self.len());
-        let padding = &self.padding;
-        let entry = self.map.entry(index);
-        ValueEditor::new(padding, entry)
+    pub fn slice<R>(&self, range: R) -> SparseVecPart<'_, T>
+    where 
+        R: RangeBounds<usize>
+    {
+        let range = util::to_index_range(range, self.len);
+        SparseVecPart::new(self, range)
+    }
+
+    #[must_use]
+    pub fn slice_mut<R>(&mut self, range: R) -> SparseVecPartMut<'_, T>
+    where 
+        R: RangeBounds<usize>
+    {
+        let range = util::to_index_range(range, self.len);
+        SparseVecPartMut::new(self, range)
     }
 
     /// Sets vector length.
@@ -130,13 +124,6 @@ where
             let _ = last.remove();
         }
     }
-
-    /// Resutns none padding elements writer.
-    pub fn sparse_writer(&mut self) -> SparseWriter<'_, T> {
-        let padding = &self.padding;
-        let cursor = self.map.lower_bound_mut(Bound::Unbounded);
-        SparseWriter::new(padding, cursor)
-    }
 }
 
 impl<T> Default for SparseVec<T>
@@ -152,10 +139,10 @@ impl<T> Deref for SparseVec<T>
 where
     T: PartialEq,
 {
-    type Target = SparseVecAll<T>;
+    type Target = SparseVecView<T>;
 
     fn deref(&self) -> &Self::Target {
-        SparseVecAll::from_ref(self)
+        SparseVecView::from_ref(self)
     }
 }
 
@@ -164,7 +151,7 @@ where
     T: PartialEq,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        SparseVecAll::from_mut(self)
+        SparseVecView::from_mut(self)
     }
 }
 
@@ -272,7 +259,7 @@ where
     type IntoIter = Iter<'a, T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        Iter::new(self.len, &self.padding, self.map.range(..))
+        self.deref().into_iter()
     }
 }
 
@@ -281,7 +268,7 @@ where
     T: Ord,
 {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap()
+        self.deref().cmp(other.deref())
     }
 }
 
@@ -290,51 +277,7 @@ where
     T: PartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
-        if self.len != other.len {
-            return false;
-        }
-
-        // Prepare common values.
-        let len = self.len;
-        let s_padding = &self.padding;
-        let o_padding = &other.padding;
-
-        // Prepare loop variables.
-        let mut index = 0;
-        let mut s_reader = self.sparse_reader();
-        let mut o_reader = other.sparse_reader();
-        let mut s_memo = None as Option<ElmReader<'_, T>>;
-        let mut o_memo = None as Option<ElmReader<'_, T>>;
-
-        // Loop shared part.
-        while index < len {
-            // Update memos for index.
-            let s_fresh = s_memo.as_ref().is_some_and(|x| index < x.index());
-            let o_fresh = o_memo.as_ref().is_some_and(|x| index < x.index());
-            s_memo = if s_fresh { s_memo } else { s_reader.next() };
-            o_memo = if o_fresh { o_memo } else { o_reader.next() };
-
-            // Update indexs.
-            let s_index = s_memo.as_ref().map(|x| x.index()).unwrap_or(len);
-            let o_index = o_memo.as_ref().map(|x| x.index()).unwrap_or(len);
-            let n_index = usize::min(s_index, o_index);
-            let s_hit = n_index == s_index;
-            let o_hit = n_index == o_index;
-
-            // Update values.
-            let s_value = s_memo.as_ref().map(|x| x.value()).unwrap_or(&self.padding);
-            let o_value = o_memo.as_ref().map(|x| x.value()).unwrap_or(&self.padding);
-            let s_value = if s_hit { s_value } else { s_padding };
-            let o_value = if o_hit { o_value } else { o_padding };
-
-            // Compare values.
-            match PartialEq::eq(s_value, o_value) {
-                true => index = n_index + 1,
-                false => return false,
-            }
-        }
-
-        true
+        self.deref().eq(other.deref())
     }
 }
 
@@ -343,48 +286,7 @@ where
     T: PartialOrd,
 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        // Prepare common values.
-        let len = usize::min(self.len, other.len);
-        let cmp_len = PartialOrd::partial_cmp(&self.len, &other.len);
-        let s_padding = &self.padding;
-        let o_padding = &other.padding;
-
-        // Prepare loop variables.
-        let mut index = 0;
-        let mut s_reader = self.sparse_reader();
-        let mut o_reader = other.sparse_reader();
-        let mut s_memo = None as Option<ElmReader<'_, T>>;
-        let mut o_memo = None as Option<ElmReader<'_, T>>;
-
-        // Loop shared part.
-        while index < len {
-            // Update memos for index.
-            let s_fresh = s_memo.as_ref().is_some_and(|x| index < x.index());
-            let o_fresh = o_memo.as_ref().is_some_and(|x| index < x.index());
-            s_memo = if s_fresh { s_memo } else { s_reader.next() };
-            o_memo = if o_fresh { o_memo } else { o_reader.next() };
-
-            // Update indexs.
-            let s_index = s_memo.as_ref().map(|x| x.index()).unwrap_or(len);
-            let o_index = o_memo.as_ref().map(|x| x.index()).unwrap_or(len);
-            let n_index = usize::min(s_index, o_index);
-            let s_hit = n_index == s_index;
-            let o_hit = n_index == o_index;
-
-            // Update values.
-            let s_value = s_memo.as_ref().map(|x| x.value()).unwrap_or(&self.padding);
-            let o_value = o_memo.as_ref().map(|x| x.value()).unwrap_or(&self.padding);
-            let s_value = if s_hit { s_value } else { s_padding };
-            let o_value = if o_hit { o_value } else { o_padding };
-
-            // Compare values.
-            match PartialOrd::partial_cmp(s_value, o_value) {
-                Some(Ordering::Equal) => index = n_index + 1,
-                x => return x,
-            }
-        }
-
-        cmp_len
+        self.deref().partial_cmp(other.deref())
     }
 }
 

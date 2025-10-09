@@ -1,5 +1,5 @@
 use crate::for_test::template as tt;
-use sparse_vec::prelude::*;
+use sparse_vector::prelude::*;
 use std::iter::{self, repeat_with};
 
 const RANDOM_TEST_SIZE: usize = 64;

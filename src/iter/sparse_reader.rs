@@ -1,27 +1,27 @@
 use crate::msg;
 use crate::values::ElmReader;
 use only_one::One;
-use pstd::collections::btree_map::Iter;
+use pstd::collections::btree_map::Range;
 use std::iter::FusedIterator;
 
 #[derive(Debug)]
 #[must_use = msg::iter_must_use!()]
 pub struct SparseReader<'a, T> {
-    iter: One<Iter<'a, usize, T>>,
+    iter: One<Range<'a, usize, T>>,
 }
 
 impl<'a, T> SparseReader<'a, T> {
-    pub(crate) fn new(iter: Iter<'a, usize, T>) -> Self {
+    pub(crate) fn new(iter: Range<'a, usize, T>) -> Self {
         Self {
             iter: One::new(iter),
         }
     }
 
-    fn iter(&self) -> &Iter<'a, usize, T> {
+    fn iter(&self) -> &Range<'a, usize, T> {
         &self.iter
     }
 
-    fn iter_mut(&mut self) -> &mut Iter<'a, usize, T> {
+    fn iter_mut(&mut self) -> &mut Range<'a, usize, T> {
         &mut self.iter
     }
 }

@@ -1,5 +1,5 @@
 use crate::for_test::template as ts;
-use sparse_vec::IntoIter;
+use sparse_vector::IntoIter;
 
 #[test]
 fn default() {

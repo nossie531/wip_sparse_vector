@@ -3,7 +3,7 @@ use core::f32;
 use crate::for_test::helper as th;
 use crate::for_test::sample as ts;
 use crate::for_test::template as tt;
-use sparse_vec::prelude::*;
+use sparse_vector::prelude::*;
 use test_panic::prelude::*;
 
 #[test]
@@ -564,7 +564,8 @@ fn partial_cmp() {
         // Arrange.
         let x = &ts::normal_floats();
         let y = &mut ts::normal_floats();
-        *y.edit(y.len() / 2) = f32::NAN;
+        let index = y.len() / 2;
+        *y.edit(index) = f32::NAN;
 
         // Act.
         let result_xy = PartialOrd::partial_cmp(x, y);

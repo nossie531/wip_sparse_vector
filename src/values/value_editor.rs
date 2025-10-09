@@ -2,16 +2,19 @@ use crate::util;
 use only_one::prelude::*;
 use pstd::collections::btree_map::Entry;
 use std::fmt::{Debug, Formatter, Result as FmtResult};
+use std::mem;
 use std::ops::{Deref, DerefMut};
 
 /// Editor on sparse vector value.
+#[must_use]
 pub struct ValueEditor<'a, T>
 where
     T: PartialEq,
 {
     padding: &'a T,
-    entry: One<Entry<'a, usize, T>>,
+    filler: fn(&T) -> T,
     new_value: Option<T>,
+    entry: One<Entry<'a, usize, T>>,
 }
 
 impl<'a, T> ValueEditor<'a, T>
@@ -23,11 +26,12 @@ where
         self
     }
 
-    pub(crate) fn new(padding: &'a T, entry: Entry<'a, usize, T>) -> Self {
+    pub(crate) fn new(padding: &'a T, filler: fn(&T) -> T, entry: Entry<'a, usize, T>) -> Self {
         Self {
-            padding: padding,
-            entry: One::new(entry),
+            padding,
+            filler,
             new_value: None,
+            entry: One::new(entry),
         }
     }
 }
@@ -51,17 +55,16 @@ where
 
 impl<'a, T> DerefMut for ValueEditor<'a, T>
 where
-    T: Clone + PartialEq,
+    T: PartialEq,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         if self.new_value.is_none() {
-            self.new_value = Some(
-                match &*self.entry {
-                    Entry::Vacant(_) => self.padding,
-                    Entry::Occupied(x) => x.get(),
-                }
-                .clone(),
-            );
+            let padding = (self.filler)(self.padding);
+            let value = match &mut *self.entry {
+                Entry::Vacant(_) => padding,
+                Entry::Occupied(x) => mem::replace(x.get_mut(), padding),
+            };
+            self.new_value = Some(value);
         }
 
         self.new_value.as_mut().unwrap()

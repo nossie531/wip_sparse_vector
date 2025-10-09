@@ -1,4 +1,5 @@
 use crate::msg;
+use crate::prelude::*;
 use only_one::One;
 use pstd::collections::btree_map::Range as MapRange;
 use std::iter::FusedIterator;
@@ -21,11 +22,11 @@ impl<'a, T> Iter<'a, T>
 where
     T: PartialEq,
 {
-    pub(crate) fn new(len: usize, padding: &'a T, iter: MapRange<'a, usize, T>) -> Self {
+    pub(crate) fn new(vec: &'a SparseVec<T>, range: Range<usize>) -> Self {
         Self {
-            padding: One::new(padding),
-            iter: One::new(iter),
-            range: 0..len,
+            padding: One::new(&vec.padding),
+            iter: One::new(vec.map.range(range.clone())),
+            range,
             head_memo: None,
             tail_memo: None,
         }
