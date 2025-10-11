@@ -112,7 +112,13 @@ where
     }
 
     /// Returns a slice of specified range.
-    #[must_use]
+    /// 
+    /// # Panics
+    /// 
+    /// Panics in the following cases.
+    /// 
+    /// - Range start and end is reverse order
+    /// - Range end is greater than this vector length
     pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
     where 
         R: RangeBounds<usize>
@@ -139,7 +145,13 @@ where
     }
 
     /// Returns a mutable slice of specified range.
-    #[must_use]
+    /// 
+    /// # Panics
+    /// 
+    /// Panics in the following cases.
+    /// 
+    /// - Range start and end is reverse order
+    /// - Range end is greater than this vector length
     pub fn slice_mut<R>(&mut self, range: R) -> SparseSliceMut<'_, T>
     where 
         R: RangeBounds<usize>
@@ -160,9 +172,9 @@ where
     /// # Panics
     /// 
     /// Panics if `index` is not less than vector length.    
-    pub fn take(&mut self, index: usize) -> Option<T> {
+    pub fn take(&mut self, index: usize) -> T {
         assert!(index < self.len);
-        self.map.remove(&index)
+        self.slice_mut(..).take(index)
     }
 
     /// Returns a value editor.

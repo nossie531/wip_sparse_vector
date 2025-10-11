@@ -6,6 +6,7 @@ use crate::values::ValueEditor;
 use crate::iter::{Iter, SparseReader, SparseWriter};
 
 #[repr(C)]
+#[must_use]
 #[derive(Debug, Eq, Hash)]
 pub struct SparseSliceMut<'a, T>
 where
@@ -72,9 +73,10 @@ where
     /// # Panics
     /// 
     /// Panics if `index` is not less than vector length.
-    pub fn take(&mut self, index: usize) -> Option<T> {
+    pub fn take(&mut self, index: usize) -> T {
         assert!(index + self.range.start < self.vec.len);
-        self.vec.map.remove(&(index + self.range.start))
+        let removed = self.vec.map.remove(&(index + self.range.start));
+        removed.unwrap_or((self.vec.filler)(&self.vec.padding))
     }
 
     /// Returns value editor.
@@ -124,17 +126,19 @@ where
 
         let xv = self.take(x);
         let yv = self.take(y);
-        match (xv, yv) {
-            (None, None) => {},
-            (None, Some(bv)) => {
-                *self.edit(x) = bv;
+        let x_is_padding = xv == self.vec.padding;
+        let y_is_padding = yv == self.vec.padding;
+        match (x_is_padding, y_is_padding) {
+            (true, true) => {},
+            (true, false) => {
+                *self.edit(x) = yv;
             },
-            (Some(av), None) => {
-                *self.edit(y) = av;
+            (false, true) => {
+                *self.edit(y) = xv;
             },
-            (Some(av), Some(bv)) => {
-                *self.edit(x) = bv;
-                *self.edit(y) = av;
+            (false, false) => {
+                *self.edit(x) = yv;
+                *self.edit(y) = xv;
             },
         }
     }

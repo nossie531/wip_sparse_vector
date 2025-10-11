@@ -1,4 +1,5 @@
 use core::f32;
+use std::ops::Bound;
 
 use crate::for_test::helper as th;
 use crate::for_test::sample as ts;
@@ -119,15 +120,57 @@ fn sparse_reader() {
 
 #[test]
 fn to_vec() {
-    // Arrange.
     let template = tt::template();
     let target = template.build();
-
-    // Act.
     let result = target.to_vec();
-
-    // Assert.
     assert_eq!(result, template.sample_vec());
+}
+
+#[test]
+fn slice() {
+    with_range_order_rev();
+    with_range_end_gt_len();
+    with_empty();
+    with_all();
+    with_normal();
+
+    fn with_range_order_rev() {
+        let target = ts::normal();
+        let start = Bound::Excluded(target.len() / 2);
+        let end = Bound::Excluded(target.len() / 2);
+        let result = test_panic(|| target.slice((start, end)));
+        assert!(result.is_panic());
+    }
+
+    fn with_range_end_gt_len() {
+        let target = ts::normal();
+        let start = target.len() / 2;
+        let end = target.len() + 1;
+        let result = test_panic(|| target.slice(start..end));
+        assert!(result.is_panic());
+    }
+
+    fn with_empty() {
+        let target = ts::normal();
+        let index = target.len() / 2;
+        let result = target.slice(index..index);
+        assert_eq!(result.len(), 0);
+    }
+
+    fn with_all() {
+        let target = ts::normal();
+        let result = target.slice(..);
+        assert_eq!(result.len(), target.len());
+    }
+
+    fn with_normal() {
+        let target = ts::normal();
+        let start = target.len() / 3 * 1;
+        let end = target.len() / 3 * 2;
+        let range = start..end;
+        let result = target.slice(range.clone());
+        assert_eq!(result.len(), range.len());
+    }
 }
 
 #[test]
@@ -192,6 +235,53 @@ fn set_len() {
 }
 
 #[test]
+fn slice_mut() {
+    with_range_order_rev();
+    with_range_end_gt_len();
+    with_empty();
+    with_all();
+    with_normal();
+
+    fn with_range_order_rev() {
+        let target = &mut ts::normal();
+        let start = Bound::Excluded(target.len() / 2);
+        let end = Bound::Excluded(target.len() / 2);
+        let result = test_panic(|| target.slice_mut((start, end)));
+        assert!(result.is_panic());
+    }
+
+    fn with_range_end_gt_len() {
+        let target = &mut ts::normal();
+        let start = target.len() / 2;
+        let end = target.len() + 1;
+        let result = test_panic(|| target.slice_mut(start..end));
+        assert!(result.is_panic());
+    }
+
+    fn with_empty() {
+        let target = &mut ts::normal();
+        let index = target.len() / 2;
+        let result = target.slice_mut(index..index);
+        assert_eq!(result.len(), 0);
+    }
+
+    fn with_all() {
+        let target = &mut ts::normal();
+        let result = target.slice_mut(..);
+        assert_eq!(result.len(), target.len());
+    }
+
+    fn with_normal() {
+        let target = &mut ts::normal();
+        let start = target.len() / 3 * 1;
+        let end = target.len() / 3 * 2;
+        let range = start..end;
+        let result = target.slice_mut(range.clone());
+        assert_eq!(result.len(), range.len());
+    }
+}
+
+#[test]
 fn sparse_writer() {
     // Arrange.
     let template = tt::template();
@@ -204,6 +294,57 @@ fn sparse_writer() {
     let lhs = th::vec_from_sparse_writer(result);
     let rhs = template.sample_elms();
     assert_eq!(lhs, rhs);
+}
+
+#[test]
+fn take() {
+    with_out_of_range();
+    with_normal();
+    with_padding();
+    
+    fn with_out_of_range() {
+        // Arrange.
+        let target = &mut ts::normal();
+        let index = target.len();
+
+        // Act.
+        let result = test_panic(|| target.take(index));
+
+        // Assert.
+        assert!(result.is_panic());
+    }
+
+    fn with_normal() {
+        // Arrange.
+        let template = tt::template();
+        let target = &mut template.build();
+        let index = tt::template().sample_value_indexs(1)[0];
+
+        // Act.
+        let result = target.take(index);
+
+        // Assert.
+        assert_eq!(result, template.sample_vec()[index]);
+        assert_eq!(target[index], template.padding());
+        assert_eq!(target.len(), template.len());
+        assert_eq!(target.nnp(), template.nnp() - 1);
+    }
+
+    fn with_padding() {
+        // Arrange.
+        let template = tt::template();
+        let target = &mut template.build();
+        let index = tt::template().sample_padding_indexs(1)[0];
+
+        // Act.
+        let result = target.take(index);
+
+        // Assert.
+        assert_eq!(result, template.padding());
+        assert_eq!(target[index], template.padding());
+        assert_eq!(target.len(), template.len());
+        assert_eq!(target.nnp(), template.nnp());
+    }
 }
 
 #[test]

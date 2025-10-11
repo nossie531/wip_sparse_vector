@@ -6,6 +6,7 @@ use crate::iter::{Iter, SparseReader};
 use crate::values::ElmReader;
 
 #[repr(C)]
+#[must_use]
 #[derive(Debug, Eq, Hash)]
 pub struct SparseSlice<'a, T>
 where
