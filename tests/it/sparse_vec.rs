@@ -118,48 +118,16 @@ fn sparse_reader() {
 }
 
 #[test]
-fn edit() {
-    with_out_of_range();
-    with_normal();
-    with_padding();
+fn to_vec() {
+    // Arrange.
+    let template = tt::template();
+    let target = template.build();
 
-    fn with_out_of_range() {
-        // Arrange.
-        let target = &mut ts::normal();
-        let index = target.len();
+    // Act.
+    let result = target.to_vec();
 
-        // Act.
-        let result = test_panic(|| target.edit(index));
-
-        // Assert.
-        assert!(result.is_panic());
-    }
-
-    fn with_normal() {
-        // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let index = tt::template().sample_value_indexs(1)[0];
-
-        // Act.
-        let result = target.edit(index);
-
-        // Assert.
-        assert_eq!(*result, template.sample_vec()[index]);
-    }
-
-    fn with_padding() {
-        // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let index = tt::template().sample_padding_indexs(1)[0];
-
-        // Act.
-        let result = target.edit(index);
-
-        // Assert.
-        assert_eq!(*result, template.sample_vec()[index]);
-    }
+    // Assert.
+    assert_eq!(result, template.sample_vec());
 }
 
 #[test]
@@ -239,46 +207,48 @@ fn sparse_writer() {
 }
 
 #[test]
-fn to_vec() {
-    // Arrange.
-    let template = tt::template();
-    let target = template.build();
+fn edit() {
+    with_out_of_range();
+    with_normal();
+    with_padding();
 
-    // Act.
-    let result = target.to_vec();
+    fn with_out_of_range() {
+        // Arrange.
+        let target = &mut ts::normal();
+        let index = target.len();
 
-    // Assert.
-    assert_eq!(result, template.sample_vec());
-}
+        // Act.
+        let result = test_panic(|| target.edit(index));
 
-#[test]
-fn fill() {
-    // Arrange.
-    let template = tt::template();
-    let target = &mut template.build();
+        // Assert.
+        assert!(result.is_panic());
+    }
 
-    // Act.
-    target.fill(42);
+    fn with_normal() {
+        // Arrange.
+        let template = tt::template();
+        let target = &mut template.build();
+        let index = tt::template().sample_value_indexs(1)[0];
 
-    // Assert.
-    let rhs = &mut template.sample_vec();
-    rhs.fill(42);
-    assert_eq!(target.to_vec(), *rhs);
-}
+        // Act.
+        let result = target.edit(index);
 
-#[test]
-fn fill_with() {
-    // Arrange.
-    let template = tt::template();
-    let target = &mut template.build();
+        // Assert.
+        assert_eq!(*result, template.sample_vec()[index]);
+    }
 
-    // Act.
-    target.fill_with(|| 42);
+    fn with_padding() {
+        // Arrange.
+        let template = tt::template();
+        let target = &mut template.build();
+        let index = tt::template().sample_padding_indexs(1)[0];
 
-    // Assert.
-    let rhs = &mut template.sample_vec();
-    rhs.fill(42);
-    assert_eq!(target.to_vec(), *rhs);
+        // Act.
+        let result = target.edit(index);
+
+        // Assert.
+        assert_eq!(*result, template.sample_vec()[index]);
+    }
 }
 
 #[test]
@@ -382,6 +352,36 @@ fn swap() {
         rhs.swap(idx_x, idx_y);
         assert_eq!(target.to_vec(), *rhs);
     }
+}
+
+#[test]
+fn fill() {
+    // Arrange.
+    let template = tt::template();
+    let target = &mut template.build();
+
+    // Act.
+    target.fill(42);
+
+    // Assert.
+    let rhs = &mut template.sample_vec();
+    rhs.fill(42);
+    assert_eq!(target.to_vec(), *rhs);
+}
+
+#[test]
+fn fill_with() {
+    // Arrange.
+    let template = tt::template();
+    let target = &mut template.build();
+
+    // Act.
+    target.fill_with(|| 42);
+
+    // Assert.
+    let rhs = &mut template.sample_vec();
+    rhs.fill(42);
+    assert_eq!(target.to_vec(), *rhs);
 }
 
 #[test]

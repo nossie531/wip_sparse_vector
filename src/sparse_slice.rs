@@ -24,7 +24,7 @@ where
         self.len() == 0
     }
 
-    /// Returns splice length.
+    /// Returns slice length.
     pub fn len(&self) -> usize {
         self.range.len()
     }    

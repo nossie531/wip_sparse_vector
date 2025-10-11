@@ -62,23 +62,56 @@ where
         }
     }
 
+    /// Returns `true` if this contains no elements.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    /// Returns `true` if this contains no none padding elements.
     #[must_use]
     pub fn is_all_padding(&self) -> bool {
         self.nnp() == 0
     }
+ 
+    /// Returns the number of elements.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.len
+    }
 
-    /// Returns nnp (the Number of None Padding).
+    /// Returns nnp (the Number of None Padding elements).
     #[must_use]
     pub fn nnp(&self) -> usize {
         self.map.len()
     }
 
-    /// Returns padding value.
+    /// Returns the padding value.
     #[must_use]
     pub fn padding(&self) -> &T {
         &self.padding
     }
 
+    /// Returns an iterator over this vector.
+    pub fn iter(&self) -> Iter<'_, T> {
+        Iter::new(self, 0..self.len)
+    }
+
+    /// Returns none padding elements reader.
+    pub fn sparse_reader(&self) -> SparseReader<'_, T> {
+        SparseReader::new(self.map.range(..))
+    }
+
+    /// Copies `self` into a new [`Vec`].
+    #[must_use]
+    pub fn to_vec(&self) -> Vec<T>
+    where
+        T: Clone,
+    {
+        Vec::from_iter(self.iter().cloned())
+    }
+
+    /// Returns a slice of specified range.
     #[must_use]
     pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
     where 
@@ -105,6 +138,7 @@ where
         }
     }
 
+    /// Returns a mutable slice of specified range.
     #[must_use]
     pub fn slice_mut<R>(&mut self, range: R) -> SparseSliceMut<'_, T>
     where 
@@ -113,47 +147,14 @@ where
         let range = util::to_index_range(range, self.len);
         SparseSliceMut::new(self, range)
     }
-}
 
-/// Shortcut methods to slice.
-impl<T> SparseVec<T>
-where
-    T: PartialEq,
-{
-    #[must_use]
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
+    /// Returns a none padding elements writer.
+    pub fn sparse_writer(&mut self) -> SparseWriter<'_, T> {
+        let padding = &self.padding;
+        let cursor = self.map.lower_bound_mut(Bound::Unbounded);
+        SparseWriter::new(padding, cursor)
     }
 
-    /// Returns the number of elements.
-    #[must_use]
-    pub fn len(&self) -> usize {
-        self.len
-    }
-
-    /// Copies `self` into a new [`Vec`].
-    #[must_use]
-    pub fn to_vec(&self) -> Vec<T>
-    where
-        T: Clone,
-    {
-        Vec::from_iter(self.iter().cloned())
-    }
-
-    pub fn iter(&self) -> Iter<'_, T> {
-        Iter::new(self, 0..self.len)
-    }
-
-    pub fn sparse_reader(&self) -> SparseReader<'_, T> {
-        SparseReader::new(self.map.range(..))
-    }
-}
-
-/// Shortcut methods to mutable slice.
-impl<T> SparseVec<T>
-where
-    T: PartialEq,
-{
     /// Takes the value of index, leaving padding value.
     /// 
     /// # Panics
@@ -164,7 +165,7 @@ where
         self.map.remove(&index)
     }
 
-    /// Returns value editor.
+    /// Returns a value editor.
     ///
     /// # Panics
     ///
@@ -206,13 +207,6 @@ where
             let value = f();
             *self.edit(i) = value;
         }
-    }
-
-    /// Returns none padding elements writer.
-    pub fn sparse_writer(&mut self) -> SparseWriter<'_, T> {
-        let padding = &self.padding;
-        let cursor = self.map.lower_bound_mut(Bound::Unbounded);
-        SparseWriter::new(padding, cursor)
     }
 }
 
