@@ -1,8 +1,8 @@
-pub mod iter;
+pub mod loops;
 pub mod prelude;
 pub mod values;
 
-pub use iter::*;
+pub use loops::*;
 pub use sparse_slice::*;
 pub use sparse_slice_mut::*;
 pub use sparse_vec::*;

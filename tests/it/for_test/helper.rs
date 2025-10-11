@@ -1,4 +1,4 @@
-use sparse_vector::iter::SparseWriter;
+use sparse_vector::loops::SparseWriter;
 
 pub fn vec_from_sparse_writer<'a>(sw: &mut SparseWriter<'a, i32>) -> Vec<(usize, i32)> {
     let mut ret = Vec::new();

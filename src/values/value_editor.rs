@@ -79,9 +79,7 @@ where
         let new_value = self.new_value.take();
         let entry = One::take(&mut self.entry);
         match (new_value, entry) {
-            (None, _) => {
-                return;
-            }
+            (None, _) => {}
             (Some(v), Entry::Vacant(e)) => {
                 if v != *self.padding {
                     e.insert(v);

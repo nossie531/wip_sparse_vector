@@ -19,7 +19,12 @@
 [`pstd`]: https://crates.io/crates/pstd
 [my_pr]: https://github.com/georgebarwood/pstd/pull/2
 
-## TODO
+## TODO 1
+
+PartialEq だけ手動実装して Hash だけ自動実装はおかしい。
+clippy さんに怒られた。
+
+## TODO 2
 
 slice の split 系をまねた関数について。
 

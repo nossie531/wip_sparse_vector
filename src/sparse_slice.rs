@@ -1,4 +1,4 @@
-use crate::iter::{Iter, SparseReader};
+use crate::loops::{Iter, SparseReader};
 use crate::prelude::*;
 use crate::util;
 use crate::values::ElmReader;

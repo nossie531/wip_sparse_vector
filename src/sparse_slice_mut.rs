@@ -1,4 +1,4 @@
-use crate::iter::{Iter, SparseReader, SparseWriter};
+use crate::loops::{Iter, SparseReader, SparseWriter};
 use crate::prelude::*;
 use crate::values::ValueEditor;
 use std::cmp::Ordering;

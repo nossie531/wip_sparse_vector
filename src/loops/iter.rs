@@ -93,7 +93,7 @@ where
         let ret = match (hit_head, hit_tail) {
             (true, _) => self.head_memo.take().unwrap().1,
             (_, true) => self.tail_memo.take().unwrap().1,
-            _ => &*self.padding,
+            _ => *self.padding,
         };
 
         self.range.start += 1;
@@ -128,7 +128,7 @@ where
         let ret = match (hit_tail, hit_head) {
             (true, _) => self.tail_memo.take().unwrap().1,
             (_, true) => self.head_memo.take().unwrap().1,
-            _ => &*self.padding,
+            _ => *self.padding,
         };
 
         self.range.end -= 1;
@@ -149,11 +149,11 @@ where
 {
     fn clone(&self) -> Self {
         Self {
-            padding: self.padding.clone(),
+            padding: self.padding,
             iter: self.iter.clone(),
             range: self.range.clone(),
-            head_memo: self.head_memo.clone(),
-            tail_memo: self.tail_memo.clone(),
+            head_memo: self.head_memo,
+            tail_memo: self.tail_memo,
         }
     }
 }

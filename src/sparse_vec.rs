@@ -1,4 +1,4 @@
-use crate::iter::{IntoIter, Iter};
+use crate::loops::{IntoIter, Iter};
 use crate::{SparseReader, SparseSlice, SparseSliceMut, SparseWriter, ValueEditor, util};
 use pstd::collections::btree_map::BTreeMap;
 use std::cmp::Ordering;
@@ -56,7 +56,7 @@ where
     {
         Self {
             len,
-            padding: padding,
+            padding,
             filler: T::clone,
             map: BTreeMap::new(),
         }
