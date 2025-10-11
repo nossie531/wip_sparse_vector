@@ -1,8 +1,8 @@
 use crate::iter::{IntoIter, Iter};
-use crate::{util, SparseVecPart, SparseVecPartMut, SparseVecView};
+use crate::{util, SparseReader, SparseSlice, SparseSliceMut, SparseWriter, ValueEditor};
 use pstd::collections::btree_map::BTreeMap;
 use std::cmp::Ordering;
-use std::ops::{Deref, DerefMut, Index, RangeBounds};
+use std::ops::{Bound, Index, RangeBounds};
 
 /// Sparse vector.
 ///
@@ -63,19 +63,8 @@ where
     }
 
     #[must_use]
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
-    #[must_use]
     pub fn is_all_padding(&self) -> bool {
         self.nnp() == 0
-    }
-
-    /// Returns the number of elements.
-    #[must_use]
-    pub fn len(&self) -> usize {
-        self.len
     }
 
     /// Returns nnp (the Number of None Padding).
@@ -91,21 +80,12 @@ where
     }
 
     #[must_use]
-    pub fn slice<R>(&self, range: R) -> SparseVecPart<'_, T>
+    pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
     where 
         R: RangeBounds<usize>
     {
         let range = util::to_index_range(range, self.len);
-        SparseVecPart::new(self, range)
-    }
-
-    #[must_use]
-    pub fn slice_mut<R>(&mut self, range: R) -> SparseVecPartMut<'_, T>
-    where 
-        R: RangeBounds<usize>
-    {
-        let range = util::to_index_range(range, self.len);
-        SparseVecPartMut::new(self, range)
+        SparseSlice::new(self, range)
     }
 
     /// Sets vector length.
@@ -124,6 +104,116 @@ where
             let _ = last.remove();
         }
     }
+
+    #[must_use]
+    pub fn slice_mut<R>(&mut self, range: R) -> SparseSliceMut<'_, T>
+    where 
+        R: RangeBounds<usize>
+    {
+        let range = util::to_index_range(range, self.len);
+        SparseSliceMut::new(self, range)
+    }
+}
+
+/// Shortcut methods to slice.
+impl<T> SparseVec<T>
+where
+    T: PartialEq,
+{
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    /// Returns the number of elements.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.len
+    }
+
+    /// Copies `self` into a new [`Vec`].
+    #[must_use]
+    pub fn to_vec(&self) -> Vec<T>
+    where
+        T: Clone,
+    {
+        Vec::from_iter(self.iter().cloned())
+    }
+
+    pub fn iter(&self) -> Iter<'_, T> {
+        Iter::new(self, 0..self.len)
+    }
+
+    pub fn sparse_reader(&self) -> SparseReader<'_, T> {
+        SparseReader::new(self.map.range(..))
+    }
+}
+
+/// Shortcut methods to mutable slice.
+impl<T> SparseVec<T>
+where
+    T: PartialEq,
+{
+    /// Takes the value of index, leaving padding value.
+    /// 
+    /// # Panics
+    /// 
+    /// Panics if `index` is not less than vector length.    
+    pub fn take(&mut self, index: usize) -> Option<T> {
+        assert!(index < self.len);
+        self.map.remove(&index)
+    }
+
+    /// Returns value editor.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `index` is not less than vector length.
+    pub fn edit(&mut self, index: usize) -> ValueEditor<'_, T> {
+        assert!(index < self.len);
+        let padding = &self.padding;
+        let filler = self.filler;
+        let entry = self.map.entry(index);
+        ValueEditor::new(padding, filler, entry)
+    }
+
+    /// Swaps two elements.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `a` or `b` are out of bounds.
+    pub fn swap(&mut self, x: usize, y: usize) {
+        assert!(x < self.len());
+        assert!(y < self.len());
+        let slice = &mut self.slice_mut(..);
+        slice.swap(x, y);
+    }
+
+    /// Fills `self` with elements by cloning `value`.
+    pub fn fill(&mut self, value: T)
+    where
+        T: Clone,
+    {
+        self.fill_with(|| value.clone());
+    }
+
+    /// Fills `self` with elements returned by calling a closure repeatedly.
+    pub fn fill_with<F>(&mut self, mut f: F)
+    where
+        F: FnMut() -> T,
+    {
+        for i in 0..self.len() {
+            let value = f();
+            *self.edit(i) = value;
+        }
+    }
+
+    /// Returns none padding elements writer.
+    pub fn sparse_writer(&mut self) -> SparseWriter<'_, T> {
+        let padding = &self.padding;
+        let cursor = self.map.lower_bound_mut(Bound::Unbounded);
+        SparseWriter::new(padding, cursor)
+    }
 }
 
 impl<T> Default for SparseVec<T>
@@ -132,26 +222,6 @@ where
 {
     fn default() -> Self {
         Self::new(0)
-    }
-}
-
-impl<T> Deref for SparseVec<T>
-where
-    T: PartialEq,
-{
-    type Target = SparseVecView<T>;
-
-    fn deref(&self) -> &Self::Target {
-        SparseVecView::from_ref(self)
-    }
-}
-
-impl<T> DerefMut for SparseVec<T>
-where
-    T: PartialEq,
-{
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        SparseVecView::from_mut(self)
     }
 }
 
@@ -235,7 +305,7 @@ where
 
     fn index(&self, index: usize) -> &Self::Output {
         assert!(index < self.len);
-        self.deref().index(index)
+        self.map.get(&index).unwrap_or(&self.padding)
     }
 }
 
@@ -259,7 +329,7 @@ where
     type IntoIter = Iter<'a, T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.deref().into_iter()
+        self.iter()
     }
 }
 
@@ -268,7 +338,7 @@ where
     T: Ord,
 {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.deref().cmp(other.deref())
+        self.slice(..).cmp(&other.slice(..))
     }
 }
 
@@ -277,7 +347,7 @@ where
     T: PartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
-        self.deref().eq(other.deref())
+        self.slice(..).eq(&other.slice(..))
     }
 }
 
@@ -286,7 +356,7 @@ where
     T: PartialOrd,
 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.deref().partial_cmp(other.deref())
+        self.slice(..).partial_cmp(&other.slice(..))
     }
 }
 

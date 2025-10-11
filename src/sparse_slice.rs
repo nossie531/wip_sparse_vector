@@ -1,12 +1,13 @@
 use std::cmp::Ordering;
 use std::ops::{Index, Range, RangeBounds};
-use crate::{prelude::*, util};
+use crate::prelude::*;
+use crate::util;
 use crate::iter::{Iter, SparseReader};
 use crate::values::ElmReader;
 
 #[repr(C)]
 #[derive(Debug, Eq, Hash)]
-pub struct SparseVecPart<'a, T>
+pub struct SparseSlice<'a, T>
 where
     T: PartialEq,
 {
@@ -14,25 +15,40 @@ where
     range: Range<usize>,
 }
 
-impl<'a, T> SparseVecPart<'a, T>
+impl<'a, T> SparseSlice<'a, T>
 where
     T: PartialEq,
 {
-    pub(crate) fn new(vec: &'a SparseVec<T>, range: Range<usize>) -> Self {
-        assert!(range.end <= vec.len);
-        Self { vec, range }
+    /// Returns `true` if slice is empty.
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
-}
 
-impl<'a, T> SparseSlice<T> for SparseVecPart<'a, T>
-where
-    T: PartialEq,
-{
-    fn len(&self) -> usize {
+    /// Returns splice length.
+    pub fn len(&self) -> usize {
         self.range.len()
+    }    
+
+    /// Returns an iterator.
+    pub fn iter(&self) -> crate::Iter<'_, T> {
+        Iter::new(self.vec, self.range.clone())
     }
 
-    fn slice<R>(&self, range: R) -> SparseVecPart<'_, T>
+    /// Returns none padding elements reader.
+    pub fn sparse_reader(&self) -> crate::SparseReader<'_, T> {
+        SparseReader::new(self.vec.map.range(self.range.clone()))
+    }
+
+    /// Copies `self` into a new [`Vec`].
+    pub fn to_vec(&self) -> Vec<T>
+    where
+        T: Clone,
+    {
+        Vec::from_iter(self.iter().cloned())
+    }
+
+    /// Slice this slice.
+    pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
     where 
         R: RangeBounds<usize>,
     {
@@ -44,16 +60,13 @@ where
         }
     }
 
-    fn iter(&self) -> crate::Iter<'_, T> {
-        Iter::new(self.vec, self.range.clone())
-    }
-
-    fn sparse_reader(&self) -> crate::SparseReader<'_, T> {
-        SparseReader::new(self.vec.map.range(self.range.clone()))
+    pub(crate) fn new(vec: &'a SparseVec<T>, range: Range<usize>) -> Self {
+        assert!(range.end <= vec.len);
+        Self { vec, range }
     }
 }
 
-impl<'a, T> Index<usize> for SparseVecPart<'a, T>
+impl<'a, T> Index<usize> for SparseSlice<'a, T>
 where 
     T: PartialEq,
 {
@@ -66,7 +79,7 @@ where
     }
 }
 
-impl<'a, T> IntoIterator for &'a SparseVecPart<'a, T>
+impl<'a, T> IntoIterator for &'a SparseSlice<'a, T>
 where 
     T: PartialEq,
 {
@@ -78,7 +91,7 @@ where
     }
 }
 
-impl<'a, T> Ord for SparseVecPart<'a, T>
+impl<'a, T> Ord for SparseSlice<'a, T>
 where
     T: Ord,
 {
@@ -87,7 +100,7 @@ where
     }
 }
 
-impl<'a, T> PartialEq for SparseVecPart<'a, T>
+impl<'a, T> PartialEq for SparseSlice<'a, T>
 where
     T: PartialEq,
 {
@@ -145,7 +158,7 @@ where
     }
 }
 
-impl<'a, T> PartialOrd for SparseVecPart<'a, T>
+impl<'a, T> PartialOrd for SparseSlice<'a, T>
 where
     T: PartialOrd,
 {
