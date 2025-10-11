@@ -142,8 +142,8 @@ where
             let o_hit = c_i == o_i;
 
             // Update values.
-            let s_value = s_memo.as_ref().map(|x| x.value()).unwrap_or(&self.vec.padding);
-            let o_value = o_memo.as_ref().map(|x| x.value()).unwrap_or(&self.vec.padding);
+            let s_value = s_memo.as_ref().map(|x| x.value()).unwrap_or(s_padding);
+            let o_value = o_memo.as_ref().map(|x| x.value()).unwrap_or(o_padding);
             let s_value = if s_hit { s_value } else { s_padding };
             let o_value = if o_hit { o_value } else { o_padding };
 
@@ -199,8 +199,8 @@ where
             let o_hit = c_i == o_i;
 
             // Update values.
-            let s_value = s_memo.as_ref().map(|x| x.value()).unwrap_or(&self.vec.padding);
-            let o_value = o_memo.as_ref().map(|x| x.value()).unwrap_or(&self.vec.padding);
+            let s_value = s_memo.as_ref().map(|x| x.value()).unwrap_or(s_padding);
+            let o_value = o_memo.as_ref().map(|x| x.value()).unwrap_or(o_padding);
             let s_value = if s_hit { s_value } else { s_padding };
             let o_value = if o_hit { o_value } else { o_padding };
 
