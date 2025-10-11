@@ -1,9 +1,9 @@
+use crate::iter::{Iter, SparseReader, SparseWriter};
+use crate::prelude::*;
+use crate::values::ValueEditor;
 use std::cmp::Ordering;
 use std::mem;
 use std::ops::{Bound, Index, Range, RangeBounds};
-use crate::prelude::*;
-use crate::values::ValueEditor;
-use crate::iter::{Iter, SparseReader, SparseWriter};
 
 #[repr(C)]
 #[must_use]
@@ -55,8 +55,8 @@ where
 
     /// Slice this slice.
     pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
-    where 
-        R: RangeBounds<usize>
+    where
+        R: RangeBounds<usize>,
     {
         self.slice_ref().slice(range)
     }
@@ -64,14 +64,17 @@ where
     /// Returns none padding elements writer.
     pub fn sparse_writer(&mut self) -> SparseWriter<'_, T> {
         let padding = &self.vec.padding;
-        let cursor = self.vec.map.lower_bound_mut(Bound::Included(&self.range.start));
+        let cursor = self
+            .vec
+            .map
+            .lower_bound_mut(Bound::Included(&self.range.start));
         SparseWriter::new(padding, cursor)
     }
 
     /// Takes the value of index, leaving padding value.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// Panics if `index` is not less than vector length.
     pub fn take(&mut self, index: usize) -> T {
         assert!(index + self.range.start < self.vec.len);
@@ -129,17 +132,17 @@ where
         let x_is_padding = xv == self.vec.padding;
         let y_is_padding = yv == self.vec.padding;
         match (x_is_padding, y_is_padding) {
-            (true, true) => {},
+            (true, true) => {}
             (true, false) => {
                 *self.edit(x) = yv;
-            },
+            }
             (false, true) => {
                 *self.edit(y) = xv;
-            },
+            }
             (false, false) => {
                 *self.edit(x) = yv;
                 *self.edit(y) = xv;
-            },
+            }
         }
     }
 
@@ -151,7 +154,7 @@ where
 }
 
 impl<'a, T> Index<usize> for SparseSliceMut<'a, T>
-where 
+where
     T: PartialEq,
 {
     type Output = T;
@@ -163,7 +166,7 @@ where
 }
 
 impl<'a, T> IntoIterator for &'a SparseSliceMut<'a, T>
-where 
+where
     T: PartialEq,
 {
     type Item = &'a T;

@@ -29,11 +29,11 @@ pub fn default_like_clone<T: Default>(_x: &T) -> T {
 }
 
 /// Normalize range for index.
-/// 
+///
 /// # Panics
-/// 
+///
 /// Panics in the following cases.
-/// 
+///
 /// - Range start and end is reverse order
 /// - Range end is greater than this vector length
 #[track_caller]
@@ -59,4 +59,3 @@ pub fn to_index_range<R: RangeBounds<usize>>(range: R, len: usize) -> Range<usiz
 
     s..e
 }
-

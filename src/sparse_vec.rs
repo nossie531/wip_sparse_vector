@@ -1,5 +1,5 @@
 use crate::iter::{IntoIter, Iter};
-use crate::{util, SparseReader, SparseSlice, SparseSliceMut, SparseWriter, ValueEditor};
+use crate::{SparseReader, SparseSlice, SparseSliceMut, SparseWriter, ValueEditor, util};
 use pstd::collections::btree_map::BTreeMap;
 use std::cmp::Ordering;
 use std::ops::{Bound, Index, RangeBounds};
@@ -73,7 +73,7 @@ where
     pub fn is_all_padding(&self) -> bool {
         self.nnp() == 0
     }
- 
+
     /// Returns the number of elements.
     #[must_use]
     pub fn len(&self) -> usize {
@@ -112,16 +112,16 @@ where
     }
 
     /// Returns a slice of specified range.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// Panics in the following cases.
-    /// 
+    ///
     /// - Range start and end is reverse order
     /// - Range end is greater than this vector length
     pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
-    where 
-        R: RangeBounds<usize>
+    where
+        R: RangeBounds<usize>,
     {
         let range = util::to_index_range(range, self.len);
         SparseSlice::new(self, range)
@@ -145,16 +145,16 @@ where
     }
 
     /// Returns a mutable slice of specified range.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// Panics in the following cases.
-    /// 
+    ///
     /// - Range start and end is reverse order
     /// - Range end is greater than this vector length
     pub fn slice_mut<R>(&mut self, range: R) -> SparseSliceMut<'_, T>
-    where 
-        R: RangeBounds<usize>
+    where
+        R: RangeBounds<usize>,
     {
         let range = util::to_index_range(range, self.len);
         SparseSliceMut::new(self, range)
@@ -168,9 +168,9 @@ where
     }
 
     /// Takes the value of index, leaving padding value.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// Panics if `index` is not less than vector length.    
     pub fn take(&mut self, index: usize) -> T {
         assert!(index < self.len);

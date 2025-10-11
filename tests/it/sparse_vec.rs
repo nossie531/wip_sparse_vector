@@ -301,7 +301,7 @@ fn take() {
     with_out_of_range();
     with_normal();
     with_padding();
-    
+
     fn with_out_of_range() {
         // Arrange.
         let target = &mut ts::normal();

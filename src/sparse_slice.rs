@@ -1,9 +1,9 @@
-use std::cmp::Ordering;
-use std::ops::{Index, Range, RangeBounds};
+use crate::iter::{Iter, SparseReader};
 use crate::prelude::*;
 use crate::util;
-use crate::iter::{Iter, SparseReader};
 use crate::values::ElmReader;
+use std::cmp::Ordering;
+use std::ops::{Index, Range, RangeBounds};
 
 #[repr(C)]
 #[must_use]
@@ -28,7 +28,7 @@ where
     /// Returns slice length.
     pub fn len(&self) -> usize {
         self.range.len()
-    }    
+    }
 
     /// Returns an iterator.
     pub fn iter(&self) -> crate::Iter<'_, T> {
@@ -50,14 +50,14 @@ where
 
     /// Slice this slice.
     pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
-    where 
+    where
         R: RangeBounds<usize>,
     {
         let range = util::to_index_range(range, self.range.len());
 
         Self {
             vec: self.vec,
-            range
+            range,
         }
     }
 
@@ -68,7 +68,7 @@ where
 }
 
 impl<'a, T> Index<usize> for SparseSlice<'a, T>
-where 
+where
     T: PartialEq,
 {
     type Output = T;
@@ -81,7 +81,7 @@ where
 }
 
 impl<'a, T> IntoIterator for &'a SparseSlice<'a, T>
-where 
+where
     T: PartialEq,
 {
     type Item = &'a T;
@@ -206,7 +206,7 @@ where
 
             // Compare values.
             match PartialOrd::partial_cmp(s_value, o_value) {
-                Some(Ordering::Equal) => {},
+                Some(Ordering::Equal) => {}
                 x => return x,
             }
 
