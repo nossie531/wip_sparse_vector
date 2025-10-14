@@ -2,12 +2,13 @@ use crate::loops::{Iter, SparseReader, SparseWriter};
 use crate::prelude::*;
 use crate::values::ValueEditor;
 use std::cmp::Ordering;
+use std::hash::{Hash, Hasher};
 use std::mem;
 use std::ops::{Bound, Index, Range, RangeBounds};
 
 #[repr(C)]
 #[must_use]
-#[derive(Debug, Eq, Hash)]
+#[derive(Debug, Eq)]
 pub struct SparseSliceMut<'a, T>
 where
     T: PartialEq,
@@ -150,6 +151,15 @@ where
     pub(crate) fn new(vec: &'a mut SparseVec<T>, range: Range<usize>) -> Self {
         assert!(range.end <= vec.len);
         Self { vec, range }
+    }
+}
+
+impl<'a, T> Hash for SparseSliceMut<'a, T>
+where
+    T: PartialEq + Hash,
+{
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.slice_ref().hash(state);
     }
 }
 

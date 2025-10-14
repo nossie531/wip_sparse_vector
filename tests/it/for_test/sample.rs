@@ -12,6 +12,10 @@ pub fn normal() -> SparseVec<i32> {
     tt::template().build()
 }
 
+pub fn single() -> SparseVec<i32> {
+    tt::template().set_len(1).set_nnp(1).build()
+}
+
 pub fn normal_floats() -> SparseVec<f32> {
     tt::template().build_floats()
 }
@@ -28,7 +32,9 @@ pub fn random_trivals(seed: u64) -> SparseVec<i32> {
 }
 
 pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
-    const CUSTOMS: [fn() -> [SparseVec<i32>; 2]; 6] = [
+    const CUSTOMS: [fn() -> [SparseVec<i32>; 2]; 8] = [
+        default_vs_default,
+        single_vs_single,
         normal_vs_normal,
         padding_vs_normal,
         value1_vs_value2,
@@ -54,6 +60,14 @@ pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
             ret
         })
         .take(RANDOM_TEST_SIZE)
+    }
+
+    fn default_vs_default() -> [SparseVec<i32>; 2] {
+        [default(), default()]
+    }
+
+    fn single_vs_single() -> [SparseVec<i32>; 2] {
+        [single(), single()]
     }
 
     fn normal_vs_normal() -> [SparseVec<i32>; 2] {

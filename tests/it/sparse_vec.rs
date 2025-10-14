@@ -1,10 +1,8 @@
-use core::f32;
-use std::ops::Bound;
-
 use crate::for_test::helper as th;
 use crate::for_test::sample as ts;
 use crate::for_test::template as tt;
 use sparse_vector::prelude::*;
+use std::ops::Bound;
 use test_panic::prelude::*;
 
 #[test]
@@ -556,6 +554,16 @@ fn from_iter() {
     let iter = vec.iter().cloned();
     let result = SparseVec::from_iter(iter);
     assert!(result.iter().eq(vec.iter()));
+}
+
+#[test]
+fn hash() {
+    for pair in ts::pairs() {
+        let [x, y] = pair;
+        let result_x = th::hash(&x);
+        let result_y = th::hash(&y);
+        assert!(!x.eq(&y) || result_x == result_y);
+    }
 }
 
 #[test]

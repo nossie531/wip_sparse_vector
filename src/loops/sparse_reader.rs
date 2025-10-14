@@ -7,29 +7,29 @@ use std::iter::FusedIterator;
 #[derive(Debug)]
 #[must_use = msg::iter_must_use!()]
 pub struct SparseReader<'a, T> {
-    iter: One<Range<'a, usize, T>>,
+    range: One<Range<'a, usize, T>>,
 }
 
 impl<'a, T> SparseReader<'a, T> {
-    pub(crate) fn new(iter: Range<'a, usize, T>) -> Self {
+    pub(crate) fn new(range: Range<'a, usize, T>) -> Self {
         Self {
-            iter: One::new(iter),
+            range: One::new(range),
         }
     }
 
     fn iter(&self) -> &Range<'a, usize, T> {
-        &self.iter
+        &self.range
     }
 
     fn iter_mut(&mut self) -> &mut Range<'a, usize, T> {
-        &mut self.iter
+        &mut self.range
     }
 }
 
 impl<T> Default for SparseReader<'_, T> {
     fn default() -> Self {
         Self {
-            iter: One::default(),
+            range: One::default(),
         }
     }
 }
@@ -87,7 +87,7 @@ where
 {
     fn clone(&self) -> Self {
         Self {
-            iter: self.iter.clone(),
+            range: self.range.clone(),
         }
     }
 }

@@ -2,6 +2,7 @@ use crate::loops::{IntoIter, Iter};
 use crate::{SparseReader, SparseSlice, SparseSliceMut, SparseWriter, ValueEditor, util};
 use pstd::collections::btree_map::BTreeMap;
 use std::cmp::Ordering;
+use std::hash::{Hash, Hasher};
 use std::ops::{Bound, Index, RangeBounds};
 
 /// Sparse vector.
@@ -12,7 +13,7 @@ use std::ops::{Bound, Index, RangeBounds};
 /// memory usage and speedy iteration.
 ///
 /// [`padding`]: Self::padding()
-#[derive(Clone, Debug, Eq, Hash)]
+#[derive(Clone, Debug, Eq)]
 pub struct SparseVec<T>
 where
     T: PartialEq,
@@ -303,6 +304,15 @@ where
     }
 }
 
+impl<T> Hash for SparseVec<T>
+where
+    T: PartialEq + Hash,
+{
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.slice(..).hash(state);
+    }
+}
+
 impl<T> Index<usize> for SparseVec<T>
 where
     T: PartialEq,
@@ -323,7 +333,8 @@ where
     type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        IntoIter::new(self.len, self.padding, self.filler, self.map.into_iter())
+        let iter = self.map.into_iter();
+        IntoIter::new(self.len, self.padding, self.filler, iter)
     }
 }
 

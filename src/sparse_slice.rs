@@ -3,11 +3,12 @@ use crate::prelude::*;
 use crate::util;
 use crate::values::ElmReader;
 use std::cmp::Ordering;
+use std::hash::{Hash, Hasher};
 use std::ops::{Index, Range, RangeBounds};
 
 #[repr(C)]
 #[must_use]
-#[derive(Debug, Eq, Hash)]
+#[derive(Debug, Eq)]
 pub struct SparseSlice<'a, T>
 where
     T: PartialEq,
@@ -64,6 +65,50 @@ where
     pub(crate) fn new(vec: &'a SparseVec<T>, range: Range<usize>) -> Self {
         assert!(range.end <= vec.len);
         Self { vec, range }
+    }
+}
+
+impl<'a, T> Hash for SparseSlice<'a, T>
+where
+    T: PartialEq + Hash,
+{
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        let rs = self.range.start;
+        let re = self.range.end;
+        let rl = self.range.len();
+        let padding = &self.vec.padding;
+        let mut last_index = None;
+        let mut last_value = None;
+        let mut value_len = 0usize;
+
+        for elm in self.sparse_reader() {
+            let next_index = last_index.map_or(rs, |x| x + 1);
+            let padding_len = elm.index() - next_index;
+            let value_changed = padding_len > 0 || Some(elm.value()) != last_value;
+
+            if value_changed {
+                if value_len > 0 {
+                    (last_value.unwrap(), value_len).hash(state);
+                }
+                if padding_len > 0 {
+                    (padding, padding_len).hash(state);
+                }
+            }
+
+            last_index = Some(elm.index());
+            last_value = Some(elm.value());
+            value_len = if value_changed { 1 } else { value_len + 1 };
+        }
+
+        let padding_len = last_index.map_or(rl, |x| re - x - 1);
+
+        if value_len > 0 {
+            (last_value.unwrap(), value_len).hash(state);
+        }
+
+        if padding_len > 0 {
+            (padding, padding_len).hash(state);
+        }
     }
 }
 

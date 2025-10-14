@@ -138,6 +138,11 @@ impl Template {
         self
     }
 
+    pub fn set_len(mut self, value: usize) -> Self {
+        self.len = Some(value);
+        self
+    }
+
     pub fn set_nnp(mut self, value: usize) -> Self {
         self.nnp = Some(value);
         self

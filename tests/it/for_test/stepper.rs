@@ -1,3 +1,8 @@
+/// Step size iterator.
+///
+/// This iterator divides the range `0..m` into `n + 1` intervals
+/// that are as equally separated as possible, and then retrieves
+/// the `n` indices marking their boundaries.
 pub struct Stepper {
     m: usize,
     n: usize,
