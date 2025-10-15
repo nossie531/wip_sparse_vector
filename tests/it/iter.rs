@@ -128,6 +128,14 @@ fn next() {
 }
 
 #[test]
+fn size_hint() {
+    let vec = ts::normal();
+    let target = vec.iter();
+    let result = target.size_hint();
+    assert_eq!(result, (vec.len(), Some(vec.len())));
+}
+
+#[test]
 fn next_back() {
     with_empty();
     with_overrun();
