@@ -116,7 +116,7 @@ where
 
         let tail_memo = self.tail_memo.as_ref();
         if tail_memo.is_none() {
-            self.tail_memo = self.iter().next();
+            self.tail_memo = self.iter().next_back();
         }
 
         let tail_pos = self.idx_range.end.checked_sub(1);
