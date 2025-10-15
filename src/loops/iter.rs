@@ -41,6 +41,28 @@ where
     }
 }
 
+/// Restricted implementation.
+///
+/// # TODO for future
+///
+/// Currently [`Iter<'a, K, V>`](Iter) of [`pstd`] implements [`Clone`]
+/// only if `K` and `V` implements [`Clone`]. Therefore our `T`
+/// also requireds [`Clone`].
+impl<T> Clone for Iter<'_, T>
+where
+    T: PartialEq + Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            padding: self.padding,
+            map_range: self.map_range.clone(),
+            idx_range: self.idx_range.clone(),
+            head_memo: self.head_memo,
+            tail_memo: self.tail_memo,
+        }
+    }
+}
+
 impl<T> Default for Iter<'_, T>
 where
     T: PartialEq,
@@ -132,27 +154,5 @@ where
 
         self.idx_range.end -= 1;
         Some(ret)
-    }
-}
-
-/// Restricted implementation.
-///
-/// # TODO for future
-///
-/// Currently [`Iter<'a, K, V>`](Iter) of [`pstd`] implements [`Clone`]
-/// only if `K` and `V` implements [`Clone`]. Therefore our `T`
-/// also requireds [`Clone`].
-impl<T> Clone for Iter<'_, T>
-where
-    T: PartialEq + Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            padding: self.padding,
-            map_range: self.map_range.clone(),
-            idx_range: self.idx_range.clone(),
-            head_memo: self.head_memo,
-            tail_memo: self.tail_memo,
-        }
     }
 }

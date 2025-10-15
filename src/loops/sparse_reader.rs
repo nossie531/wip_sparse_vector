@@ -26,6 +26,24 @@ impl<'a, T> SparseReader<'a, T> {
     }
 }
 
+/// Restricted implementation.
+///
+/// # TODO for future
+///
+/// Currently [`Iter<'a, K, V>`](Iter) of [`pstd`] implements [`Clone`]
+/// only if `K` and `V` implements [`Clone`]. Therefore our `T` also
+/// requireds [`Clone`].
+impl<T> Clone for SparseReader<'_, T>
+where
+    T: PartialEq + Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            range: self.range.clone(),
+        }
+    }
+}
+
 impl<T> Default for SparseReader<'_, T> {
     fn default() -> Self {
         Self {
@@ -71,23 +89,5 @@ where
         self.iter_mut()
             .next_back()
             .map(|x| ElmReader::new(*x.0, x.1))
-    }
-}
-
-/// Restricted implementation.
-///
-/// # TODO for future
-///
-/// Currently [`Iter<'a, K, V>`](Iter) of [`pstd`] implements [`Clone`]
-/// only if `K` and `V` implements [`Clone`]. Therefore our `T` also
-/// requireds [`Clone`].
-impl<T> Clone for SparseReader<'_, T>
-where
-    T: PartialEq + Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            range: self.range.clone(),
-        }
     }
 }

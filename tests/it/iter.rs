@@ -3,6 +3,14 @@ use crate::for_test::template as tt;
 use sparse_vector::Iter;
 
 #[test]
+fn clone() {
+    let vec = ts::normal();
+    let target = vec.iter();
+    let result = target.clone();
+    assert!(result.eq(vec.iter()));
+}
+
+#[test]
 fn default() {
     let result = Iter::<i32>::default();
     assert_eq!(result.size_hint(), (0, Some(0)));
