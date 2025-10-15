@@ -43,13 +43,27 @@ impl Template {
         self.value_range.as_ref().unwrap_or(&VALUE_RANGE).clone()
     }
 
+    pub fn sample_indexs(&self) -> Vec<usize> {
+        let mut ret = Vec::new();
+        let head_index = 0;
+        let tail_index = self.len() - 1;
+        let has_value = self.nnp() > 0;
+        let has_padding = self.len() - self.nnp() > 0;
+        let some_value_indexs = has_value.then(|| self.sample_value_indexs(1)[0]);
+        let some_padding_indexs = has_padding.then(|| self.sample_padding_indexs(1)[0]);
+        ret.extend([head_index, tail_index]);
+        ret.extend(some_value_indexs);
+        ret.extend(some_padding_indexs);
+        ret
+    }
+
     pub fn sample_value_indexs(&self, n: usize) -> Vec<usize> {
         assert!(n < self.nnp());
         let mut ret = Vec::new();
         let indexs = self.sample_values_set();
         let indexs = &mut indexs.iter();
-        let stepper = &mut Stepper::new(self.nnp(), n);
-        for step in stepper {
+        let stepper = Stepper::new(self.nnp(), n);
+        for step in stepper.diff() {
             ret.push(*indexs.nth(step).unwrap());
         }
 
@@ -61,8 +75,8 @@ impl Template {
         let mut ret = Vec::new();
         let indexs = self.sample_padding_set();
         let indexs = &mut indexs.iter();
-        let stepper = &mut Stepper::new(self.len() - self.nnp(), n);
-        for step in stepper {
+        let stepper = Stepper::new(self.len() - self.nnp(), n);
+        for step in stepper.diff() {
             ret.push(*indexs.nth(step).unwrap());
         }
 

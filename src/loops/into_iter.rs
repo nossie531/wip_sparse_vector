@@ -1,5 +1,5 @@
 use crate::util;
-use only_one::One;
+use only_one::prelude::*;
 use pstd::collections::btree_map::{BTreeMap, IntoIter as MapIter};
 use std::fmt::Debug;
 use std::iter::FusedIterator;
@@ -103,8 +103,7 @@ where
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let ret = self.range.end - self.range.start;
-        (ret, Some(ret))
+        (self.range.len(), Some(self.range.len()))
     }
 }
 

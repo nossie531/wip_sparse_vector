@@ -1,6 +1,6 @@
 use crate::msg;
 use crate::values::ElmReader;
-use only_one::One;
+use only_one::prelude::*;
 use pstd::collections::btree_map::Range;
 use std::iter::FusedIterator;
 

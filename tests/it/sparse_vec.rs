@@ -98,7 +98,6 @@ fn iter() {
     let target = template.build();
     let result = target.iter();
     assert!(result.eq(template.sample_vec().iter()));
-    // ✏️ TODO: 全てが既定値のテストとかは…。イテレータ側かなこれは…。
 }
 
 #[test]

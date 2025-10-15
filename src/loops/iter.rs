@@ -1,6 +1,6 @@
 use crate::msg;
 use crate::prelude::*;
-use only_one::One;
+use only_one::prelude::*;
 use pstd::collections::btree_map::Range as MapRange;
 use std::iter::FusedIterator;
 use std::ops::Range;
@@ -12,8 +12,8 @@ where
     T: PartialEq,
 {
     padding: One<&'a T>,
-    iter: One<MapRange<'a, usize, T>>,
-    range: Range<usize>,
+    map_range: One<MapRange<'a, usize, T>>,
+    idx_range: Range<usize>,
     head_memo: Option<(&'a usize, &'a T)>,
     tail_memo: Option<(&'a usize, &'a T)>,
 }
@@ -25,8 +25,8 @@ where
     pub(crate) fn new(vec: &'a SparseVec<T>, range: Range<usize>) -> Self {
         Self {
             padding: One::new(&vec.padding),
-            iter: One::new(vec.map.range(range.clone())),
-            range,
+            map_range: One::new(vec.map.range(range.clone())),
+            idx_range: range,
             head_memo: None,
             tail_memo: None,
         }
@@ -37,7 +37,7 @@ where
     }
 
     fn iter(&mut self) -> &mut MapRange<'a, usize, T> {
-        &mut self.iter
+        &mut self.map_range
     }
 }
 
@@ -48,8 +48,8 @@ where
     fn default() -> Self {
         Self {
             padding: Default::default(),
-            iter: Default::default(),
-            range: Default::default(),
+            map_range: Default::default(),
+            idx_range: Default::default(),
             head_memo: Default::default(),
             tail_memo: Default::default(),
         }
@@ -88,21 +88,20 @@ where
 
         let head_memo = self.head_memo.as_ref();
         let tail_memo = self.tail_memo.as_ref();
-        let hit_head = head_memo.is_some_and(|x| *x.0 == self.range.start);
-        let hit_tail = tail_memo.is_some_and(|x| *x.0 == self.range.start);
+        let hit_head = head_memo.is_some_and(|x| *x.0 == self.idx_range.start);
+        let hit_tail = tail_memo.is_some_and(|x| *x.0 == self.idx_range.start);
         let ret = match (hit_head, hit_tail) {
             (true, _) => self.head_memo.take().unwrap().1,
             (_, true) => self.tail_memo.take().unwrap().1,
             _ => *self.padding,
         };
 
-        self.range.start += 1;
+        self.idx_range.start += 1;
         Some(ret)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let size = self.range.end - self.range.start;
-        (size, Some(size))
+        (self.idx_range.len(), Some(self.idx_range.len()))
     }
 }
 
@@ -120,7 +119,7 @@ where
             self.tail_memo = self.iter().next();
         }
 
-        let tail_pos = self.range.end.checked_sub(1);
+        let tail_pos = self.idx_range.end.checked_sub(1);
         let tail_memo = self.tail_memo.as_ref();
         let head_memo = self.head_memo.as_ref();
         let hit_tail = tail_memo.is_some_and(|x| Some(*x.0) == tail_pos);
@@ -131,7 +130,7 @@ where
             _ => *self.padding,
         };
 
-        self.range.end -= 1;
+        self.idx_range.end -= 1;
         Some(ret)
     }
 }
@@ -150,8 +149,8 @@ where
     fn clone(&self) -> Self {
         Self {
             padding: self.padding,
-            iter: self.iter.clone(),
-            range: self.range.clone(),
+            map_range: self.map_range.clone(),
+            idx_range: self.idx_range.clone(),
             head_memo: self.head_memo,
             tail_memo: self.tail_memo,
         }

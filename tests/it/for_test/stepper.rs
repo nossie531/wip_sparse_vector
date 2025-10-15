@@ -11,7 +11,16 @@ pub struct Stepper {
 
 impl Stepper {
     pub fn new(m: usize, n: usize) -> Self {
+        assert!(n <= m);
         Self { m, n, i: 0 }
+    }
+
+    pub fn diff(self) -> impl Iterator<Item = usize> {
+        self.scan(None as Option<usize>, |s, x| {
+            let ret = x - s.unwrap_or(0);
+            *s = Some(x);
+            Some(ret)
+        })
     }
 }
 
@@ -23,10 +32,9 @@ impl Iterator for Stepper {
             return None;
         }
 
-        let distance = self.m as f32 / (self.n + 1) as f32;
-        let prev_pos = (distance * self.i as f32).floor() as isize;
-        let curr_pos = (distance * (self.i + 1) as f32).floor() as isize;
+        let width = self.m as f32 / (self.n + 1) as f32;
+        let ret = (width * (self.i + 1) as f32).floor() as usize;
         self.i += 1;
-        Some((curr_pos - prev_pos - 1).max(0) as usize)
+        Some(ret)
     }
 }
