@@ -1,4 +1,4 @@
-use crate::for_test::template as ts;
+use crate::for_test::template as tt;
 use sparse_vector::IntoIter;
 
 #[test]
@@ -10,12 +10,11 @@ fn default() {
 
 #[test]
 fn size_hint() {
-    let vec = ts::template().build();
+    let template = tt::template();
+    let vec = template.build();
     let target = vec.into_iter();
-    assert_eq!(
-        target.size_hint(),
-        (ts::template().len(), Some(ts::template().len()))
-    );
+    let result = target.size_hint();
+    assert_eq!(result, (template.len(), Some(template.len())));
 }
 
 #[test]
