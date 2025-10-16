@@ -107,10 +107,12 @@ fn next() {
         let indexs = template.sample_indexs().into_iter();
         let indexs = indexs.filter(|x| *x < template.len() - 1);
         for index in indexs {
-            // Arrange.
+            // Arrange vec.
             let vec = &mut template.build();
             let tail_pos = index + 1;
             *vec.edit(tail_pos) = template.padding();
+
+            // Arrange iter.
             let target = &mut vec.iter();
             let back_len = vec.len() - tail_pos;
             target.nth_back(back_len - 1);
@@ -170,7 +172,7 @@ fn next_back() {
             // Arrange.
             let vec = template.build();
             let target = &mut vec.iter();
-            let back_len = template.len() - 1 - index;
+            let back_len = template.len() - index - 1;
             if back_len > 1 {
                 target.nth_back(back_len - 1);
             }
@@ -227,10 +229,12 @@ fn next_back() {
         let indexs = template.sample_indexs().into_iter();
         let indexs = indexs.filter(|x| *x > 0);
         for index in indexs {
-            // Arrange.
+            // Arrange vec.
             let vec = &mut template.build();
             let head_pos = index - 1;
             *vec.edit(head_pos) = template.padding();
+
+            // Arrange iter.
             let target = &mut vec.iter();
             let back_len = vec.len() - index - 1;
             target.nth(head_pos);
