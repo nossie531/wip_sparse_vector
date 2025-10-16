@@ -1,4 +1,4 @@
-use sparse_vector::loops::SparseWriter;
+use sparse_vector::SparseWriter;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 pub fn vec_from_sparse_writer<'a>(sw: &mut SparseWriter<'a, i32>) -> Vec<(usize, i32)> {

@@ -17,6 +17,10 @@ impl<'a, T> SparseReader<'a, T> {
         }
     }
 
+    fn is_default(&self) -> bool {
+        !One::exists(&self.range)        
+    }
+
     fn iter(&self) -> &Range<'a, usize, T> {
         &self.range
     }
@@ -30,9 +34,7 @@ impl<'a, T> SparseReader<'a, T> {
 ///
 /// # TODO for future
 ///
-/// Currently [`Iter<'a, K, V>`](Iter) of [`pstd`] implements [`Clone`]
-/// only if `K` and `V` implements [`Clone`]. Therefore our `T` also
-/// requireds [`Clone`].
+/// Currently `T` requires [`Clone`]. This is current limitation.
 impl<T> Clone for SparseReader<'_, T>
 where
     T: PartialEq + Clone,
@@ -73,10 +75,19 @@ where
     type Item = ElmReader<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter_mut().next().map(|x| ElmReader::new(*x.0, x.1))
+        if self.is_default() {
+            return None;
+        }
+
+        let kv = self.iter_mut().next();
+        kv.map(|x| ElmReader::new(*x.0, x.1))
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
+        if self.is_default() {
+            return (0, Some(0));
+        }
+
         self.iter().size_hint()
     }
 }
@@ -86,8 +97,11 @@ where
     T: PartialEq,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
-        self.iter_mut()
-            .next_back()
-            .map(|x| ElmReader::new(*x.0, x.1))
+        if self.is_default() {
+            return None;
+        }
+
+        let kv = self.iter_mut().next_back();
+        kv.map(|x| ElmReader::new(*x.0, x.1))
     }
 }

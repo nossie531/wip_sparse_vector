@@ -45,9 +45,7 @@ where
 ///
 /// # TODO for future
 ///
-/// Currently [`Iter<'a, K, V>`](Iter) of [`pstd`] implements [`Clone`]
-/// only if `K` and `V` implements [`Clone`]. Therefore our `T`
-/// also requireds [`Clone`].
+/// Currently `T` requires [`Clone`]. This is current limitation.
 impl<T> Clone for Iter<'_, T>
 where
     T: PartialEq + Clone,

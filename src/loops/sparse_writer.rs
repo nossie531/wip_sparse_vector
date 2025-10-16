@@ -17,7 +17,6 @@ impl<'a, T> SparseWriter<'a, T>
 where
     T: PartialEq,
 {
-    #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> Option<ElmWriter<'_, 'a, T>> {
         let padding = self.padding;
         let cursor = &mut self.cursor;
