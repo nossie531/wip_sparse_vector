@@ -20,14 +20,6 @@ impl<'a, T> SparseReader<'a, T> {
     fn is_default(&self) -> bool {
         !One::exists(&self.range)        
     }
-
-    fn iter(&self) -> &Range<'a, usize, T> {
-        &self.range
-    }
-
-    fn iter_mut(&mut self) -> &mut Range<'a, usize, T> {
-        &mut self.range
-    }
 }
 
 /// Restricted implementation.
@@ -79,16 +71,17 @@ where
             return None;
         }
 
-        let kv = self.iter_mut().next();
+        let kv = self.range.next();
         kv.map(|x| ElmReader::new(*x.0, x.1))
     }
+
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         if self.is_default() {
             return (0, Some(0));
         }
 
-        self.iter().size_hint()
+        self.range.size_hint()
     }
 }
 
@@ -101,7 +94,7 @@ where
             return None;
         }
 
-        let kv = self.iter_mut().next_back();
+        let kv = self.range.next_back();
         kv.map(|x| ElmReader::new(*x.0, x.1))
     }
 }
