@@ -199,7 +199,7 @@ where
 
         let last_index = self.len - 1;
         let last_from_map = self.map.remove(&last_index);
-        let ret = last_from_map.unwrap_or_else(|| (self.filler)(&self.padding));
+        let ret = last_from_map.unwrap_or_else(|| self.clone_padding());
         self.len -= 1;
         Some(ret)
     }
@@ -243,6 +243,11 @@ where
             let value = f();
             *self.edit(i) = value;
         }
+    }
+
+    /// Returns cloned padding value.
+    fn clone_padding(&self) -> T {
+        (self.filler)(&self.padding)
     }
 }
 
