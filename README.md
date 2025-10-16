@@ -26,3 +26,9 @@ slice の split 系をまねた関数について。
 戻り値のために SparseSlice のような名前の型が必要になりそう。
 また、split_mut 系の関数では unsafe が必要になるはずだ。
 下手に実装するとバグだらけになりそうである。
+
+## MEMO
+
+Vec の IntoIter と違い、IntoIter に Clone は実装されていない。
+(マップ系は一般に IntoIter に Clone を実装しない)
+(とはいえ、実装しようと思えば実装できそうな気がする…)
