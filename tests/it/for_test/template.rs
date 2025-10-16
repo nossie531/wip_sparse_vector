@@ -35,6 +35,10 @@ impl Template {
             .unwrap_or((self.len() as f32 * default_ratio) as usize)
     }
 
+    pub fn normal_value(&self) -> i32 {
+        self.padding().wrapping_sub(1)
+    }
+
     pub fn padding(&self) -> i32 {
         self.padding.as_ref().unwrap_or(&PADDING).clone()
     }

@@ -191,6 +191,29 @@ where
         ValueEditor::new(padding, filler, entry)
     }
 
+    /// Removes the last element from and returns it, or `None` if it is empty.
+    pub fn pop(&mut self) -> Option<T> {
+        if self.is_empty() {
+            return None;
+        }
+
+        let last_index = self.len - 1;
+        let last_from_map = self.map.remove(&last_index);
+        let ret = last_from_map.unwrap_or_else(|| (self.filler)(&self.padding));
+        self.len -= 1;
+        Some(ret)
+    }
+
+    /// Appends new last element.
+    pub fn push(&mut self, value: T) {
+        if self.padding != value {
+            let new_index = self.len;
+            self.map.insert(new_index, value);
+        }
+
+        self.len += 1;
+    }
+
     /// Swaps two elements.
     ///
     /// # Panics

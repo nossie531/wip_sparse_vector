@@ -29,9 +29,7 @@ slice の split 系をまねた関数について。
 
 ## TODO 2
 
-SparseVec に pop を実装するのはどうだろう？
-その波及効果で IntoIter の実装を単純化できるかも…。
-あと pop を実装したら push も必要。
+IntoIter の実装を SparseVec::pop で単純化できるかも。
 
 ## MEMO
 

@@ -390,6 +390,80 @@ fn edit() {
 }
 
 #[test]
+fn pop() {
+    with_empty();
+    with_last_normal();
+    with_last_padding();
+
+    fn with_empty() {
+        // Arrange.
+        let target = &mut ts::default();
+
+        // Act.
+        let result = target.pop();
+
+        // Assert.
+        assert_eq!(result, None);
+    }
+
+    fn with_last_normal() {
+        // Arrange.
+        let template = tt::template();
+        let value = template.normal_value();
+        let values = [template.sample_vec(), vec![value]].concat();
+        let target = &mut SparseVec::from_iter(values);
+        let len = target.len();
+
+        // Act.
+        let result = target.pop();
+
+        // Assert.
+        assert_eq!(result, Some(value));
+        assert_eq!(target.len(), len - 1);
+    }
+
+    fn with_last_padding() {
+        // Arrange.
+        let template = tt::template();
+        let padding = template.padding();
+        let values = [template.sample_vec(), vec![padding]].concat();
+        let target = &mut SparseVec::from_iter(values);
+        let len = target.len();
+
+        // Act.
+        let result = target.pop();
+
+        // Assert.
+        assert_eq!(result, Some(template.padding()));
+        assert_eq!(target.len(), len - 1)
+    }
+}
+
+#[test]
+fn push() {
+    with_normal();
+    with_padding();
+
+    fn with_normal() {
+        let template = tt::template();
+        let target = &mut template.build();
+        let value = template.normal_value();
+        target.push(value);
+        assert_eq!(target.len(), template.len() + 1);
+        assert_eq!(target[target.len() - 1], value);
+    }
+
+    fn with_padding() {
+        let template = tt::template();
+        let target = &mut template.build();
+        let padding = template.padding();
+        target.push(padding);
+        assert_eq!(target.len(), template.len() + 1);
+        assert_eq!(target[target.len() - 1], padding);
+    }
+}
+
+#[test]
 fn swap() {
     with_arg1_out_of_range();
     with_arg2_out_of_range();
