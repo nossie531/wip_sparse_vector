@@ -9,7 +9,7 @@ use std::ops::RangeInclusive;
 pub static LEN: usize = 10;
 pub static NNP: usize = 5;
 pub static PADDING: i32 = -1;
-pub static VALUE_RANGE: RangeInclusive<i32> = -10..=10;
+pub static VALUE_RANGE: RangeInclusive<i32> = -99..=99;
 
 pub fn template() -> Template {
     Template::new()
@@ -177,7 +177,7 @@ impl Template {
     }
 
     fn new() -> Self {
-        Default::default()
+        Self::default()
     }
 
     fn rand_without<T: Rng>(&self, rng: &mut T, na: i32) -> i32 {

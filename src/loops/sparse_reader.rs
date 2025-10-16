@@ -46,13 +46,6 @@ impl<T> Default for SparseReader<'_, T> {
     }
 }
 
-impl<T> ExactSizeIterator for SparseReader<'_, T>
-where
-    T: PartialEq,
-{
-    // nop.
-}
-
 impl<T> FusedIterator for SparseReader<'_, T>
 where
     T: PartialEq,
