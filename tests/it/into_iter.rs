@@ -19,16 +19,5 @@ fn size_hint() {
 
 #[test]
 fn next() {
-    /* TODO: これらをサンプル配列にして…
-    - LEN: 0 要素を用意, next
-    - LEN: 1 要素を用意, next, next
-    - LEN: MANY, NP 0 要素を用意, next
-    - LEN: MANY, NP 1 要素を先頭に用意, next, next
-    - LEN: MANY, NP 1 要素を中央に用意, next, next
-    - LEN: MANY, NP 1 要素を末尾に用意, next, next
-    - LEN: MANY, NP 1 要素を先頭に用意, next_back, next, next
-    - LEN: MANY, NP 1 要素を中央に用意, next_back, next, next
-    - LEN: MANY, NP 1 要素を末尾に用意, next_back, next, next
-    - ランダムな複数要素を用意, ランダムに next_back と next を要素がつきるまで反復、対照群と比較。
-     */
+    // todo.
 }

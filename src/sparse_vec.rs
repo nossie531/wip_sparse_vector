@@ -361,8 +361,7 @@ where
     type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        let iter = self.map.into_iter();
-        IntoIter::new(self.len, self.padding, self.filler, iter)
+        IntoIter::new(self)
     }
 }
 
