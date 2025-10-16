@@ -46,3 +46,23 @@ slice の split 系をまねた関数について。
 
 IterMut があっても良いのでは？
 走査位置さえあればできそう。
+
+## TODO 3
+
+Index で範囲を指定してスライスを取得できても良いのでは？
+
+## TODO 4
+
+size_hint を SparseSlice で予測できないだろうか？
+BTreeMap の Range では size_hint があてにならない。
+
+SparseSlice 内の nnp の範囲を [min_nnp, max_nnp] とする。
+len を n と r に分割した場合、新たな min_nnp は min_nnp - r、
+新たな max_nnp は max_nnp.min(n) となる。
+
+SparseSliceMut は SparseSlice に変換でき、かつ NNP が変化しうる。
+そのため、この経路についてはスライス長のみを根拠にすべき。
+
+## TODO 5
+
+SparseSlice からの SparseReader や SparseWriter はインデックスの調整が必要。
