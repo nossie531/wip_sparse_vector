@@ -1,5 +1,6 @@
 //! Crate's utility.
 
+use crate::msg;
 use std::ops::{Bound, Range, RangeBounds};
 use std::panic::panic_any;
 
@@ -18,8 +19,6 @@ macro_rules! name_of_type {
 pub(crate) use name_of;
 pub(crate) use name_of_type;
 
-use crate::msg;
-
 /// Call [`Default::default`] on `T`.
 ///
 /// This function mimics [`Clone::clone`] method signature.
@@ -37,7 +36,7 @@ pub fn default_like_clone<T: Default>(_x: &T) -> T {
 /// - Range start and end is reverse order
 /// - Range end is greater than this vector length
 #[track_caller]
-pub fn to_index_range<R: RangeBounds<usize>>(range: R, len: usize) -> Range<usize> {
+pub fn normalize_range<R: RangeBounds<usize>>(range: R, len: usize) -> Range<usize> {
     let s = match range.start_bound() {
         Bound::Included(x) => *x,
         Bound::Excluded(x) => *x + 1,

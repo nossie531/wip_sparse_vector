@@ -7,18 +7,18 @@ use std::iter::FusedIterator;
 #[derive(Debug)]
 #[must_use = msg::iter_must_use!()]
 pub struct SparseReader<'a, T> {
+    offset: usize,
     range: One<Range<'a, usize, T>>,
 }
 
 impl<'a, T> SparseReader<'a, T> {
-    pub(crate) fn new(range: Range<'a, usize, T>) -> Self {
-        Self {
-            range: One::new(range),
-        }
+    pub(crate) fn new(offset: usize, range: Range<'a, usize, T>) -> Self {
+        let range = One::new(range);
+        Self { offset, range }
     }
 
     fn is_default(&self) -> bool {
-        !One::exists(&self.range)        
+        !One::exists(&self.range)
     }
 }
 
@@ -33,6 +33,7 @@ where
 {
     fn clone(&self) -> Self {
         Self {
+            offset: self.offset.clone(),
             range: self.range.clone(),
         }
     }
@@ -41,7 +42,8 @@ where
 impl<T> Default for SparseReader<'_, T> {
     fn default() -> Self {
         Self {
-            range: One::default(),
+            offset: Default::default(),
+            range: Default::default(),
         }
     }
 }
@@ -65,9 +67,8 @@ where
         }
 
         let kv = self.range.next();
-        kv.map(|x| ElmReader::new(*x.0, x.1))
+        kv.map(|x| ElmReader::new(*x.0 - self.offset, x.1))
     }
-
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         if self.is_default() {
@@ -88,6 +89,6 @@ where
         }
 
         let kv = self.range.next_back();
-        kv.map(|x| ElmReader::new(*x.0, x.1))
+        kv.map(|x| ElmReader::new(*x.0 - self.offset, x.1))
     }
 }

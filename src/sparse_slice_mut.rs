@@ -65,11 +65,10 @@ where
     /// Returns none padding elements writer.
     pub fn sparse_writer(&mut self) -> SparseWriter<'_, T> {
         let padding = &self.vec.padding;
-        let cursor = self
-            .vec
-            .map
-            .lower_bound_mut(Bound::Included(&self.range.start));
-        SparseWriter::new(padding, cursor)
+        let offset = self.range.start;
+        let start = Bound::Included(&offset);
+        let cursor = self.vec.map.lower_bound_mut(start);
+        SparseWriter::new(offset, padding, cursor)
     }
 
     /// Takes the value of index, leaving padding value.

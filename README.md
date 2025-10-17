@@ -26,9 +26,11 @@
 - `impl<T: PartialEq + Clone> Clone for SparseReader<'_, T>`
 
 これらは解決可能だが、現状では成果とコード量のバランスが悪いため放置している。
-将来的には、Rust が機能 [`btree_cursors`] を正式採用するか、
-[`pstd`] クレートで私の[プルリク][my_pr]が承認されるか、
-私が同等の機能を自前で実装すれば解決される。
+将来的には、以下のどれかで解決する予定。
+
+- Rust が機能 [`btree_cursors`] を正式採用する。
+- [`pstd`] クレートで私の[プルリク][my_pr]が承認される。
+- 私が同等の機能を自前で実装する。
 
 [`btree_cursors`]: https://doc.rust-lang.org/beta/unstable-book/library-features/btree-cursors.html
 [`pstd`]: https://crates.io/crates/pstd
@@ -62,7 +64,3 @@ len を n と r に分割した場合、新たな min_nnp は min_nnp - r、
 
 SparseSliceMut は SparseSlice に変換でき、かつ NNP が変化しうる。
 そのため、この経路についてはスライス長のみを根拠にすべき。
-
-## TODO 5
-
-SparseSlice からの SparseReader や SparseWriter はインデックスの調整が必要。

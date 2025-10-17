@@ -1,6 +1,9 @@
 use crate::for_test::template as tt;
 use sparse_vector::prelude::*;
-use std::iter::{self, repeat_with};
+use std::{
+    iter::{self, repeat_with},
+    ops::Range,
+};
 
 const RANDOM_TEST_SIZE: usize = 64;
 
@@ -117,4 +120,11 @@ pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
     fn random_trivals_pair(seed: u64) -> [SparseVec<i32>; 2] {
         [random_trivals(seed), random_trivals(seed + 1)]
     }
+}
+
+pub fn range(len: usize) -> Range<usize> {
+    let div = len as f32 / 3.0;
+    let min = div.round() as usize;
+    let max = (div * 2.0).round() as usize;
+    min..(max + 1)
 }

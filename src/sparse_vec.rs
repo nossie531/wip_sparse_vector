@@ -1,6 +1,6 @@
 use crate::loops::{IntoIter, Iter};
-use crate::values::ValueEditor;
 use crate::prelude::*;
+use crate::values::ValueEditor;
 use crate::{SparseReader, SparseWriter, util};
 use pstd::collections::btree_map::BTreeMap;
 use std::cmp::Ordering;
@@ -102,7 +102,7 @@ where
 
     /// Returns none padding elements reader.
     pub fn sparse_reader(&self) -> SparseReader<'_, T> {
-        SparseReader::new(self.map.range(..))
+        SparseReader::new(0, self.map.range(..))
     }
 
     /// Copies `self` into a new [`Vec`].
@@ -126,7 +126,7 @@ where
     where
         R: RangeBounds<usize>,
     {
-        let range = util::to_index_range(range, self.len);
+        let range = util::normalize_range(range, self.len);
         SparseSlice::new(self, range)
     }
 
@@ -159,7 +159,7 @@ where
     where
         R: RangeBounds<usize>,
     {
-        let range = util::to_index_range(range, self.len);
+        let range = util::normalize_range(range, self.len);
         SparseSliceMut::new(self, range)
     }
 
@@ -167,7 +167,7 @@ where
     pub fn sparse_writer(&mut self) -> SparseWriter<'_, T> {
         let padding = &self.padding;
         let cursor = self.map.lower_bound_mut(Bound::Unbounded);
-        SparseWriter::new(padding, cursor)
+        SparseWriter::new(0, padding, cursor)
     }
 
     /// Takes the value of index, leaving padding value.

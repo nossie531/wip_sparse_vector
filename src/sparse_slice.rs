@@ -37,8 +37,11 @@ where
     }
 
     /// Returns none padding elements reader.
-    pub fn sparse_reader(&self) -> crate::SparseReader<'_, T> {
-        SparseReader::new(self.vec.map.range(self.range.clone()))
+    pub fn sparse_reader(&self) -> SparseReader<'_, T> {
+        let start = self.range.start;
+        let slice_range = self.range.clone();
+        let map_range = self.vec.map.range(slice_range);
+        SparseReader::new(start, map_range)
     }
 
     /// Copies `self` into a new [`Vec`].
@@ -54,14 +57,13 @@ where
     where
         R: RangeBounds<usize>,
     {
-        let range = util::to_index_range(range, self.range.len());
-
-        Self {
-            vec: self.vec,
-            range,
-        }
+        let vec = self.vec;
+        let len = self.range.len();
+        let range = util::normalize_range(range, len);
+        Self { vec, range }
     }
 
+    /// Creates a new instance.
     pub(crate) fn new(vec: &'a SparseVec<T>, range: Range<usize>) -> Self {
         assert!(range.end <= vec.len);
         Self { vec, range }
