@@ -408,7 +408,7 @@ fn pop() {
 
     fn with_last_normal() {
         // Arrange.
-        let template = tt::template();
+        let template = tt::template().set_padding(0);
         let value = template.normal_value();
         let values = [template.sample_vec(), vec![value]].concat();
         let target = &mut SparseVec::from_iter(values);
@@ -424,7 +424,7 @@ fn pop() {
 
     fn with_last_padding() {
         // Arrange.
-        let template = tt::template();
+        let template = tt::template().set_padding(0);
         let padding = template.padding();
         let values = [template.sample_vec(), vec![padding]].concat();
         let target = &mut SparseVec::from_iter(values);
@@ -623,9 +623,11 @@ fn from() {
 
 #[test]
 fn from_iter() {
-    let vec = tt::template().sample_vec();
+    let template = tt::template();
+    let vec = template.build();
     let iter = vec.iter().cloned();
     let result = SparseVec::from_iter(iter);
+    assert_eq!(result.len(), template.len());
     assert!(result.iter().eq(vec.iter()));
 }
 

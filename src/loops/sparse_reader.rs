@@ -33,7 +33,7 @@ where
 {
     fn clone(&self) -> Self {
         Self {
-            offset: self.offset.clone(),
+            offset: self.offset,
             range: self.range.clone(),
         }
     }

@@ -1,22 +1,21 @@
-use crate::values::*;
 use std::fmt::Debug;
 
 /// Element from sparse vector writer.
-#[derive(Debug)]
-pub struct ElmWriter<'m: 'a, 'a, T>
+#[derive(Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct ElmWriter<'a, T>
 where
     T: PartialEq,
 {
     index: usize,
-    cursor: ValueCursor<'m, 'a, T>,
+    value: &'a mut T,
 }
 
-impl<'m: 'a, 'a, T> ElmWriter<'m, 'a, T>
+impl<'a, T> ElmWriter<'a, T>
 where
     T: PartialEq,
 {
-    pub(crate) fn new(index: usize, cursor: ValueCursor<'m, 'a, T>) -> Self {
-        Self { index, cursor }
+    pub(crate) fn new(index: usize, value: &'a mut T) -> Self {
+        Self { index, value }
     }
 
     pub fn index(&self) -> usize {
@@ -24,10 +23,10 @@ where
     }
 
     pub fn value(&self) -> &T {
-        self.cursor.value()
+        self.value
     }
 
     pub fn value_mut(&mut self) -> &mut T {
-        self.cursor.value_mut()
+        self.value
     }
 }

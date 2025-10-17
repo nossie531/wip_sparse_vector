@@ -1,25 +1,20 @@
-# sparse_vector
+# sparse_vector (WIP)
 
-作成中。
+A vector for sparse elements.
 
-## SparseReader (iterator)
+_The author of this crate is not good at English._  
+_Forgive me if the document is hard to read._
 
-`SparseReader` は疎な要素を走査しながら読み込むための型である。
-この型は `SparseVec::sprase_reader` メソッドから取得できる。
+## What is this?
 
-## SparseWriter (not iterator)
+This crate provides a vector like type `SparseVec`.
+This type is efficient when most elements have same value.
 
-`SparseWriter` は疎な要素を走査しながら書き込むための型である。 
-この型は `SparseVec::sparse_writer` メソッドから取得できる。
+## Examples
 
-この型はイテレータではない。
-なぜなら、イテレータは走査途中での要素の挿入や削除を認めない。
-一方、この型は走査中に要素をパディング値にできる。
-パディング値にした要素は再走査で見つからないので、これは削除と同義である。
-そのため、この型はイテレータになれない。
-
-この型は逆方向の操作を提供しない。
-これも逆方向に戻った時に要素が消えている場合があるためである。
+```rust
+// TODO:
+```
 
 ## Future task 1
 
@@ -39,6 +34,12 @@
 [`pstd`]: https://crates.io/crates/pstd
 [my_pr]: https://github.com/georgebarwood/pstd/pull/2
 
+## MEMO
+
+Index で範囲を指定してスライスを取得できても良いのでは？
+これは無理！Index の結果は参照なので SparseSlice を
+どこかに配置しておかないといけない。
+
 ## TODO 1
 
 slice の split 系をまねた関数について。
@@ -53,10 +54,6 @@ IterMut があっても良いのでは？
 走査位置さえあればできそう。
 
 ## TODO 3
-
-Index で範囲を指定してスライスを取得できても良いのでは？
-
-## TODO 4
 
 size_hint を SparseSlice で予測できないだろうか？
 BTreeMap の Range では size_hint があてにならない。

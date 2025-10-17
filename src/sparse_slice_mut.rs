@@ -4,7 +4,7 @@ use crate::values::*;
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::mem;
-use std::ops::{Bound, Index, Range, RangeBounds};
+use std::ops::{Index, Range, RangeBounds};
 
 #[repr(C)]
 #[must_use]
@@ -64,11 +64,7 @@ where
 
     /// Returns none padding elements writer.
     pub fn sparse_writer(&mut self) -> SparseWriter<'_, T> {
-        let padding = &self.vec.padding;
-        let offset = self.range.start;
-        let start = Bound::Included(&offset);
-        let cursor = self.vec.map.lower_bound_mut(start);
-        SparseWriter::new(offset, padding, cursor)
+        SparseWriter::new(self.vec, self.range.clone())
     }
 
     /// Takes the value of index, leaving padding value.

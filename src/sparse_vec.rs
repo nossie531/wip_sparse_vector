@@ -5,7 +5,7 @@ use crate::prelude::*;
 use crate::values::*;
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
-use std::ops::{Bound, Index, RangeBounds};
+use std::ops::{Index, RangeBounds};
 
 /// Sparse vector.
 ///
@@ -165,9 +165,7 @@ where
 
     /// Returns a none padding elements writer.
     pub fn sparse_writer(&mut self) -> SparseWriter<'_, T> {
-        let padding = &self.padding;
-        let cursor = self.map.lower_bound_mut(Bound::Unbounded);
-        SparseWriter::new(0, padding, cursor)
+        SparseWriter::new(self, 0..self.len())
     }
 
     /// Takes the value of index, leaving padding value.
@@ -324,9 +322,9 @@ where
     {
         let mut ret = SparseVec::default();
         for (i, item) in iter.into_iter().enumerate() {
+            ret.len += 1;
             if item != T::default() {
                 ret.map.insert(i, item);
-                ret.len += 1;
             }
         }
 
