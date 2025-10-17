@@ -1,6 +1,6 @@
-use crate::loops::{Iter, SparseReader, SparseWriter};
+use crate::loops::*;
 use crate::prelude::*;
-use crate::values::ValueEditor;
+use crate::values::*;
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::mem;

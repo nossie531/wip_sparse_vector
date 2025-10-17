@@ -1,5 +1,5 @@
-use crate::alias::MapRange;
-use crate::msg;
+use crate::alias::*;
+use crate::common::*;
 use crate::prelude::*;
 use only_one::prelude::*;
 use std::iter::FusedIterator;

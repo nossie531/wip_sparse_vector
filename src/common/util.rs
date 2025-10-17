@@ -1,6 +1,6 @@
 //! Crate's utility.
 
-use crate::msg;
+use crate::common::*;
 use std::ops::{Bound, Range, RangeBounds};
 use std::panic::panic_any;
 
