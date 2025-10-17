@@ -37,7 +37,7 @@ where
     }
 
     /// Returns an iterator.
-    pub fn iter(&self) -> crate::Iter<'_, T> {
+    pub fn iter(&self) -> Iter<'_, T> {
         self.slice_ref().iter()
     }
 

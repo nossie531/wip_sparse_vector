@@ -1,18 +1,18 @@
+use crate::alias::MapRange;
 use crate::msg;
 use crate::values::ElmReader;
 use only_one::prelude::*;
-use pstd::collections::btree_map::Range;
 use std::iter::FusedIterator;
 
 #[derive(Debug)]
 #[must_use = msg::iter_must_use!()]
 pub struct SparseReader<'a, T> {
     offset: usize,
-    range: One<Range<'a, usize, T>>,
+    range: One<MapRange<'a, T>>,
 }
 
 impl<'a, T> SparseReader<'a, T> {
-    pub(crate) fn new(offset: usize, range: Range<'a, usize, T>) -> Self {
+    pub(crate) fn new(offset: usize, range: MapRange<'a, T>) -> Self {
         let range = One::new(range);
         Self { offset, range }
     }

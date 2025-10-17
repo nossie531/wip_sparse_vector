@@ -1,7 +1,7 @@
+use crate::alias::MapCursor;
 use crate::util;
 use crate::values::{ElmWriter, ValueCursor};
 use only_one::prelude::*;
-use pstd::collections::btree_map::CursorMut;
 use std::fmt::{Debug, Formatter, Result as FmtResult};
 
 #[must_use]
@@ -11,7 +11,7 @@ where
 {
     offset: usize,
     padding: One<&'a T>,
-    cursor: One<CursorMut<'a, usize, T>>,
+    cursor: One<MapCursor<'a, T>>,
 }
 
 impl<'a, T> SparseWriter<'a, T>
@@ -26,7 +26,7 @@ where
         Some(ElmWriter::new(index, ValueCursor::new(padding, cursor)))
     }
 
-    pub(crate) fn new(offset: usize, padding: &'a T, cursor: CursorMut<'a, usize, T>) -> Self {
+    pub(crate) fn new(offset: usize, padding: &'a T, cursor: MapCursor<'a, T>) -> Self {
         Self {
             offset,
             padding: One::new(padding),
@@ -52,7 +52,7 @@ where
 ///
 /// # TODO for future
 ///
-/// Currently [`CursorMut`] of [`pstd`] does not implement [`Debug`].<br/>
+/// Currently `CursorMut` of [`pstd`] does not implement [`Debug`].<br/>
 /// Therefore we are not using `derive` attribute at [`Debug`].
 impl<T> Debug for SparseWriter<'_, T>
 where

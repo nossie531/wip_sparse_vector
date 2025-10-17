@@ -32,7 +32,7 @@ where
     }
 
     /// Returns an iterator.
-    pub fn iter(&self) -> crate::Iter<'_, T> {
+    pub fn iter(&self) -> Iter<'_, T> {
         Iter::new(self.vec, self.range.clone())
     }
 

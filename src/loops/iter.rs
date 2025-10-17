@@ -1,7 +1,7 @@
+use crate::alias::MapRange;
 use crate::msg;
 use crate::prelude::*;
 use only_one::prelude::*;
-use pstd::collections::btree_map::Range as MapRange;
 use std::iter::FusedIterator;
 use std::ops::Range;
 
@@ -12,7 +12,7 @@ where
     T: PartialEq,
 {
     padding: One<&'a T>,
-    map_range: One<MapRange<'a, usize, T>>,
+    map_range: One<MapRange<'a, T>>,
     idx_range: Range<usize>,
     head_memo: Option<(&'a usize, &'a T)>,
     tail_memo: Option<(&'a usize, &'a T)>,
@@ -36,7 +36,7 @@ where
         self.size_hint().1.unwrap() == 0
     }
 
-    fn iter(&mut self) -> &mut MapRange<'a, usize, T> {
+    fn iter(&mut self) -> &mut MapRange<'a, T> {
         &mut self.map_range
     }
 }

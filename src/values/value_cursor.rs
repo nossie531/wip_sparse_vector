@@ -1,5 +1,5 @@
+use crate::alias::MapCursor;
 use crate::util;
-use pstd::collections::btree_map::CursorMut;
 use std::fmt::{Debug, Formatter, Result as FmtResult};
 
 pub struct ValueCursor<'m: 'a, 'a, T>
@@ -7,14 +7,14 @@ where
     T: PartialEq,
 {
     padding: &'a T,
-    cursor: &'a mut CursorMut<'m, usize, T>,
+    cursor: &'a mut MapCursor<'m, T>,
 }
 
 impl<'m: 'a, 'a, T> ValueCursor<'m, 'a, T>
 where
     T: PartialEq,
 {
-    pub(crate) fn new(padding: &'a T, cursor: &'a mut CursorMut<'m, usize, T>) -> Self {
+    pub(crate) fn new(padding: &'a T, cursor: &'a mut MapCursor<'m, T>) -> Self {
         Self { padding, cursor }
     }
 
@@ -42,7 +42,7 @@ where
 ///
 /// # TODO for future
 ///
-/// Currently [`CursorMut`] of [`pstd`] does not implement [`Debug`].<br/>
+/// Currently `CursorMut` of [`pstd`] does not implement [`Debug`].<br/>
 /// Therefore we are not using `derive` attribute at [`Debug`].
 impl<T> Debug for ValueCursor<'_, '_, T>
 where

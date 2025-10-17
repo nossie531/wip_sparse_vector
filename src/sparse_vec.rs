@@ -1,8 +1,8 @@
-use crate::loops::{IntoIter, Iter};
+use crate::alias::Map;
+use crate::loops::{IntoIter, Iter, SparseReader, SparseWriter};
 use crate::prelude::*;
+use crate::util;
 use crate::values::ValueEditor;
-use crate::{SparseReader, SparseWriter, util};
-use pstd::collections::btree_map::BTreeMap;
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::ops::{Bound, Index, RangeBounds};
@@ -30,7 +30,7 @@ where
     pub(crate) filler: fn(&T) -> T,
 
     /// None padding elements map.
-    pub(crate) map: BTreeMap<usize, T>,
+    pub(crate) map: Map<T>,
 }
 
 impl<T> SparseVec<T>
@@ -47,7 +47,7 @@ where
             len,
             padding: T::default(),
             filler: util::default_like_clone,
-            map: BTreeMap::new(),
+            map: Map::new(),
         }
     }
 
@@ -61,7 +61,7 @@ where
             len,
             padding,
             filler: T::clone,
-            map: BTreeMap::new(),
+            map: Map::new(),
         }
     }
 

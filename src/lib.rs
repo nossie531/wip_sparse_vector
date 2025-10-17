@@ -8,6 +8,7 @@ pub use sparse_slice::*;
 pub use sparse_slice_mut::*;
 pub use sparse_vec::*;
 
+mod alias;
 mod loops;
 mod msg;
 mod sparse_slice;
