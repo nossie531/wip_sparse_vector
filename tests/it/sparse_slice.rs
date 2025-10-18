@@ -79,4 +79,6 @@ fn slice() {
     let target = vec.slice(w_range.clone());
     let result = target.slice(n_range.clone());
     assert_eq!(result.to_vec(), template.sample_vec()[w_range][n_range]);
+
+    // TODO: 範囲チェック
 }

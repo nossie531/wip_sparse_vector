@@ -53,6 +53,13 @@ where
     }
 
     /// Slice this slice.
+    /// 
+    /// # Panics
+    ///
+    /// Panics in the following cases.
+    ///
+    /// - Range start and end is reverse order
+    /// - Range end is greater than this vector length
     pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
     where
         R: RangeBounds<usize>,
