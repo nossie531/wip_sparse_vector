@@ -1,3 +1,4 @@
+use crate::for_test::range;
 use crate::for_test::sample as ts;
 use crate::for_test::template as tt;
 use sparse_vector::SparseReader;
@@ -75,7 +76,7 @@ fn next() {
     fn with_slice() {
         // Arrange.
         let template = tt::template();
-        let range = ts::range(template.len());
+        let range = range::normal(template.len());
         let vec = template.build();
         let slice = vec.slice(range.clone());
         let target = &mut slice.sparse_reader();
@@ -163,7 +164,7 @@ fn next_back() {
     fn with_slice() {
         // Arrange.
         let template = tt::template();
-        let range = ts::range(template.len());
+        let range = range::normal(template.len());
         let vec = template.build();
         let slice = vec.slice(range.clone());
         let target = &mut slice.sparse_reader();

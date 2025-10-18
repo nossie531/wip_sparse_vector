@@ -1,4 +1,5 @@
 use crate::for_test::helper as th;
+use crate::for_test::range;
 use crate::for_test::sample as ts;
 use crate::for_test::template as tt;
 use sparse_vector::prelude::*;
@@ -133,24 +134,22 @@ fn slice() {
 
     fn with_range_order_rev() {
         let target = ts::normal();
-        let start = Bound::Excluded(target.len() / 2);
-        let end = Bound::Excluded(target.len() / 2);
-        let result = test_panic(|| target.slice((start, end)));
+        let range = range::rev_order(target.len());
+        let result = test_panic(|| target.slice(range));
         assert!(result.is_panic());
     }
 
     fn with_range_end_gt_len() {
         let target = ts::normal();
-        let start = target.len() / 2;
-        let end = target.len() + 1;
-        let result = test_panic(|| target.slice(start..end));
+        let range = range::gt_len(target.len());
+        let result = test_panic(|| target.slice(range));
         assert!(result.is_panic());
     }
 
     fn with_empty() {
         let target = ts::normal();
-        let index = target.len() / 2;
-        let result = target.slice(index..index);
+        let range = range::empty(target.len());
+        let result = target.slice(range);
         assert_eq!(result.len(), 0);
     }
 
@@ -162,9 +161,7 @@ fn slice() {
 
     fn with_normal() {
         let target = ts::normal();
-        let start = target.len() / 3 * 1;
-        let end = target.len() / 3 * 2;
-        let range = start..end;
+        let range = range::normal(target.len());
         let result = target.slice(range.clone());
         assert_eq!(result.len(), range.len());
     }

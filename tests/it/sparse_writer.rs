@@ -1,5 +1,6 @@
 use std::mem;
 
+use crate::for_test::range;
 use crate::for_test::sample as ts;
 use crate::for_test::template as tt;
 use sparse_vector::SparseWriter;
@@ -89,7 +90,7 @@ fn next() {
     fn with_slice() {
         // Arrange.
         let template = tt::template();
-        let range = ts::range(template.len());
+        let range = range::normal(template.len());
         let vec = &mut template.build();
         let slice = &mut vec.slice_mut(range.clone());
         let target = &mut slice.sparse_writer();
@@ -169,7 +170,7 @@ fn next_back() {
     fn with_slice() {
         // Arrange.
         let template = tt::template();
-        let range = ts::range(template.len());
+        let range = range::normal(template.len());
         let vec = &mut template.build();
         let slice = &mut vec.slice_mut(range.clone());
         let target = &mut slice.sparse_writer();
