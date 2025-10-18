@@ -60,6 +60,7 @@ where
         let vec = self.vec;
         let len = self.range.len();
         let range = util::normalize_range(range, len);
+        let range = (self.range.start + range.start)..(self.range.start + range.end);
         Self { vec, range }
     }
 

@@ -6,7 +6,7 @@ use sparse_vector::prelude::*;
 use std::collections::BTreeSet;
 use std::ops::RangeInclusive;
 
-pub static LEN: usize = 10;
+pub static LEN: usize = 16;
 pub static NNP: usize = 5;
 pub static PADDING: i32 = -1;
 pub static VALUE_RANGE: RangeInclusive<i32> = -99..=99;
