@@ -42,11 +42,10 @@ Index で範囲を指定してスライスを取得できても良いのでは�
 
 ## TODO 1
 
-slice の split 系をまねた関数について。
-
-戻り値のために SparseSlice のような名前の型が必要になりそう。
-また、split_mut 系の関数では unsafe が必要になるはずだ。
-下手に実装するとバグだらけになりそうである。
+SparseSlice の可変分割について。
+slice::split_mut と同じ使用感を目指す。
+一つの値を二つの可変参照で覗くため unsafe は不可避。
+`Rc<RefCell<Map>>` のようにマップのラップが必要。
 
 ## TODO 2
 
