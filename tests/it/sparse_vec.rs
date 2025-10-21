@@ -1,25 +1,29 @@
-use crate::for_test::helper as th;
-use crate::for_test::range;
-use crate::for_test::sample as ts;
-use crate::for_test::template as tt;
+use crate::tools::helper;
+use crate::tools::range;
+use crate::tools::sample;
+use crate::tools::builder::*;
 use sparse_vector::prelude::*;
 use std::ops::Bound;
 use test_panic::prelude::*;
 
 #[test]
 fn new() {
-    let result = SparseVec::<i32>::new(tt::LEN);
-    assert_eq!(result.len(), tt::LEN);
+    let builder = SparseVecBuilder::default();
+    let result = SparseVec::<i32>::new(builder.len());
+    assert_eq!(result.len(), builder.len());
     assert_eq!(result.nnp(), 0);
     assert_eq!(result.padding(), &i32::default());
 }
 
 #[test]
 fn with_padding() {
-    let result = SparseVec::with_padding(tt::LEN, tt::PADDING);
-    assert_eq!(result.len(), tt::LEN);
+    let builder = SparseVecBuilder::default();
+    let len = builder.len();
+    let padding = builder.padding();
+    let result = SparseVec::with_padding(len, padding);
+    assert_eq!(result.len(), len);
     assert_eq!(result.nnp(), 0);
-    assert_eq!(result.padding(), &tt::PADDING);
+    assert_eq!(result.padding(), &padding);
 }
 
 #[test]
@@ -28,13 +32,13 @@ fn is_empty() {
     with_some_len();
 
     fn with_zero_len() {
-        let target = ts::default();
+        let target = sample::default();
         let result = target.is_empty();
         assert_eq!(result, true);
     }
 
     fn with_some_len() {
-        let target = ts::normal();
+        let target = sample::normal();
         let result = target.is_empty();
         assert_eq!(result, false);
     }
@@ -46,13 +50,13 @@ fn is_all_padding() {
     with_some_values();
 
     fn with_all_padding() {
-        let target = ts::all_padding();
+        let target = sample::all_padding();
         let result = target.is_all_padding();
         assert_eq!(result, true);
     }
 
     fn with_some_values() {
-        let target = ts::normal();
+        let target = sample::normal();
         let result = target.is_all_padding();
         assert_eq!(result, false);
     }
@@ -60,18 +64,18 @@ fn is_all_padding() {
 
 #[test]
 fn len() {
-    let template = tt::template();
-    let target = template.build();
+    let builder = SparseVecBuilder::new();
+    let target = builder.build();
     let result = target.len();
-    assert_eq!(result, template.len());
+    assert_eq!(result, builder.len());
 }
 
 #[test]
 fn nnp() {
-    let template = tt::template();
-    let target = template.build();
+    let builder = SparseVecBuilder::new();
+    let target = builder.build();
     let result = target.nnp();
-    assert_eq!(result, template.nnp());
+    assert_eq!(result, builder.nnp());
 }
 
 #[test]
@@ -86,42 +90,42 @@ fn padding() {
     }
 
     fn with_normal() {
-        let template = tt::template().set_padding(3);
-        let target = template.build();
+        let builder = SparseVecBuilder::new().set_padding(3);
+        let target = builder.build();
         let result = target.padding();
-        assert_eq!(result, &template.padding());
+        assert_eq!(result, &builder.padding());
     }
 }
 
 #[test]
 fn iter() {
-    let template = tt::template();
-    let target = template.build();
+    let builder = SparseVecBuilder::new();
+    let target = builder.build();
     let result = target.iter();
-    assert!(result.eq(template.sample_vec().iter()));
+    assert!(result.eq(builder.values().iter()));
 }
 
 #[test]
 fn sparse_reader() {
     // Arrange.
-    let template = tt::template();
-    let target = template.build();
+    let builder = SparseVecBuilder::new();
+    let target = builder.build();
 
     // Act.
     let result = target.sparse_reader();
 
     // Assert.
     let lft = result.map(|e| (e.index(), *e.value()));
-    let rgt = template.sample_elms();
+    let rgt = builder.elms();
     assert!(lft.eq(rgt));
 }
 
 #[test]
 fn to_vec() {
-    let template = tt::template();
-    let target = template.build();
+    let builder = SparseVecBuilder::new();
+    let target = builder.build();
     let result = target.to_vec();
-    assert_eq!(result, template.sample_vec());
+    assert_eq!(result, builder.values());
 }
 
 #[test]
@@ -133,34 +137,34 @@ fn slice() {
     with_normal();
 
     fn with_range_order_rev() {
-        let target = ts::normal();
+        let target = sample::normal();
         let range = range::rev_order(target.len());
         let result = test_panic(|| target.slice(range));
         assert!(result.is_panic());
     }
 
     fn with_range_end_gt_len() {
-        let target = ts::normal();
+        let target = sample::normal();
         let range = range::gt_len(target.len());
         let result = test_panic(|| target.slice(range));
         assert!(result.is_panic());
     }
 
     fn with_empty() {
-        let target = ts::normal();
+        let target = sample::normal();
         let range = range::empty(target.len());
         let result = target.slice(range);
         assert_eq!(result.len(), 0);
     }
 
     fn with_all() {
-        let target = ts::normal();
+        let target = sample::normal();
         let result = target.slice(..);
         assert_eq!(result.len(), target.len());
     }
 
     fn with_normal() {
-        let target = ts::normal();
+        let target = sample::normal();
         let range = range::normal(target.len());
         let result = target.slice(range.clone());
         assert_eq!(result.len(), range.len());
@@ -176,7 +180,7 @@ fn set_len() {
 
     fn with_same() {
         // Arrange.
-        let target = &mut ts::normal();
+        let target = &mut sample::normal();
         let value = target.len();
 
         // Act.
@@ -189,7 +193,7 @@ fn set_len() {
 
     fn with_longer() {
         // Arrange.
-        let target = &mut ts::normal();
+        let target = &mut sample::normal();
         let value = target.len() + 1;
         let padding = *target.padding();
         let original = target.iter().cloned().collect::<Vec<_>>();
@@ -204,7 +208,7 @@ fn set_len() {
 
     fn with_shorter() {
         // Arrange.
-        let target = &mut ts::normal();
+        let target = &mut sample::normal();
         let value = target.len() - 1;
 
         // Act.
@@ -217,7 +221,7 @@ fn set_len() {
 
     fn with_zero() {
         // Arrange.
-        let target = &mut ts::normal();
+        let target = &mut sample::normal();
 
         // Act.
         target.set_len(0);
@@ -237,7 +241,7 @@ fn slice_mut() {
     with_normal();
 
     fn with_range_order_rev() {
-        let target = &mut ts::normal();
+        let target = &mut sample::normal();
         let start = Bound::Excluded(target.len() / 2);
         let end = Bound::Excluded(target.len() / 2);
         let result = test_panic(|| target.slice_mut((start, end)));
@@ -245,7 +249,7 @@ fn slice_mut() {
     }
 
     fn with_range_end_gt_len() {
-        let target = &mut ts::normal();
+        let target = &mut sample::normal();
         let start = target.len() / 2;
         let end = target.len() + 1;
         let result = test_panic(|| target.slice_mut(start..end));
@@ -253,20 +257,20 @@ fn slice_mut() {
     }
 
     fn with_empty() {
-        let target = &mut ts::normal();
+        let target = &mut sample::normal();
         let index = target.len() / 2;
         let result = target.slice_mut(index..index);
         assert_eq!(result.len(), 0);
     }
 
     fn with_all() {
-        let target = &mut ts::normal();
+        let target = &mut sample::normal();
         let result = target.slice_mut(..);
         assert_eq!(result.len(), target.len());
     }
 
     fn with_normal() {
-        let target = &mut ts::normal();
+        let target = &mut sample::normal();
         let start = target.len() / 3 * 1;
         let end = target.len() / 3 * 2;
         let range = start..end;
@@ -278,15 +282,15 @@ fn slice_mut() {
 #[test]
 fn sparse_writer() {
     // Arrange.
-    let template = tt::template();
-    let target = &mut template.build();
+    let builder = SparseVecBuilder::new();
+    let target = &mut builder.build();
 
     // Act.
     let result = &mut target.sparse_writer();
 
     // Assert.
-    let lhs = th::vec_from_sparse_writer(result);
-    let rhs = template.sample_elms();
+    let lhs = helper::vec_from_sparse_writer(result);
+    let rhs = builder.elms();
     assert_eq!(lhs, rhs);
 }
 
@@ -298,7 +302,7 @@ fn take() {
 
     fn with_out_of_range() {
         // Arrange.
-        let target = &mut ts::normal();
+        let target = &mut sample::normal();
         let index = target.len();
 
         // Act.
@@ -310,34 +314,34 @@ fn take() {
 
     fn with_normal() {
         // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let index = tt::template().sample_value_indexs(1)[0];
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let index = SparseVecBuilder::new().some_npad_indexs(1)[0];
 
         // Act.
         let result = target.take(index);
 
         // Assert.
-        assert_eq!(result, template.sample_vec()[index]);
-        assert_eq!(target[index], template.padding());
-        assert_eq!(target.len(), template.len());
-        assert_eq!(target.nnp(), template.nnp() - 1);
+        assert_eq!(result, builder.values()[index]);
+        assert_eq!(target[index], builder.padding());
+        assert_eq!(target.len(), builder.len());
+        assert_eq!(target.nnp(), builder.nnp() - 1);
     }
 
     fn with_padding() {
         // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let index = tt::template().sample_padding_indexs(1)[0];
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let index = SparseVecBuilder::new().some_pad_indexs(1)[0];
 
         // Act.
         let result = target.take(index);
 
         // Assert.
-        assert_eq!(result, template.padding());
-        assert_eq!(target[index], template.padding());
-        assert_eq!(target.len(), template.len());
-        assert_eq!(target.nnp(), template.nnp());
+        assert_eq!(result, builder.padding());
+        assert_eq!(target[index], builder.padding());
+        assert_eq!(target.len(), builder.len());
+        assert_eq!(target.nnp(), builder.nnp());
     }
 }
 
@@ -349,7 +353,7 @@ fn edit() {
 
     fn with_out_of_range() {
         // Arrange.
-        let target = &mut ts::normal();
+        let target = &mut sample::normal();
         let index = target.len();
 
         // Act.
@@ -361,28 +365,28 @@ fn edit() {
 
     fn with_normal() {
         // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let index = tt::template().sample_value_indexs(1)[0];
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let index = SparseVecBuilder::new().some_npad_indexs(1)[0];
 
         // Act.
         let result = target.edit(index);
 
         // Assert.
-        assert_eq!(*result, template.sample_vec()[index]);
+        assert_eq!(*result, builder.values()[index]);
     }
 
     fn with_padding() {
         // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let index = tt::template().sample_padding_indexs(1)[0];
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let index = SparseVecBuilder::new().some_pad_indexs(1)[0];
 
         // Act.
         let result = target.edit(index);
 
         // Assert.
-        assert_eq!(*result, template.sample_vec()[index]);
+        assert_eq!(*result, builder.values()[index]);
     }
 }
 
@@ -394,7 +398,7 @@ fn pop() {
 
     fn with_empty() {
         // Arrange.
-        let target = &mut ts::default();
+        let target = &mut sample::default();
 
         // Act.
         let result = target.pop();
@@ -405,9 +409,9 @@ fn pop() {
 
     fn with_last_normal() {
         // Arrange.
-        let template = tt::template().set_padding(0);
-        let value = template.normal_value();
-        let values = [template.sample_vec(), vec![value]].concat();
+        let builder = SparseVecBuilder::new().set_padding(0);
+        let value = builder.none_padding();
+        let values = [builder.values(), vec![value]].concat();
         let target = &mut SparseVec::from_iter(values);
         let len = target.len();
 
@@ -421,9 +425,9 @@ fn pop() {
 
     fn with_last_padding() {
         // Arrange.
-        let template = tt::template().set_padding(0);
-        let padding = template.padding();
-        let values = [template.sample_vec(), vec![padding]].concat();
+        let builder = SparseVecBuilder::new().set_padding(0);
+        let padding = builder.padding();
+        let values = [builder.values(), vec![padding]].concat();
         let target = &mut SparseVec::from_iter(values);
         let len = target.len();
 
@@ -431,7 +435,7 @@ fn pop() {
         let result = target.pop();
 
         // Assert.
-        assert_eq!(result, Some(template.padding()));
+        assert_eq!(result, Some(builder.padding()));
         assert_eq!(target.len(), len - 1)
     }
 }
@@ -442,20 +446,20 @@ fn push() {
     with_padding();
 
     fn with_normal() {
-        let template = tt::template();
-        let target = &mut template.build();
-        let value = template.normal_value();
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let value = builder.none_padding();
         target.push(value);
-        assert_eq!(target.len(), template.len() + 1);
+        assert_eq!(target.len(), builder.len() + 1);
         assert_eq!(target[target.len() - 1], value);
     }
 
     fn with_padding() {
-        let template = tt::template();
-        let target = &mut template.build();
-        let padding = template.padding();
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let padding = builder.padding();
         target.push(padding);
-        assert_eq!(target.len(), template.len() + 1);
+        assert_eq!(target.len(), builder.len() + 1);
         assert_eq!(target[target.len() - 1], padding);
     }
 }
@@ -471,10 +475,10 @@ fn swap() {
 
     fn with_arg1_out_of_range() {
         // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let idx_x = template.len();
-        let idx_y = template.len() / 2;
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let idx_x = builder.len();
+        let idx_y = builder.len() / 2;
 
         // Act.
         let result = test_panic(|| {
@@ -487,10 +491,10 @@ fn swap() {
 
     fn with_arg2_out_of_range() {
         // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let idx_x = template.len() / 2;
-        let idx_y = template.len();
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let idx_x = builder.len() / 2;
+        let idx_y = builder.len();
 
         // Act.
         let result = test_panic(|| {
@@ -503,61 +507,61 @@ fn swap() {
 
     fn with_arg1_eq_arg2() {
         // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let idx = template.len() / 2;
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let idx = builder.len() / 2;
 
         // Act.
         target.swap(idx, idx);
 
         // Assert.
-        assert_eq!(target.to_vec(), template.sample_vec());
+        assert_eq!(target.to_vec(), builder.values());
     }
 
     fn with_padding_and_padding() {
         // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let idx_x = template.sample_padding_indexs(2)[0];
-        let idx_y = template.sample_padding_indexs(2)[1];
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let idx_x = builder.some_pad_indexs(2)[0];
+        let idx_y = builder.some_pad_indexs(2)[1];
 
         // Act.
         target.swap(idx_x, idx_y);
 
         // Assert.
-        let rhs = &mut template.sample_vec();
+        let rhs = &mut builder.values();
         rhs.swap(idx_x, idx_y);
         assert_eq!(target.to_vec(), *rhs);
     }
 
     fn with_padding_and_value() {
         // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let idx_x = template.sample_padding_indexs(1)[0];
-        let idx_y = template.sample_value_indexs(1)[0];
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let idx_x = builder.some_pad_indexs(1)[0];
+        let idx_y = builder.some_npad_indexs(1)[0];
 
         // Act.
         target.swap(idx_x, idx_y);
 
         // Assert.
-        let rhs = &mut template.sample_vec();
+        let rhs = &mut builder.values();
         rhs.swap(idx_x, idx_y);
         assert_eq!(target.to_vec(), *rhs);
     }
 
     fn with_value_and_value() {
         // Arrange.
-        let template = tt::template();
-        let target = &mut template.build();
-        let idx_x = template.sample_value_indexs(2)[0];
-        let idx_y = template.sample_value_indexs(2)[1];
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let idx_x = builder.some_npad_indexs(2)[0];
+        let idx_y = builder.some_npad_indexs(2)[1];
 
         // Act.
         target.swap(idx_x, idx_y);
 
         // Assert.
-        let rhs = &mut template.sample_vec();
+        let rhs = &mut builder.values();
         rhs.swap(idx_x, idx_y);
         assert_eq!(target.to_vec(), *rhs);
     }
@@ -566,14 +570,14 @@ fn swap() {
 #[test]
 fn fill() {
     // Arrange.
-    let template = tt::template();
-    let target = &mut template.build();
+    let builder = SparseVecBuilder::new();
+    let target = &mut builder.build();
 
     // Act.
     target.fill(42);
 
     // Assert.
-    let rhs = &mut template.sample_vec();
+    let rhs = &mut builder.values();
     rhs.fill(42);
     assert_eq!(target.to_vec(), *rhs);
 }
@@ -581,14 +585,14 @@ fn fill() {
 #[test]
 fn fill_with() {
     // Arrange.
-    let template = tt::template();
-    let target = &mut template.build();
+    let builder = SparseVecBuilder::new();
+    let target = &mut builder.build();
 
     // Act.
     target.fill_with(|| 42);
 
     // Assert.
-    let rhs = &mut template.sample_vec();
+    let rhs = &mut builder.values();
     rhs.fill(42);
     assert_eq!(target.to_vec(), *rhs);
 }
@@ -606,13 +610,13 @@ fn from() {
     with_vec();
 
     fn with_arr() {
-        let arr = tt::template().sample_arr();
+        let arr = ValuesBuilder::new().array();
         let result = SparseVec::from(arr.clone());
         assert!(result.iter().eq(arr.iter()));
     }
 
     fn with_vec() {
-        let vec = tt::template().sample_vec();
+        let vec = ValuesBuilder::new().values();
         let result = SparseVec::from(vec.clone());
         assert!(result.iter().eq(vec.iter()));
     }
@@ -620,20 +624,20 @@ fn from() {
 
 #[test]
 fn from_iter() {
-    let template = tt::template();
-    let vec = template.build();
+    let builder = SparseVecBuilder::new();
+    let vec = builder.build();
     let iter = vec.iter().cloned();
     let result = SparseVec::from_iter(iter);
-    assert_eq!(result.len(), template.len());
+    assert_eq!(result.len(), builder.len());
     assert!(result.iter().eq(vec.iter()));
 }
 
 #[test]
 fn hash() {
-    for pair in ts::pairs() {
+    for pair in sample::pairs() {
         let [x, y] = pair;
-        let result_x = th::hash(&x);
-        let result_y = th::hash(&y);
+        let result_x = helper::hash(&x);
+        let result_y = helper::hash(&y);
         assert!(!x.eq(&y) || result_x == result_y);
     }
 }
@@ -646,7 +650,7 @@ fn index() {
 
     fn with_out_of_range() {
         // Arrange.
-        let target = ts::normal();
+        let target = sample::normal();
         let index = target.len();
 
         // Act.
@@ -658,28 +662,28 @@ fn index() {
 
     fn with_normal() {
         // Arrange.
-        let template = tt::template();
-        let target = template.build();
-        let index = template.sample_value_indexs(1)[0];
+        let builder = SparseVecBuilder::new();
+        let target = builder.build();
+        let index = builder.some_npad_indexs(1)[0];
 
         // Act.
         let result = target[index];
 
         // Assert.
-        assert_eq!(result, tt::template().sample_vec()[index]);
+        assert_eq!(result, builder.values()[index]);
     }
 
     fn with_padding() {
         // Arrange.
-        let template = tt::template();
-        let target = template.build();
-        let index = template.sample_padding_indexs(1)[0];
+        let builder = SparseVecBuilder::new();
+        let target = builder.build();
+        let index = builder.some_pad_indexs(1)[0];
 
         // Act.
         let result = target[index];
 
         // Assert.
-        assert_eq!(result, tt::template().sample_vec()[index]);
+        assert_eq!(result, builder.values()[index]);
     }
 }
 
@@ -689,23 +693,23 @@ fn into_iter() {
     with_ref();
 
     fn with_value() {
-        let template = tt::template();
-        let target = template.build();
+        let builder = SparseVecBuilder::new();
+        let target = builder.build();
         let result = target.into_iter();
-        assert!(result.eq(template.sample_vec()));
+        assert!(result.eq(builder.values()));
     }
 
     fn with_ref() {
-        let template = tt::template();
-        let target = &tt::template().build();
+        let builder = SparseVecBuilder::new();
+        let target = &SparseVecBuilder::new().build();
         let result = target.into_iter();
-        assert!(result.eq(template.sample_vec().iter()));
+        assert!(result.eq(builder.values().iter()));
     }
 }
 
 #[test]
 fn cmp() {
-    for pair in ts::pairs() {
+    for pair in sample::pairs() {
         // Arrange.
         let [x, y] = pair;
 
@@ -727,7 +731,7 @@ fn partial_eq() {
     with_nan();
 
     fn with_normal() {
-        for pair in ts::pairs() {
+        for pair in sample::pairs() {
             // Arrange.
             let [x, y] = pair;
 
@@ -745,8 +749,8 @@ fn partial_eq() {
 
     fn with_nan() {
         // Arrange.
-        let x = &ts::normal_floats();
-        let y = &mut ts::normal_floats();
+        let x = &sample::normal_floats();
+        let y = &mut sample::normal_floats();
         *y.edit(x.len() / 2) = f32::NAN;
 
         // Act.
@@ -765,7 +769,7 @@ fn partial_cmp() {
     with_nan();
 
     fn with_normal() {
-        for pair in ts::pairs() {
+        for pair in sample::pairs() {
             // Arrange.
             let [x, y] = pair;
 
@@ -783,8 +787,8 @@ fn partial_cmp() {
 
     fn with_nan() {
         // Arrange.
-        let x = &ts::normal_floats();
-        let y = &mut ts::normal_floats();
+        let x = &sample::normal_floats();
+        let y = &mut sample::normal_floats();
         let index = y.len() / 2;
         *y.edit(index) = f32::NAN;
 
@@ -804,23 +808,23 @@ fn extend() {
     with_ref();
 
     fn with_value() {
-        let template = tt::template();
-        let target = &mut template.build();
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
         let vec = vec![1, 2, 3];
         target.extend(vec.clone());
 
-        let sample_vec = template.sample_vec();
+        let sample_vec = builder.values();
         let rhs = sample_vec.iter().chain(vec.iter());
         assert!(target.iter().eq(rhs));
     }
 
     fn with_ref() {
-        let template = tt::template();
-        let target = &mut template.build();
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
         let vec = &vec![1, 2, 3];
         target.extend(vec);
 
-        let sample_vec = template.sample_vec();
+        let sample_vec = builder.values();
         let rhs = sample_vec.iter().chain(vec);
         assert!(target.iter().eq(rhs));
     }
@@ -828,7 +832,7 @@ fn extend() {
 
 #[test]
 fn from_for_vec() {
-    let sparse_vec = ts::normal();
+    let sparse_vec = sample::normal();
     let result = <Vec<_> as From<SparseVec<_>>>::from(sparse_vec.clone());
     assert!(result.iter().eq(sparse_vec.iter()));
 }

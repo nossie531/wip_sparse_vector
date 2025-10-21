@@ -1,8 +1,8 @@
+use crate::tools::builder::*;
+use crate::tools::helper;
+use crate::tools::range;
+use crate::tools::sample;
 use std::ops::RangeFull;
-
-use crate::for_test::range;
-use crate::for_test::sample as ts;
-use crate::for_test::template as tt;
 use test_panic::prelude::*;
 
 #[test]
@@ -11,14 +11,14 @@ fn is_empty() {
     with_some_len();
 
     fn with_zero_len() {
-        let vec = ts::default();
+        let vec = sample::default();
         let target = vec.slice(0..0);
         let result = target.is_empty();
         assert_eq!(result, true);
     }
 
     fn with_some_len() {
-        let vec = ts::normal();
+        let vec = sample::normal();
         let range = range::normal(vec.len());
         let target = vec.slice(range);
         let result = target.is_empty();
@@ -28,7 +28,7 @@ fn is_empty() {
 
 #[test]
 fn len() {
-    let vec = ts::normal();
+    let vec = sample::normal();
     let range = range::normal(vec.len());
     let target = vec.slice(range.clone());
     let result = target.len();
@@ -37,41 +37,37 @@ fn len() {
 
 #[test]
 fn iter() {
-    let template = tt::template();
-    let vec = ts::normal();
-    let range = range::normal(vec.len());
-    let target = vec.slice(range.clone());
+    let builder = SparseSliceBuilder::new();
+    let context = builder.setup();
+    let target = context.build();
     let result = target.iter();
-    assert!(result.eq(template.sample_vec()[range].iter()));
+    assert!(result.eq(builder.inside_values().iter()));
 }
 
 #[test]
 fn sparse_reader() {
     // Arrange.
-    let template = tt::template();
-    let vec = ts::normal();
-    let range = range::normal(vec.len());
-    let target = vec.slice(range.clone());
+    let builder = SparseSliceBuilder::new();
+    let context = builder.setup();
+    let target = context.build();
 
     // Act.
     let result = target.sparse_reader();
 
     // Assert.
     let lhs = result.map(|e| (e.index(), *e.value()));
-    let elms = template.sample_vec().into_iter();
-    let elms = elms.skip(range.start).take(range.len()).enumerate();
-    let rhs = elms.filter(|e| e.1 != template.padding());
+    let elms = builder.inside_values().into_iter().enumerate();
+    let rhs = elms.filter(|e| e.1 != builder.padding());
     assert!(lhs.eq(rhs));
 }
 
 #[test]
 fn to_vec() {
-    let template = tt::template();
-    let vec = ts::normal();
-    let range = range::normal(vec.len());
-    let target = vec.slice(range.clone());
+    let builder = SparseSliceBuilder::new();
+    let context = builder.setup();
+    let target = context.build();
     let result = target.to_vec();
-    assert_eq!(result, template.sample_vec()[range]);
+    assert_eq!(result, builder.inside_values());
 }
 
 #[test]
@@ -83,7 +79,7 @@ fn slice() {
     with_normal();
 
     fn with_range_order_rev() {
-        let vec = ts::normal();
+        let vec = sample::normal();
         let outside = range::normal(vec.len());
         let inside = range::rev_order(outside.len());
         let target = vec.slice(outside.clone());
@@ -92,7 +88,7 @@ fn slice() {
     }
 
     fn with_range_end_gt_len() {
-        let vec = ts::normal();
+        let vec = sample::normal();
         let outside = range::normal(vec.len());
         let inside = range::gt_len(outside.len());
         let target = vec.slice(outside.clone());
@@ -101,7 +97,7 @@ fn slice() {
     }
 
     fn with_empty() {
-        let vec = ts::normal();
+        let vec = sample::normal();
         let outside = range::normal(vec.len());
         let inside = range::empty(outside.len());
         let target = vec.slice(outside.clone());
@@ -110,22 +106,30 @@ fn slice() {
     }
 
     fn with_all() {
-        let template = tt::template().set_len(100);
-        let vec = template.build();
-        let outside = range::normal(vec.len());
-        let inside = RangeFull;
-        let target = vec.slice(outside.clone());
-        let result = target.slice(inside.clone());
-        assert_eq!(result.to_vec(), template.sample_vec()[outside]);
+        let builder = SparseSliceBuilder::new();
+        let context = builder.setup();
+        let target = context.build();
+        let result = target.slice(RangeFull);
+        assert_eq!(result.to_vec(), builder.inside_values());
     }
 
     fn with_normal() {
-        let template = tt::template().set_len(100);
-        let vec = template.build();
-        let outside = range::normal(vec.len());
-        let inside = range::normal(outside.len());
-        let target = vec.slice(outside.clone());
-        let result = target.slice(inside.clone());
-        assert_eq!(result.to_vec(), template.sample_vec()[outside][inside]);
+        let builder = SparseSliceBuilder::new();
+        let range = range::normal(builder.inside_values().len());
+        let context = builder.setup();
+        let target = context.build();
+        let result = target.slice(range.clone());
+        assert_eq!(result.to_vec(), builder.inside_values()[range]);
+    }
+}
+
+#[test]
+fn hash() {
+    for [vx, vy] in sample::pairs() {
+        let sx = vx.slice(range::normal(vx.len()));
+        let sy = vy.slice(range::normal(vy.len()));
+        let result_x = helper::hash(&sx);
+        let result_y = helper::hash(&sy);
+        assert!(!sx.eq(&sy) || result_x == result_y);
     }
 }

@@ -1,5 +1,5 @@
-use crate::for_test::sample as ts;
-use crate::for_test::template as tt;
+use crate::tools::builder::*;
+use crate::tools::sample;
 use sparse_vector::IntoIter;
 
 #[test]
@@ -16,7 +16,7 @@ fn next() {
     with_normal();
 
     fn with_empty() {
-        let vec = ts::default();
+        let vec = sample::default();
         let target = &mut vec.into_iter();
         let result = target.next();
         assert_eq!(result, None);
@@ -24,7 +24,7 @@ fn next() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = ts::normal();
+        let vec = sample::normal();
         let target = &mut vec.into_iter();
         target.nth(target.len() - 1);
 
@@ -36,10 +36,10 @@ fn next() {
     }
 
     fn with_normal() {
-        let template = tt::template();
-        for index in template.sample_indexs() {
+        let builder = SparseVecBuilder::new();
+        for index in builder.some_indexs() {
             // Arrange.
-            let vec = template.build();
+            let vec = builder.build();
             let target = &mut vec.into_iter();
             if index > 0 {
                 target.nth(index - 1);
@@ -49,18 +49,18 @@ fn next() {
             let result = target.next();
 
             // Assert.
-            assert_eq!(result, Some(template.sample_vec()[index]));
+            assert_eq!(result, Some(builder.values()[index]));
         }
     }
 }
 
 #[test]
 fn size_hint() {
-    let template = tt::template();
-    let vec = template.build();
+    let builder = SparseVecBuilder::new();
+    let vec = builder.build();
     let target = vec.into_iter();
     let result = target.size_hint();
-    assert_eq!(result, (template.len(), Some(template.len())));
+    assert_eq!(result, (builder.len(), Some(builder.len())));
 }
 
 #[test]
@@ -70,7 +70,7 @@ fn next_back() {
     with_normal();
 
     fn with_empty() {
-        let vec = ts::default();
+        let vec = sample::default();
         let target = &mut vec.into_iter();
         let result = target.next_back();
         assert_eq!(result, None);
@@ -78,7 +78,7 @@ fn next_back() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = ts::normal();
+        let vec = sample::normal();
         let target = &mut vec.into_iter();
         target.nth_back(target.len() - 1);
 
@@ -90,12 +90,12 @@ fn next_back() {
     }
 
     fn with_normal() {
-        let template = tt::template();
-        for index in template.sample_indexs() {
+        let builder = SparseVecBuilder::new();
+        for index in builder.some_indexs() {
             // Arrange.
-            let vec = template.build();
+            let vec = builder.build();
             let target = &mut vec.into_iter();
-            let back_len = template.len() - index - 1;
+            let back_len = builder.len() - index - 1;
             if back_len > 1 {
                 target.nth_back(back_len - 1);
             }
@@ -104,7 +104,7 @@ fn next_back() {
             let result = target.next_back();
 
             // Assert.
-            assert_eq!(result, Some(template.sample_vec()[index]));
+            assert_eq!(result, Some(builder.values()[index]));
         }
     }
 }

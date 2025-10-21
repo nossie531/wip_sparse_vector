@@ -1,5 +1,5 @@
 use crate::common::*;
-use crate::loops::*;
+use crate::iters::*;
 use crate::prelude::*;
 use crate::values::*;
 use std::cmp::Ordering;
@@ -53,7 +53,7 @@ where
     }
 
     /// Slice this slice.
-    /// 
+    ///
     /// # Panics
     ///
     /// Panics in the following cases.
@@ -83,16 +83,14 @@ where
     T: PartialEq + Hash,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        let rs = self.range.start;
-        let re = self.range.end;
-        let rl = self.range.len();
+        let len = self.range.len();
         let padding = &self.vec.padding;
         let mut last_index = None;
         let mut last_value = None;
         let mut value_len = 0usize;
 
         for elm in self.sparse_reader() {
-            let next_index = last_index.map_or(rs, |x| x + 1);
+            let next_index = last_index.map_or(0, |x| x + 1);
             let padding_len = elm.index() - next_index;
             let value_changed = padding_len > 0 || Some(elm.value()) != last_value;
 
@@ -110,7 +108,7 @@ where
             value_len = if value_changed { 1 } else { value_len + 1 };
         }
 
-        let padding_len = last_index.map_or(rl, |x| re - x - 1);
+        let padding_len = len - last_index.map_or(0, |x| x + 1);
 
         if value_len > 0 {
             (last_value.unwrap(), value_len).hash(state);
@@ -169,8 +167,6 @@ where
         let len = self.range.len();
         let s_padding = &self.vec.padding;
         let o_padding = &other.vec.padding;
-        let s_start = self.range.start;
-        let o_start = self.range.start;
 
         // Prepare loop variables.
         let mut i = 0;
@@ -182,16 +178,14 @@ where
         // Loop shared part.
         while i < len {
             // Update memos for index.
-            let s_index = s_start + i;
-            let o_index = o_start + i;
-            let s_fresh = s_memo.as_ref().is_some_and(|x| x.index() > s_index);
-            let o_fresh = o_memo.as_ref().is_some_and(|x| x.index() > o_index);
+            let s_fresh = s_memo.as_ref().is_some_and(|x| x.index() > i);
+            let o_fresh = o_memo.as_ref().is_some_and(|x| x.index() > i);
             s_memo = if s_fresh { s_memo } else { s_reader.next() };
             o_memo = if o_fresh { o_memo } else { o_reader.next() };
 
             // Update indexs.
-            let s_i = s_memo.as_ref().map(|x| x.index() - s_start).unwrap_or(len);
-            let o_i = o_memo.as_ref().map(|x| x.index() - o_start).unwrap_or(len);
+            let s_i = s_memo.as_ref().map(|x| x.index()).unwrap_or(len);
+            let o_i = o_memo.as_ref().map(|x| x.index()).unwrap_or(len);
             let c_i = usize::min(s_i, o_i);
             let s_hit = c_i == s_i;
             let o_hit = c_i == o_i;

@@ -66,8 +66,8 @@ where
             return None;
         }
 
-        let kv = self.range.next();
-        kv.map(|x| ElmReader::new(*x.0 - self.offset, x.1))
+        let kv = self.range.next()?;
+        Some(ElmReader::new(*kv.0 - self.offset, kv.1))
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -88,7 +88,7 @@ where
             return None;
         }
 
-        let kv = self.range.next_back();
-        kv.map(|x| ElmReader::new(*x.0 - self.offset, x.1))
+        let kv = self.range.next_back()?;
+        Some(ElmReader::new(*kv.0 - self.offset, kv.1))
     }
 }

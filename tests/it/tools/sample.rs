@@ -1,4 +1,4 @@
-use crate::for_test::template as tt;
+use crate::tools::builder::*;
 use sparse_vector::prelude::*;
 use std::iter::{self, repeat_with};
 
@@ -9,23 +9,23 @@ pub fn default() -> SparseVec<i32> {
 }
 
 pub fn normal() -> SparseVec<i32> {
-    tt::template().build()
+    SparseVecBuilder::new().build()
 }
 
 pub fn single() -> SparseVec<i32> {
-    tt::template().set_len(1).set_nnp(1).build()
+    SparseVecBuilder::new().set_len(1).set_nnp(1).build()
 }
 
 pub fn normal_floats() -> SparseVec<f32> {
-    tt::template().build_floats()
+    SparseVecBuilder::new().build_floats()
 }
 
 pub fn all_padding() -> SparseVec<i32> {
-    tt::template().set_nnp(0).build()
+    SparseVecBuilder::new().set_nnp(0).build()
 }
 
 pub fn random_trivals(seed: u64) -> SparseVec<i32> {
-    tt::template()
+    SparseVecBuilder::new()
         .set_seed(seed)
         .set_value_range(-1..=1)
         .build()
@@ -75,19 +75,19 @@ pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
     }
 
     fn padding_vs_normal() -> [SparseVec<i32>; 2] {
-        let template = tt::template();
-        let target_x = template.build();
-        let mut target_y = template.build();
-        let index = template.sample_padding_indexs(1)[0];
+        let builder = SparseVecBuilder::new();
+        let target_x = builder.build();
+        let mut target_y = builder.build();
+        let index = builder.some_pad_indexs(1)[0];
         *target_y.edit(index) += 1;
         [target_x, target_y]
     }
 
     fn value1_vs_value2() -> [SparseVec<i32>; 2] {
-        let template = tt::template();
-        let target_x = template.build();
-        let mut target_y = template.build();
-        let index = template.sample_value_indexs(1)[0];
+        let builder = SparseVecBuilder::new();
+        let target_x = builder.build();
+        let mut target_y = builder.build();
+        let index = builder.some_npad_indexs(1)[0];
         *target_y.edit(index) += 1;
         [target_x, target_y]
     }

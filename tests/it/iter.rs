@@ -1,10 +1,10 @@
-use crate::for_test::sample as ts;
-use crate::for_test::template as tt;
+use crate::tools::builder::*;
+use crate::tools::sample;
 use sparse_vector::Iter;
 
 #[test]
 fn clone() {
-    let vec = ts::normal();
+    let vec = sample::normal();
     let target = vec.iter();
     let result = target.clone();
     assert!(result.eq(vec.iter()));
@@ -27,7 +27,7 @@ fn next() {
     with_tail_memoed();
 
     fn with_empty() {
-        let vec = ts::default();
+        let vec = sample::default();
         let target = &mut vec.iter();
         let result = target.next();
         assert_eq!(result, None);
@@ -35,7 +35,7 @@ fn next() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = ts::normal();
+        let vec = sample::normal();
         let target = &mut vec.iter();
         target.nth(target.len() - 1);
 
@@ -47,10 +47,10 @@ fn next() {
     }
 
     fn with_normal() {
-        let template = tt::template();
-        for index in template.sample_indexs() {
+        let builder = SparseVecBuilder::new();
+        for index in builder.some_indexs() {
             // Arrange.
-            let vec = template.build();
+            let vec = builder.build();
             let target = &mut vec.iter();
             if index > 0 {
                 target.nth(index - 1);
@@ -60,15 +60,15 @@ fn next() {
             let result = target.next();
 
             // Assert.
-            assert_eq!(result, template.sample_vec().get(index));
+            assert_eq!(result, builder.values().get(index));
         }
     }
 
     fn with_all_padding() {
-        let template = tt::template().set_nnp(0);
-        for index in template.sample_indexs() {
+        let builder = SparseVecBuilder::new().set_nnp(0);
+        for index in builder.some_indexs() {
             // Arrange.
-            let vec = template.build();
+            let vec = builder.build();
             let target = &mut vec.iter();
             if index > 0 {
                 target.nth(index - 1);
@@ -78,15 +78,15 @@ fn next() {
             let result = target.next();
 
             // Assert.
-            assert_eq!(result, template.sample_vec().get(index));
+            assert_eq!(result, builder.values().get(index));
         }
     }
 
     fn with_tail_passed() {
-        let template = tt::template();
-        for index in template.sample_indexs() {
+        let builder = SparseVecBuilder::new();
+        for index in builder.some_indexs() {
             // Arrange.
-            let vec = template.build();
+            let vec = builder.build();
             let target = &mut vec.iter();
             let back_len = vec.len() - index;
             target.nth_back(back_len - 1);
@@ -103,14 +103,14 @@ fn next() {
     }
 
     fn with_tail_memoed() {
-        let template = tt::template();
-        let indexs = template.sample_indexs().into_iter();
-        let indexs = indexs.filter(|x| *x < template.len() - 1);
+        let builder = SparseVecBuilder::new();
+        let indexs = builder.some_indexs().into_iter();
+        let indexs = indexs.filter(|x| *x < builder.len() - 1);
         for index in indexs {
             // Arrange vec.
-            let vec = &mut template.build();
+            let vec = &mut builder.build();
             let tail_pos = index + 1;
-            *vec.edit(tail_pos) = template.padding();
+            *vec.edit(tail_pos) = builder.padding();
 
             // Arrange iter.
             let target = &mut vec.iter();
@@ -124,14 +124,14 @@ fn next() {
             let result = target.next();
 
             // Assert.
-            assert_eq!(result, template.sample_vec().get(index));
+            assert_eq!(result, builder.values().get(index));
         }
     }
 }
 
 #[test]
 fn size_hint() {
-    let vec = ts::normal();
+    let vec = sample::normal();
     let target = vec.iter();
     let result = target.size_hint();
     assert_eq!(result, (vec.len(), Some(vec.len())));
@@ -147,7 +147,7 @@ fn next_back() {
     with_head_memoed();
 
     fn with_empty() {
-        let vec = ts::default();
+        let vec = sample::default();
         let target = &mut vec.iter();
         let result = target.next_back();
         assert_eq!(result, None);
@@ -155,7 +155,7 @@ fn next_back() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = ts::normal();
+        let vec = sample::normal();
         let target = &mut vec.iter();
         target.nth_back(target.len() - 1);
 
@@ -167,12 +167,12 @@ fn next_back() {
     }
 
     fn with_normal() {
-        let template = tt::template();
-        for index in template.sample_indexs() {
+        let builder = SparseVecBuilder::new();
+        for index in builder.some_indexs() {
             // Arrange.
-            let vec = template.build();
+            let vec = builder.build();
             let target = &mut vec.iter();
-            let back_len = template.len() - index - 1;
+            let back_len = builder.len() - index - 1;
             if back_len > 1 {
                 target.nth_back(back_len - 1);
             }
@@ -181,17 +181,17 @@ fn next_back() {
             let result = target.next_back();
 
             // Assert.
-            assert_eq!(result, template.sample_vec().get(index));
+            assert_eq!(result, builder.values().get(index));
         }
     }
 
     fn with_all_padding() {
-        let template = tt::template().set_nnp(0);
-        for index in template.sample_indexs() {
+        let builder = SparseVecBuilder::new().set_nnp(0);
+        for index in builder.some_indexs() {
             // Arrange.
-            let vec = template.build();
+            let vec = builder.build();
             let target = &mut vec.iter();
-            let back_len = template.len() - index - 1;
+            let back_len = builder.len() - index - 1;
             if back_len > 1 {
                 target.nth_back(back_len - 1);
             }
@@ -200,15 +200,15 @@ fn next_back() {
             let result = target.next_back();
 
             // Assert.
-            assert_eq!(result, template.sample_vec().get(index));
+            assert_eq!(result, builder.values().get(index));
         }
     }
 
     fn with_head_passed() {
-        let template = tt::template();
-        for index in template.sample_indexs() {
+        let builder = SparseVecBuilder::new();
+        for index in builder.some_indexs() {
             // Arrange.
-            let vec = template.build();
+            let vec = builder.build();
             let target = &mut vec.iter();
             let back_len = vec.len() - index - 1;
             target.nth(index);
@@ -225,14 +225,14 @@ fn next_back() {
     }
 
     fn with_head_memoed() {
-        let template = tt::template();
-        let indexs = template.sample_indexs().into_iter();
+        let builder = SparseVecBuilder::new();
+        let indexs = builder.some_indexs().into_iter();
         let indexs = indexs.filter(|x| *x > 0);
         for index in indexs {
             // Arrange vec.
-            let vec = &mut template.build();
+            let vec = &mut builder.build();
             let head_pos = index - 1;
-            *vec.edit(head_pos) = template.padding();
+            *vec.edit(head_pos) = builder.padding();
 
             // Arrange iter.
             let target = &mut vec.iter();
@@ -246,7 +246,7 @@ fn next_back() {
             let result = target.next_back();
 
             // Assert.
-            assert_eq!(result, template.sample_vec().get(index));
+            assert_eq!(result, builder.values().get(index));
         }
     }
 }

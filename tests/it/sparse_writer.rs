@@ -1,8 +1,6 @@
 use std::mem;
-
-use crate::for_test::range;
-use crate::for_test::sample as ts;
-use crate::for_test::template as tt;
+use crate::tools::sample;
+use crate::tools::builder::*;
 use sparse_vector::SparseWriter;
 
 #[test]
@@ -15,20 +13,20 @@ fn default() {
 #[test]
 fn drop() {
     // Arrange vec.
-    let template = tt::template();
-    let vec = &mut template.build();
+    let builder = SparseVecBuilder::new();
+    let vec = &mut builder.build();
 
     // Arrange writer.
     let mut target = vec.sparse_writer();
-    let index = template.sample_values_set().iter().count() / 2;
+    let index = builder.npad_indexs().iter().count() / 2;
     let elm = &mut target.nth(index).unwrap();
-    *elm.value_mut() = template.padding();
+    *elm.value_mut() = builder.padding();
 
     // Act.
     mem::drop(target);
 
     // Assert.
-    assert_eq!(vec.nnp(), template.nnp() - 1);
+    assert_eq!(vec.nnp(), builder.nnp() - 1);
 }
 
 #[test]
@@ -46,7 +44,7 @@ fn next() {
     }
 
     fn with_empty() {
-        let vec = &mut ts::default();
+        let vec = &mut sample::default();
         let target = &mut vec.sparse_writer();
         let result = target.next();
         assert_eq!(result, None);
@@ -54,10 +52,10 @@ fn next() {
 
     fn with_overrun() {
         // Arrange.
-        let template = tt::template();
-        let vec = &mut template.build();
+        let builder = SparseVecBuilder::new();
+        let vec = &mut builder.build();
         let target = &mut vec.sparse_writer();
-        target.nth(template.nnp() - 1);
+        target.nth(builder.nnp() - 1);
 
         // Act.
         let result = target.next();
@@ -68,9 +66,9 @@ fn next() {
 
     fn with_normal() {
         // Arrange.
-        let template = tt::template();
-        let vec = &mut template.build();
-        let indexs = template.sample_values_set();
+        let builder = SparseVecBuilder::new();
+        let vec = &mut builder.build();
+        let indexs = builder.npad_indexs();
         let index_pos = indexs.len() / 2;
         let target = &mut vec.sparse_writer();
         target.nth(index_pos - 1);
@@ -82,29 +80,27 @@ fn next() {
         let lhs_idx = result.as_ref().unwrap().index();
         let lhs_val = *result.as_ref().unwrap().value();
         let rhs_idx = *indexs.iter().nth(index_pos).unwrap();
-        let rhs_val = template.sample_vec()[rhs_idx];
+        let rhs_val = builder.values()[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);
         assert_eq!(lhs_val, rhs_val);
     }
 
     fn with_slice() {
         // Arrange.
-        let template = tt::template();
-        let range = range::normal(template.len());
-        let vec = &mut template.build();
-        let slice = &mut vec.slice_mut(range.clone());
+        let builder = SparseSliceBuilder::new();
+        let context = &mut builder.setup();
+        let slice = &mut context.build_mut();
         let target = &mut slice.sparse_writer();
 
         // Act.
         let result = target.next();
 
         // Assert.
-        let indexs = template.sample_values_set();
-        let indexs = &mut indexs.iter().copied();
+        let indexs = builder.npad_indexs();
         let lhs_idx = result.as_ref().unwrap().index();
         let lhs_val = *result.as_ref().unwrap().value();
-        let rhs_idx = indexs.find(|x| *x >= range.start).unwrap() - range.start;
-        let rhs_val = template.sample_vec()[range.start + rhs_idx];
+        let rhs_idx = *indexs.first().unwrap();
+        let rhs_val = builder.inside_values()[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);
         assert_eq!(lhs_val, rhs_val);
     }
@@ -125,7 +121,7 @@ fn next_back() {
     }
 
     fn with_empty() {
-        let vec = &mut ts::default();
+        let vec = &mut sample::default();
         let target = &mut vec.sparse_writer();
         let result = target.next_back();
         assert_eq!(result, None);
@@ -133,10 +129,10 @@ fn next_back() {
 
     fn with_overrun() {
         // Arrange.
-        let template = tt::template();
-        let vec = &mut template.build();
+        let builder = SparseVecBuilder::new();
+        let vec = &mut builder.build();
         let target = &mut vec.sparse_writer();
-        target.nth_back(template.nnp() - 1);
+        target.nth_back(builder.nnp() - 1);
 
         // Act.
         let result = target.next_back();
@@ -147,9 +143,9 @@ fn next_back() {
 
     fn with_normal() {
         // Arrange.
-        let template = tt::template();
-        let vec = &mut template.build();
-        let indexs = template.sample_values_set();
+        let builder = SparseVecBuilder::new();
+        let vec = &mut builder.build();
+        let indexs = builder.npad_indexs();
         let index_pos = indexs.len() / 2;
         let back_len = indexs.len() - index_pos - 1;
         let target = &mut vec.sparse_writer();
@@ -162,29 +158,27 @@ fn next_back() {
         let lhs_idx = result.as_ref().unwrap().index();
         let lhs_val = *result.as_ref().unwrap().value();
         let rhs_idx = *indexs.iter().nth(index_pos).unwrap();
-        let rhs_val = template.sample_vec()[rhs_idx];
+        let rhs_val = builder.values()[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);
         assert_eq!(lhs_val, rhs_val);
     }
 
     fn with_slice() {
         // Arrange.
-        let template = tt::template();
-        let range = range::normal(template.len());
-        let vec = &mut template.build();
-        let slice = &mut vec.slice_mut(range.clone());
+        let builder = SparseSliceBuilder::new();
+        let context = &mut builder.setup();
+        let slice = &mut context.build_mut();
         let target = &mut slice.sparse_writer();
 
         // Act.
         let result = target.next_back();
 
         // Assert.
-        let indexs = template.sample_values_set();
-        let indexs = &mut indexs.iter().copied();
+        let indexs = builder.npad_indexs();
         let lhs_idx = result.as_ref().unwrap().index();
         let lhs_val = *result.as_ref().unwrap().value();
-        let rhs_idx = indexs.rfind(|x| *x < range.end).unwrap() - range.start;
-        let rhs_val = template.sample_vec()[range.start + rhs_idx];
+        let rhs_idx = *indexs.last().unwrap();
+        let rhs_val = builder.inside_values()[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);
         assert_eq!(lhs_val, rhs_val);
     }
