@@ -29,6 +29,11 @@ impl SparseSliceBuilder {
         self.vb.set_len(value);
         self
     }
+
+    pub fn range(&self) -> Range<usize> {
+        let len = self.vb.len();
+        self.heads.len()..(self.heads.len() + len)
+    }
 }
 
 // Building methods.
@@ -42,15 +47,6 @@ impl SparseSliceBuilder {
 
 // Reporting methods.
 impl SparseSliceBuilder {
-    pub fn range(&self) -> Range<usize> {
-        let len = self.vb.len();
-        self.heads.len()..(self.heads.len() + len)
-    }
-
-    pub fn npad_indexs(&self) -> BTreeSet<usize> {
-        ValuesBuilder::new().npad_indexs()
-    }
-
     pub fn inside_values(&self) -> Vec<i32> {
         ValuesBuilder::new().values()
     }
@@ -60,5 +56,19 @@ impl SparseSliceBuilder {
         let tails = self.tails.clone();
         let bodys = self.vb.values();
         [heads, bodys, tails].concat()
+    }
+
+    pub fn npad_indexs(&self) -> BTreeSet<usize> {
+        ValuesBuilder::new().npad_indexs()
+    }
+
+    pub fn some_pad_indexs(&self, n: usize) -> Vec<usize> {
+        assert!(n < self.vb.len() - self.vb.nnp());
+        self.vb.some_pad_indexs(n)
+    }
+
+    pub fn some_npad_indexs(&self, n: usize) -> Vec<usize> {
+        assert!(n < self.vb.nnp());
+        self.vb.some_npad_indexs(n)
     }
 }

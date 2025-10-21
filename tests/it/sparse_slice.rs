@@ -2,7 +2,7 @@ use crate::for_test::builders::*;
 use crate::for_test::helper;
 use crate::for_test::range;
 use crate::for_test::samples::*;
-use std::ops::RangeFull;
+use std::ops::{Index, RangeFull};
 use test_panic::prelude::*;
 
 #[test]
@@ -128,4 +128,45 @@ fn hash() {
         let result_y = helper::hash(&sy);
         assert!(!sx.eq(&sy) || result_x == result_y);
     }
+}
+
+#[test]
+fn index() {
+    with_out_of_range();
+    with_normal();
+    with_padding();
+
+    fn with_out_of_range() {
+        let context = sample_ss::normal();
+        let target = context.fetch();
+        let result = test_panic(|| target.index(target.len()));
+        assert!(result.is_panic());
+    }
+
+    fn with_normal() {
+        let builder = SparseSliceBuilder::new();
+        let context = builder.build();
+        let target = context.fetch();
+        let index = builder.some_npad_indexs(1)[0];
+        let result = target.index(index);
+        assert_eq!(result, &builder.inside_values()[index]);
+    }
+
+    fn with_padding() {
+        let builder = SparseSliceBuilder::new();
+        let context = builder.build();
+        let target = context.fetch();
+        let index = builder.some_pad_indexs(1)[0];
+        let result = target.index(index);
+        assert_eq!(result, &builder.inside_values()[index]);
+    }
+}
+
+#[test]
+fn into_iter() {
+    let builder = SparseSliceBuilder::new();
+    let context = builder.build();
+    let target = context.fetch();
+    let result = target.into_iter();
+    assert!(result.eq(builder.inside_values().iter()));
 }
