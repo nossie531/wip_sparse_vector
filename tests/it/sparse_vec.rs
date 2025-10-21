@@ -3,7 +3,7 @@ use crate::for_test::helper;
 use crate::for_test::range;
 use crate::for_test::samples::*;
 use sparse_vector::prelude::*;
-use std::ops::Bound;
+use std::ops::{Index, Bound};
 use test_panic::prelude::*;
 
 #[test]
@@ -654,7 +654,7 @@ fn index() {
         let index = target.len();
 
         // Act.
-        let result = test_panic(|| target[index]);
+        let result = test_panic(|| target.index(index));
 
         // Assert.
         assert!(result.is_panic());
@@ -667,10 +667,10 @@ fn index() {
         let index = builder.some_npad_indexs(1)[0];
 
         // Act.
-        let result = target[index];
+        let result = target.index(index);
 
         // Assert.
-        assert_eq!(result, builder.values()[index]);
+        assert_eq!(result, &builder.values()[index]);
     }
 
     fn with_padding() {
@@ -680,10 +680,10 @@ fn index() {
         let index = builder.some_pad_indexs(1)[0];
 
         // Act.
-        let result = target[index];
+        let result = target.index(index);
 
         // Assert.
-        assert_eq!(result, builder.values()[index]);
+        assert_eq!(result, &builder.values()[index]);
     }
 }
 
