@@ -1,7 +1,7 @@
+use crate::tools::builder::*;
 use crate::tools::helper;
 use crate::tools::range;
 use crate::tools::sample;
-use crate::tools::builder::*;
 use sparse_vector::prelude::*;
 use std::ops::Bound;
 use test_panic::prelude::*;

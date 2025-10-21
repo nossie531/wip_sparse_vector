@@ -1,7 +1,7 @@
+use crate::tools::builder::ValuesBuilder;
+use sparse_vector::prelude::*;
 use std::collections::BTreeSet;
 use std::ops::Range;
-use sparse_vector::prelude::*;
-use crate::tools::builder::ValuesBuilder;
 
 #[derive(Default)]
 pub struct SparseSliceBuilder {
@@ -46,7 +46,7 @@ impl SparseSliceBuilder {
     }
 
     pub fn inside_values(&self) -> Vec<i32> {
-        ValuesBuilder::new().values()        
+        ValuesBuilder::new().values()
     }
 
     pub fn outside_values(&self) -> Vec<i32> {

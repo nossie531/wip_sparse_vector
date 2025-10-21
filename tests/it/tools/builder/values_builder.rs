@@ -1,9 +1,10 @@
-use std::{collections::BTreeSet, ops::RangeInclusive};
-use rand::SeedableRng;
-use rand_pcg::Pcg32;
-use rand::seq::index::sample as rand_sample;
 use crate::tools::helper;
 use crate::tools::stepper::Stepper;
+use rand::SeedableRng;
+use rand::seq::index::sample as rand_sample;
+use rand_pcg::Pcg32;
+use std::collections::BTreeSet;
+use std::ops::RangeInclusive;
 
 static LEN: usize = 16;
 static NNP: usize = 5;

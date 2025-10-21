@@ -1,7 +1,7 @@
-use std::mem;
-use crate::tools::sample;
 use crate::tools::builder::*;
+use crate::tools::sample;
 use sparse_vector::SparseWriter;
+use std::mem;
 
 #[test]
 fn default() {
