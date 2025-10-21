@@ -1,10 +1,10 @@
-use crate::tools::builder::*;
-use crate::tools::sample;
+use crate::for_test::builders::*;
+use crate::for_test::samples::sample_sv;
 use sparse_vector::Iter;
 
 #[test]
 fn clone() {
-    let vec = sample::normal();
+    let vec = sample_sv::normal();
     let target = vec.iter();
     let result = target.clone();
     assert!(result.eq(vec.iter()));
@@ -27,7 +27,7 @@ fn next() {
     with_tail_memoed();
 
     fn with_empty() {
-        let vec = sample::default();
+        let vec = sample_sv::default();
         let target = &mut vec.iter();
         let result = target.next();
         assert_eq!(result, None);
@@ -35,7 +35,7 @@ fn next() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = sample::normal();
+        let vec = sample_sv::normal();
         let target = &mut vec.iter();
         target.nth(target.len() - 1);
 
@@ -131,7 +131,7 @@ fn next() {
 
 #[test]
 fn size_hint() {
-    let vec = sample::normal();
+    let vec = sample_sv::normal();
     let target = vec.iter();
     let result = target.size_hint();
     assert_eq!(result, (vec.len(), Some(vec.len())));
@@ -147,7 +147,7 @@ fn next_back() {
     with_head_memoed();
 
     fn with_empty() {
-        let vec = sample::default();
+        let vec = sample_sv::default();
         let target = &mut vec.iter();
         let result = target.next_back();
         assert_eq!(result, None);
@@ -155,7 +155,7 @@ fn next_back() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = sample::normal();
+        let vec = sample_sv::normal();
         let target = &mut vec.iter();
         target.nth_back(target.len() - 1);
 

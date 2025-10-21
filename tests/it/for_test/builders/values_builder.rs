@@ -1,5 +1,5 @@
-use crate::tools::helper;
-use crate::tools::stepper::Stepper;
+use crate::for_test::helper;
+use crate::for_test::stepper::Stepper;
 use rand::SeedableRng;
 use rand::seq::index::sample as rand_sample;
 use rand_pcg::Pcg32;

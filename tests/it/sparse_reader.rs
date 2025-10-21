@@ -1,10 +1,10 @@
-use crate::tools::builder::*;
-use crate::tools::sample;
+use crate::for_test::builders::*;
+use crate::for_test::samples::*;
 use sparse_vector::SparseReader;
 
 #[test]
 fn clone() {
-    let vec = sample::normal();
+    let vec = sample_sv::normal();
     let target = vec.sparse_reader();
     let result = target.clone();
     assert!(result.eq(vec.sparse_reader()));
@@ -32,7 +32,7 @@ fn next() {
     }
 
     fn with_empty() {
-        let vec = sample::default();
+        let vec = sample_sv::default();
         let target = &mut vec.sparse_reader();
         let result = target.next();
         assert_eq!(result, None);
@@ -40,7 +40,7 @@ fn next() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = sample::normal();
+        let vec = sample_sv::normal();
         let target = &mut vec.sparse_reader();
         target.nth(vec.nnp() - 1);
 
@@ -75,8 +75,8 @@ fn next() {
     fn with_slice() {
         // Arrange.
         let builder = SparseSliceBuilder::new();
-        let context = builder.setup();
-        let slice = context.build();
+        let context = builder.build();
+        let slice = context.fetch();
         let target = &mut slice.sparse_reader();
 
         // Act.
@@ -117,7 +117,7 @@ fn next_back() {
     }
 
     fn with_empty() {
-        let vec = sample::default();
+        let vec = sample_sv::default();
         let target = &mut vec.sparse_reader();
         let result = target.next_back();
         assert_eq!(result, None);
@@ -125,7 +125,7 @@ fn next_back() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = sample::normal();
+        let vec = sample_sv::normal();
         let target = &mut vec.sparse_reader();
         target.nth_back(vec.nnp() - 1);
 
@@ -161,8 +161,8 @@ fn next_back() {
     fn with_slice() {
         // Arrange.
         let builder = SparseSliceBuilder::new();
-        let context = builder.setup();
-        let slice = context.build();
+        let context = builder.build();
+        let slice = context.fetch();
         let target = &mut slice.sparse_reader();
 
         // Act.

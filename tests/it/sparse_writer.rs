@@ -1,5 +1,5 @@
-use crate::tools::builder::*;
-use crate::tools::sample;
+use crate::for_test::builders::*;
+use crate::for_test::samples::*;
 use sparse_vector::SparseWriter;
 use std::mem;
 
@@ -44,7 +44,7 @@ fn next() {
     }
 
     fn with_empty() {
-        let vec = &mut sample::default();
+        let vec = &mut sample_sv::default();
         let target = &mut vec.sparse_writer();
         let result = target.next();
         assert_eq!(result, None);
@@ -88,8 +88,8 @@ fn next() {
     fn with_slice() {
         // Arrange.
         let builder = SparseSliceBuilder::new();
-        let context = &mut builder.setup();
-        let slice = &mut context.build_mut();
+        let context = &mut builder.build();
+        let slice = &mut context.fetch_mut();
         let target = &mut slice.sparse_writer();
 
         // Act.
@@ -121,7 +121,7 @@ fn next_back() {
     }
 
     fn with_empty() {
-        let vec = &mut sample::default();
+        let vec = &mut sample_sv::default();
         let target = &mut vec.sparse_writer();
         let result = target.next_back();
         assert_eq!(result, None);
@@ -166,8 +166,8 @@ fn next_back() {
     fn with_slice() {
         // Arrange.
         let builder = SparseSliceBuilder::new();
-        let context = &mut builder.setup();
-        let slice = &mut context.build_mut();
+        let context = &mut builder.build();
+        let slice = &mut context.fetch_mut();
         let target = &mut slice.sparse_writer();
 
         // Act.

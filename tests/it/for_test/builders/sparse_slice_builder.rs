@@ -1,4 +1,5 @@
-use crate::tools::builder::ValuesBuilder;
+use crate::for_test::SliceContext;
+use crate::for_test::builders::ValuesBuilder;
 use sparse_vector::prelude::*;
 use std::collections::BTreeSet;
 use std::ops::Range;
@@ -23,21 +24,26 @@ impl SparseSliceBuilder {
     pub fn padding(&self) -> i32 {
         self.vb.padding()
     }
+
+    pub fn set_len(mut self, value: usize) -> Self {
+        self.vb.set_len(value);
+        self
+    }
 }
 
 // Building methods.
 impl SparseSliceBuilder {
-    pub fn setup(&self) -> Context {
+    pub fn build(&self) -> SliceContext {
         let mut vec = SparseVec::with_padding(0, self.vb.padding());
         vec.extend(self.outside_values());
-        Context::new(vec, self.range())
+        SliceContext::new(vec, self.range())
     }
 }
 
 // Reporting methods.
 impl SparseSliceBuilder {
     pub fn range(&self) -> Range<usize> {
-        let len = ValuesBuilder::new().len();
+        let len = self.vb.len();
         self.heads.len()..(self.heads.len() + len)
     }
 
@@ -54,24 +60,5 @@ impl SparseSliceBuilder {
         let tails = self.tails.clone();
         let bodys = self.vb.values();
         [heads, bodys, tails].concat()
-    }
-}
-
-pub struct Context {
-    vec: SparseVec<i32>,
-    range: Range<usize>,
-}
-
-impl Context {
-    pub fn build(&self) -> SparseSlice<'_, i32> {
-        self.vec.slice(self.range.clone())
-    }
-
-    pub fn build_mut(&mut self) -> SparseSliceMut<'_, i32> {
-        self.vec.slice_mut(self.range.clone())
-    }
-
-    fn new(vec: SparseVec<i32>, range: Range<usize>) -> Self {
-        Self { vec, range }
     }
 }

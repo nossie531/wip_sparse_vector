@@ -1,5 +1,5 @@
-use crate::tools::builder::*;
-use crate::tools::sample;
+use crate::for_test::builders::*;
+use crate::for_test::samples::sample_sv;
 use sparse_vector::IntoIter;
 
 #[test]
@@ -16,7 +16,7 @@ fn next() {
     with_normal();
 
     fn with_empty() {
-        let vec = sample::default();
+        let vec = sample_sv::default();
         let target = &mut vec.into_iter();
         let result = target.next();
         assert_eq!(result, None);
@@ -24,7 +24,7 @@ fn next() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = sample::normal();
+        let vec = sample_sv::normal();
         let target = &mut vec.into_iter();
         target.nth(target.len() - 1);
 
@@ -70,7 +70,7 @@ fn next_back() {
     with_normal();
 
     fn with_empty() {
-        let vec = sample::default();
+        let vec = sample_sv::default();
         let target = &mut vec.into_iter();
         let result = target.next_back();
         assert_eq!(result, None);
@@ -78,7 +78,7 @@ fn next_back() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = sample::normal();
+        let vec = sample_sv::normal();
         let target = &mut vec.into_iter();
         target.nth_back(target.len() - 1);
 
