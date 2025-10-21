@@ -726,7 +726,7 @@ fn cmp() {
 }
 
 #[test]
-fn partial_eq() {
+fn eq() {
     with_normal();
     with_nan();
 
