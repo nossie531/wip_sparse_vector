@@ -34,11 +34,31 @@ This type is efficient when most elements have same value.
 [`pstd`]: https://crates.io/crates/pstd
 [my_pr]: https://github.com/georgebarwood/pstd/pull/2
 
-## MEMO
+## MEMO 1
 
 Index で範囲を指定してスライスを取得できても良いのでは？
 これは無理！Index の結果は参照なので SparseSlice を
 どこかに配置しておかないといけない。
+
+## TODO 0
+
+CURRENT LOCATION:
+SparseSlice の頭にプロローグを追加するのに splice が必要に…。
+またより高速なパディング専用版に splice_paddings も実装中。
+
+Vec::splice 相当のメソッドについて。
+SparseVec::splice はそれと微妙に動作が異なる。
+(デストラクタを抑制しないと検出できない程度の差異だが…。)
+
+Vec::splice は呼出時に削除とその内容のバックアップ (戻り値のイテレータ用) を、
+戻り値の破棄時に登録を行う。
+
+一方、SparseVec::splice は呼出時は何もせず、
+戻り値の破棄時に全ての削除と登録を行う。
+
+これは背後に B 木を使用しているため、バックアップ時にマップが分割されて
+そのオーバーヘッドによりヒープが増えないようにしている (完全な削除で
+ヒープが足りなくなるのは避けたいので)。
 
 ## TODO 1
 
