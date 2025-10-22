@@ -87,7 +87,7 @@ fn next() {
         let lhs_idx = result.as_ref().unwrap().index();
         let lhs_val = *result.as_ref().unwrap().value();
         let rhs_idx = *indexs.first().unwrap();
-        let rhs_val = builder.inside_values()[rhs_idx];
+        let rhs_val = builder.slice_values()[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);
         assert_eq!(lhs_val, rhs_val);
     }
@@ -173,7 +173,7 @@ fn next_back() {
         let lhs_idx = result.as_ref().unwrap().index();
         let lhs_val = *result.as_ref().unwrap().value();
         let rhs_idx = *indexs.last().unwrap();
-        let rhs_val = builder.inside_values()[rhs_idx];
+        let rhs_val = builder.slice_values()[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);
         assert_eq!(lhs_val, rhs_val);
     }

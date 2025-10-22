@@ -7,8 +7,8 @@ use std::ops::Range;
 #[derive(Default)]
 pub struct SparseSliceBuilder {
     vb: ValuesBuilder,
-    heads: Vec<i32>,
-    tails: Vec<i32>,
+    epilogue: Vec<i32>,
+    prologue: Vec<i32>,
 }
 
 // Constructor and property methods.
@@ -16,8 +16,8 @@ impl SparseSliceBuilder {
     pub fn new() -> Self {
         Self {
             vb: Default::default(),
-            heads: vec![42, 42, 42],
-            tails: vec![42, 42, 42],
+            epilogue: vec![42, 42, 42],
+            prologue: vec![42, 42, 42],
         }
     }
 
@@ -32,34 +32,34 @@ impl SparseSliceBuilder {
 
     pub fn range(&self) -> Range<usize> {
         let len = self.vb.len();
-        self.heads.len()..(self.heads.len() + len)
+        self.epilogue.len()..(self.epilogue.len() + len)
     }
 }
 
 // Building methods.
 impl SparseSliceBuilder {
-    pub fn build(&self) -> SliceContext {
+    pub fn build(&self) -> SliceContext<i32> {
         let mut vec = SparseVec::with_padding(0, self.vb.padding());
-        vec.extend(self.outside_values());
+        vec.extend(self.vec_values());
         SliceContext::new(vec, self.range())
     }
 }
 
 // Reporting methods.
 impl SparseSliceBuilder {
-    pub fn inside_values(&self) -> Vec<i32> {
-        ValuesBuilder::new().values()
+    pub fn slice_values(&self) -> Vec<i32> {
+        self.vb.values()
     }
 
-    pub fn outside_values(&self) -> Vec<i32> {
-        let heads = self.heads.clone();
-        let tails = self.tails.clone();
-        let bodys = self.vb.values();
-        [heads, bodys, tails].concat()
+    pub fn vec_values(&self) -> Vec<i32> {
+        let epilogue = self.epilogue.clone();
+        let prologue = self.prologue.clone();
+        let bodys = self.slice_values();
+        [epilogue, bodys, prologue].concat()
     }
 
     pub fn npad_indexs(&self) -> BTreeSet<usize> {
-        ValuesBuilder::new().npad_indexs()
+        self.vb.npad_indexs()
     }
 
     pub fn some_pad_indexs(&self, n: usize) -> Vec<usize> {

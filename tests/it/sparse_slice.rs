@@ -31,7 +31,7 @@ fn len() {
     let context = builder.build();
     let target = context.fetch();
     let result = target.len();
-    assert_eq!(result, builder.inside_values().len());
+    assert_eq!(result, builder.slice_values().len());
 }
 
 #[test]
@@ -40,7 +40,7 @@ fn iter() {
     let context = builder.build();
     let target = context.fetch();
     let result = target.iter();
-    assert!(result.eq(builder.inside_values().iter()));
+    assert!(result.eq(builder.slice_values().iter()));
 }
 
 #[test]
@@ -55,7 +55,7 @@ fn sparse_reader() {
 
     // Assert.
     let lhs = result.map(|e| (e.index(), *e.value()));
-    let elms = builder.inside_values().into_iter().enumerate();
+    let elms = builder.slice_values().into_iter().enumerate();
     let rhs = elms.filter(|e| e.1 != builder.padding());
     assert!(lhs.eq(rhs));
 }
@@ -66,7 +66,7 @@ fn to_vec() {
     let context = builder.build();
     let target = context.fetch();
     let result = target.to_vec();
-    assert_eq!(result, builder.inside_values());
+    assert_eq!(result, builder.slice_values());
 }
 
 #[test]
@@ -106,7 +106,7 @@ fn slice() {
         let context = builder.build();
         let target = context.fetch();
         let result = target.slice(RangeFull);
-        assert_eq!(result.to_vec(), builder.inside_values());
+        assert_eq!(result.to_vec(), builder.slice_values());
     }
 
     fn with_normal() {
@@ -115,7 +115,7 @@ fn slice() {
         let target = context.fetch();
         let range = range::normal(target.len());
         let result = target.slice(range.clone());
-        assert_eq!(result.to_vec(), builder.inside_values()[range]);
+        assert_eq!(result.to_vec(), builder.slice_values()[range]);
     }
 }
 
@@ -149,7 +149,7 @@ fn index() {
         let target = context.fetch();
         let index = builder.some_npad_indexs(1)[0];
         let result = target.index(index);
-        assert_eq!(result, &builder.inside_values()[index]);
+        assert_eq!(result, &builder.slice_values()[index]);
     }
 
     fn with_padding() {
@@ -158,7 +158,7 @@ fn index() {
         let target = context.fetch();
         let index = builder.some_pad_indexs(1)[0];
         let result = target.index(index);
-        assert_eq!(result, &builder.inside_values()[index]);
+        assert_eq!(result, &builder.slice_values()[index]);
     }
 }
 
@@ -168,5 +168,10 @@ fn into_iter() {
     let context = builder.build();
     let target = context.fetch();
     let result = target.into_iter();
-    assert!(result.eq(builder.inside_values().iter()));
+    assert!(result.eq(builder.slice_values().iter()));
+}
+
+#[test]
+fn cmp() {
+    // TODO:
 }

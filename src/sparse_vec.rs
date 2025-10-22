@@ -222,8 +222,7 @@ where
     pub fn swap(&mut self, x: usize, y: usize) {
         assert!(x < self.len());
         assert!(y < self.len());
-        let slice = &mut self.slice_mut(..);
-        slice.swap(x, y);
+        self.slice_mut(..).swap(x, y);
     }
 
     /// Fills `self` with elements by cloning `value`.
@@ -231,18 +230,15 @@ where
     where
         T: Clone,
     {
-        self.fill_with(|| value.clone());
+        self.slice_mut(..).fill(value);
     }
 
     /// Fills `self` with elements returned by calling a closure repeatedly.
-    pub fn fill_with<F>(&mut self, mut f: F)
+    pub fn fill_with<F>(&mut self, f: F)
     where
         F: FnMut() -> T,
     {
-        for i in 0..self.len() {
-            let value = f();
-            *self.edit(i) = value;
-        }
+        self.slice_mut(..).fill_with(f);
     }
 
     /// Returns cloned padding value.
