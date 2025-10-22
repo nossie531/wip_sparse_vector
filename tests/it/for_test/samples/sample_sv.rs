@@ -25,22 +25,27 @@ pub fn all_padding() -> SparseVec<i32> {
 }
 
 pub fn random_trivals(seed: u64) -> SparseVec<i32> {
+    let value_range = -1..=1;
+    let padding = -1 + (seed / 3) as i32;
     SparseVecBuilder::new()
         .set_seed(seed)
-        .set_value_range(-1..=1)
+        .set_padding(padding)
+        .set_value_range(value_range)
         .build()
 }
 
 pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
-    const CUSTOMS: [fn() -> [SparseVec<i32>; 2]; 8] = [
-        default_vs_default,
-        single_vs_single,
-        normal_vs_normal,
-        padding_vs_normal,
-        value1_vs_value2,
-        padding1_vs_padding2,
-        normal_vs_extra_padding,
-        normal_vs_extra_value,
+    const CUSTOMS: [fn() -> [SparseVec<i32>; 2]; 10] = [
+        default_eq_default,
+        single_eq_single,
+        normal_eq_normal,
+        normal_eq_diff_padding_v1,
+        normal_eq_diff_padding_v2,
+        padding_lt_normal,
+        value1_lt_value2,
+        normal_lt_extra_padding,
+        normal_lt_extra_value,
+        normal_lt_diff_padding,
     ];
 
     let customs = custom_pairs();
@@ -62,19 +67,35 @@ pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
         .take(RANDOM_TEST_SIZE)
     }
 
-    fn default_vs_default() -> [SparseVec<i32>; 2] {
+    fn default_eq_default() -> [SparseVec<i32>; 2] {
         [default(), default()]
     }
 
-    fn single_vs_single() -> [SparseVec<i32>; 2] {
+    fn single_eq_single() -> [SparseVec<i32>; 2] {
         [single(), single()]
     }
 
-    fn normal_vs_normal() -> [SparseVec<i32>; 2] {
+    fn normal_eq_normal() -> [SparseVec<i32>; 2] {
         [normal(), normal()]
     }
 
-    fn padding_vs_normal() -> [SparseVec<i32>; 2] {
+    fn normal_eq_diff_padding_v1() -> [SparseVec<i32>; 2] {
+        let mut target_x = SparseVec::<i32>::with_padding(0, 0);
+        let mut target_y = SparseVec::<i32>::with_padding(0, 1);
+        target_x.extend([0, 1, 0]);
+        target_y.extend([0, 1, 0]);
+        [target_x, target_y]
+    }
+
+    fn normal_eq_diff_padding_v2() -> [SparseVec<i32>; 2] {
+        let mut target_x = SparseVec::<i32>::with_padding(0, 0);
+        let mut target_y = SparseVec::<i32>::with_padding(0, 1);
+        target_x.extend([0, 0, 1]);
+        target_y.extend([0, 0, 1]);
+        [target_x, target_y]
+    }
+
+    fn padding_lt_normal() -> [SparseVec<i32>; 2] {
         let builder = SparseVecBuilder::new();
         let target_x = builder.build();
         let mut target_y = builder.build();
@@ -83,7 +104,7 @@ pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
         [target_x, target_y]
     }
 
-    fn value1_vs_value2() -> [SparseVec<i32>; 2] {
+    fn value1_lt_value2() -> [SparseVec<i32>; 2] {
         let builder = SparseVecBuilder::new();
         let target_x = builder.build();
         let mut target_y = builder.build();
@@ -92,27 +113,27 @@ pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
         [target_x, target_y]
     }
 
-    fn padding1_vs_padding2() -> [SparseVec<i32>; 2] {
-        let mut target_x = SparseVec::<i32>::with_padding(0, 0);
-        let mut target_y = SparseVec::<i32>::with_padding(0, 1);
-        target_x.extend([0, 1, 0]);
-        target_y.extend([0, 1, 0]);
-        [target_x, target_y]
-    }
-
-    fn normal_vs_extra_padding() -> [SparseVec<i32>; 2] {
+    fn normal_lt_extra_padding() -> [SparseVec<i32>; 2] {
         let target_x = normal();
         let mut target_y = normal();
         target_y.set_len(target_y.len() + 1);
         [target_x, target_y]
     }
 
-    fn normal_vs_extra_value() -> [SparseVec<i32>; 2] {
+    fn normal_lt_extra_value() -> [SparseVec<i32>; 2] {
         let target_x = normal();
         let mut target_y = normal();
         target_y.extend([42]);
         [target_x, target_y]
     }
+
+    fn normal_lt_diff_padding() -> [SparseVec<i32>; 2] {
+        let mut target_x = SparseVec::<i32>::with_padding(0, 0);
+        let mut target_y = SparseVec::<i32>::with_padding(0, 1);
+        target_x.extend([0, 0, 0]);
+        target_y.extend([1, 1, 0]);
+        [target_x, target_y]
+    }    
 
     fn random_trivals_pair(seed: u64) -> [SparseVec<i32>; 2] {
         [random_trivals(seed), random_trivals(seed + 1)]

@@ -178,17 +178,22 @@ where
         // Loop shared part.
         while i < len {
             // Update memos for index.
-            let s_fresh = s_memo.as_ref().is_some_and(|x| x.index() > i);
-            let o_fresh = o_memo.as_ref().is_some_and(|x| x.index() > i);
+            let s_fresh = s_memo.as_ref().is_some_and(|x| x.index() >= i);
+            let o_fresh = o_memo.as_ref().is_some_and(|x| x.index() >= i);
             s_memo = if s_fresh { s_memo } else { s_reader.next() };
             o_memo = if o_fresh { o_memo } else { o_reader.next() };
 
             // Update indexs.
-            let s_i = s_memo.as_ref().map(|x| x.index()).unwrap_or(len);
-            let o_i = o_memo.as_ref().map(|x| x.index()).unwrap_or(len);
-            let c_i = usize::min(s_i, o_i);
-            let s_hit = c_i == s_i;
-            let o_hit = c_i == o_i;
+            let s_index = s_memo.as_ref().map(|x| x.index()).unwrap_or(len);
+            let o_index = o_memo.as_ref().map(|x| x.index()).unwrap_or(len);
+            let c_index = usize::min(s_index, o_index);
+            let s_hit = c_index == s_index;
+            let o_hit = c_index == o_index;
+
+            // Compare skipped paddings.
+            if c_index > i && !PartialEq::eq(s_padding, o_padding) {
+                return false;
+            }
 
             // Update values.
             let s_value = s_memo.as_ref().map(|x| x.value()).unwrap_or(s_padding);
@@ -201,7 +206,7 @@ where
                 return false;
             }
 
-            i = c_i + 1;
+            i = c_index + 1;
         }
 
         true
@@ -216,8 +221,6 @@ where
         // Prepare common values.
         let s_padding = &self.vec.padding;
         let o_padding = &other.vec.padding;
-        let s_start = self.range.start;
-        let o_start = self.range.start;
         let s_len = self.range.len();
         let o_len = other.range.len();
         let len = usize::min(s_len, o_len);
@@ -233,19 +236,25 @@ where
         // Loop shared part.
         while i < len {
             // Update memos for index.
-            let s_index = s_start + i;
-            let o_index = o_start + i;
-            let s_fresh = s_memo.as_ref().is_some_and(|x| x.index() > s_index);
-            let o_fresh = o_memo.as_ref().is_some_and(|x| x.index() > o_index);
+            let s_fresh = s_memo.as_ref().is_some_and(|x| x.index() >= i);
+            let o_fresh = o_memo.as_ref().is_some_and(|x| x.index() >= i);
             s_memo = if s_fresh { s_memo } else { s_reader.next() };
             o_memo = if o_fresh { o_memo } else { o_reader.next() };
 
             // Update indexs.
-            let s_i = s_memo.as_ref().map(|x| x.index() - s_start).unwrap_or(len);
-            let o_i = o_memo.as_ref().map(|x| x.index() - o_start).unwrap_or(len);
-            let c_i = usize::min(s_i, o_i);
-            let s_hit = c_i == s_i;
-            let o_hit = c_i == o_i;
+            let s_index = s_memo.as_ref().map(|x| x.index()).unwrap_or(len);
+            let o_index = o_memo.as_ref().map(|x| x.index()).unwrap_or(len);
+            let c_index = usize::min(s_index, o_index);
+            let s_hit = c_index == s_index;
+            let o_hit = c_index == o_index;
+            
+            // Compare skipped paddings.
+            if c_index > i {
+                match PartialOrd::partial_cmp(s_padding, o_padding) {
+                    Some(Ordering::Equal) => {},
+                    x => return x,
+                }
+            }
 
             // Update values.
             let s_value = s_memo.as_ref().map(|x| x.value()).unwrap_or(s_padding);
@@ -259,7 +268,7 @@ where
                 x => return x,
             }
 
-            i = c_i + 1;
+            i = c_index + 1;
         }
 
         cmp_len
