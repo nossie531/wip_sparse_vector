@@ -26,7 +26,7 @@ impl SparseSliceBuilder {
     }
 
     pub fn set_len(mut self, value: usize) -> Self {
-        self.vb.set_len(value);
+        self.vb = self.vb.set_len(value);
         self
     }
 
@@ -41,6 +41,12 @@ impl SparseSliceBuilder {
     pub fn build(&self) -> SliceContext<i32> {
         let mut vec = SparseVec::with_padding(0, self.vb.padding());
         vec.extend(self.vec_values());
+        SliceContext::new(vec, self.range())
+    }
+
+    pub fn build_floats(&self) -> SliceContext<f32> {
+        let mut vec = SparseVec::with_padding(0, self.vb.padding() as f32);
+        vec.extend(self.vec_values().iter().map(|x| *x as f32));
         SliceContext::new(vec, self.range())
     }
 }

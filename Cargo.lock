@@ -133,6 +133,7 @@ dependencies = [
  "rand",
  "rand_pcg",
  "test_panic",
+ "upget",
 ]
 
 [[package]]
@@ -157,6 +158,12 @@ name = "unicode-ident"
 version = "1.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f63a545481291138910575129486daeaf8ac54aee4387fe7906919f7830c7d9d"
+
+[[package]]
+name = "upget"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d30b5c6744cb1f8d1e1d5a44be68806a77d4a269c7523ffbc7d3a3c10f31567"
 
 [[package]]
 name = "wasi"

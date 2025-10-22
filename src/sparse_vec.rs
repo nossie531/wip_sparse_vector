@@ -4,6 +4,7 @@ use crate::iters::*;
 use crate::prelude::*;
 use crate::values::*;
 use std::cmp::Ordering;
+use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 use std::ops::{Index, RangeBounds};
 
@@ -89,10 +90,16 @@ where
         self.map.len()
     }
 
-    /// Returns the padding value.
+    /// Returns the padding reference.
     #[must_use]
     pub fn padding(&self) -> &T {
         &self.padding
+    }
+
+    /// Returns cloned padding value.
+    #[must_use]
+    pub fn clone_padding(&self) -> T {
+        (self.filler)(&self.padding)
     }
 
     /// Returns an iterator over this vector.
@@ -241,9 +248,21 @@ where
         self.slice_mut(..).fill_with(f);
     }
 
-    /// Returns cloned padding value.
-    fn clone_padding(&self) -> T {
-        (self.filler)(&self.padding)
+    /// Replace values in specified range to iterator values.
+    ///
+    /// # Panics
+    ///
+    /// Panics in the following cases.
+    ///
+    /// - Range start and end is reverse order
+    /// - Range end is greater than this vector length
+    pub fn splice<R, I>(&mut self, range: R, replace_with: I) -> Splice<'_, <I as IntoIterator>::IntoIter>
+    where
+        R: RangeBounds<usize>,
+        I: IntoIterator<Item = T>,
+    {
+        let range = util::normalize_range(range, self.len);
+        Splice::new(self, range, replace_with.into_iter())
     }
 }
 

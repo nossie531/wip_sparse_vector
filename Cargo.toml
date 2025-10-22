@@ -11,4 +11,5 @@ only_one = { git = "https://github.com/nossie531/only_one" }
 [dev-dependencies]
 rand = "0.9"
 rand_pcg = "0.9"
+upget = "0.2"
 test_panic = "0.4"

@@ -48,24 +48,29 @@ impl ValuesBuilder {
         self.value_range.as_ref().unwrap_or(&VALUE_RANGE).clone()
     }
 
-    pub fn set_seed(&mut self, value: u64) {
+    pub fn set_seed(mut self, value: u64) -> Self {
         self.seed = value;
+        self
     }
 
-    pub fn set_len(&mut self, value: usize) {
+    pub fn set_len(mut self, value: usize) -> Self {
         self.len = Some(value);
+        self
     }
 
-    pub fn set_nnp(&mut self, value: usize) {
+    pub fn set_nnp(mut self, value: usize) -> Self {
         self.nnp = Some(value);
+        self
     }
 
-    pub fn set_padding(&mut self, value: i32) {
+    pub fn set_padding(mut self, value: i32) -> Self {
         self.padding = Some(value);
+        self
     }
 
-    pub fn set_value_range(&mut self, value: RangeInclusive<i32>) {
+    pub fn set_value_range(mut self, value: RangeInclusive<i32>) -> Self {
         self.value_range = Some(value);
+        self
     }
 }
 

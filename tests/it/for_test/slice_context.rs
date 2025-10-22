@@ -2,7 +2,7 @@ use sparse_vector::prelude::*;
 use std::ops::Range;
 
 pub struct SliceContext<T>
-where 
+where
     T: PartialEq,
 {
     vec: SparseVec<T>,
@@ -10,7 +10,7 @@ where
 }
 
 impl<T> SliceContext<T>
-where 
+where
     T: PartialEq,
 {
     pub fn new(vec: SparseVec<T>, range: Range<usize>) -> Self {

@@ -75,7 +75,7 @@ where
     pub fn take(&mut self, index: usize) -> T {
         assert!(index + self.range.start < self.vec.len);
         let removed = self.vec.map.remove(&(index + self.range.start));
-        removed.unwrap_or((self.vec.filler)(&self.vec.padding))
+        removed.unwrap_or(self.vec.clone_padding())
     }
 
     /// Returns value editor.

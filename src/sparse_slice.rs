@@ -247,11 +247,11 @@ where
             let c_index = usize::min(s_index, o_index);
             let s_hit = c_index == s_index;
             let o_hit = c_index == o_index;
-            
+
             // Compare skipped paddings.
             if c_index > i {
                 match PartialOrd::partial_cmp(s_padding, o_padding) {
-                    Some(Ordering::Equal) => {},
+                    Some(Ordering::Equal) => {}
                     x => return x,
                 }
             }

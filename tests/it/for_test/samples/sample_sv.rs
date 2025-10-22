@@ -8,12 +8,12 @@ pub fn default() -> SparseVec<i32> {
     SparseVec::default()
 }
 
-pub fn normal() -> SparseVec<i32> {
-    SparseVecBuilder::new().build()
-}
-
 pub fn single() -> SparseVec<i32> {
     SparseVecBuilder::new().set_len(1).set_nnp(1).build()
+}
+
+pub fn normal() -> SparseVec<i32> {
+    SparseVecBuilder::new().build()
 }
 
 pub fn normal_floats() -> SparseVec<f32> {
@@ -133,7 +133,7 @@ pub fn pairs() -> impl Iterator<Item = [SparseVec<i32>; 2]> {
         target_x.extend([0, 0, 0]);
         target_y.extend([1, 1, 0]);
         [target_x, target_y]
-    }    
+    }
 
     fn random_trivals_pair(seed: u64) -> [SparseVec<i32>; 2] {
         [random_trivals(seed), random_trivals(seed + 1)]

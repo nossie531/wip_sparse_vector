@@ -173,5 +173,99 @@ fn into_iter() {
 
 #[test]
 fn cmp() {
-    // TODO:
+    for pair in sample_ss::pairs() {
+        // Arrange.
+        let [x, y] = [pair[0].fetch(), pair[1].fetch()];
+
+        // Act.
+        let result_xy = Ord::cmp(&x, &y);
+        let result_yx = Ord::cmp(&y, &x);
+
+        // Assert.
+        let expected_xy = Ord::cmp(&x.to_vec(), &y.to_vec());
+        let expected_yx = Ord::cmp(&y.to_vec(), &x.to_vec());
+        assert_eq!(result_xy, expected_xy);
+        assert_eq!(result_yx, expected_yx);
+    }
+}
+
+#[test]
+fn eq() {
+    with_normal();
+    with_nan();
+
+    fn with_normal() {
+        for pair in sample_ss::pairs() {
+            // Arrange.
+            let [x, y] = [pair[0].fetch(), pair[1].fetch()];
+
+            // Act.
+            let result_xy = PartialEq::eq(&x, &y);
+            let result_yx = PartialEq::eq(&y, &x);
+
+            // Assert.
+            let expected_xy = PartialEq::eq(&x.to_vec(), &y.to_vec());
+            let expected_yx = PartialEq::eq(&y.to_vec(), &x.to_vec());
+            assert_eq!(result_xy, expected_xy);
+            assert_eq!(result_yx, expected_yx);
+        }
+    }
+
+    fn with_nan() {
+        // Arrange.
+        let x = &sample_ss::normal_floats();
+        let y = &mut sample_ss::normal_floats();
+        let x = &x.fetch();
+        let y = &mut y.fetch_mut();
+        *y.edit(x.len() / 2) = f32::NAN;
+
+        // Act.
+        let result_xy = PartialEq::eq(x, y.slice_ref());
+        let result_yx = PartialEq::eq(y.slice_ref(), x);
+
+        // Assert.
+        assert_eq!(result_xy, false);
+        assert_eq!(result_yx, false);
+    }
+}
+
+#[test]
+fn partial_cmp() {
+    with_normal();
+    with_nan();
+
+    fn with_normal() {
+        for pair in sample_ss::pairs() {
+            // Arrange.
+            let [x, y] = [pair[0].fetch(), pair[1].fetch()];
+
+            // Act.
+            let result_xy = PartialOrd::partial_cmp(&x, &y);
+            let result_yx = PartialOrd::partial_cmp(&y, &x);
+
+            // Assert.
+            let expected_xy = PartialOrd::partial_cmp(&x.to_vec(), &y.to_vec());
+            let expected_yx = PartialOrd::partial_cmp(&y.to_vec(), &x.to_vec());
+            assert_eq!(result_xy, expected_xy);
+            assert_eq!(result_yx, expected_yx);
+        }
+    }
+
+    fn with_nan() {
+        // Arrange.
+        let x = &sample_ss::normal_floats();
+        let y = &mut sample_ss::normal_floats();
+        let x = &x.fetch();
+        let y = &mut y.fetch_mut();
+        let index = y.len() / 2;
+        *y.edit(index) = f32::NAN;
+
+        // Act.
+        let result_xy = PartialOrd::partial_cmp(x, y.slice_ref());
+        let result_yx = PartialOrd::partial_cmp(y.slice_ref(), x);
+
+        // Assert.
+        assert_eq!(result_xy, None);
+        assert_eq!(result_yx, None);
+    }
 }

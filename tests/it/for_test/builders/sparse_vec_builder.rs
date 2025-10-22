@@ -30,27 +30,27 @@ impl SparseVecBuilder {
     }
 
     pub fn set_seed(mut self, value: u64) -> Self {
-        self.vb.set_seed(value);
+        self.vb = self.vb.set_seed(value);
         self
     }
 
     pub fn set_len(mut self, value: usize) -> Self {
-        self.vb.set_len(value);
+        self.vb = self.vb.set_len(value);
         self
     }
 
     pub fn set_nnp(mut self, value: usize) -> Self {
-        self.vb.set_nnp(value);
+        self.vb = self.vb.set_nnp(value);
         self
     }
 
     pub fn set_padding(mut self, value: i32) -> Self {
-        self.vb.set_padding(value);
+        self.vb = self.vb.set_padding(value);
         self
     }
 
     pub fn set_value_range(mut self, value: RangeInclusive<i32>) -> Self {
-        self.vb.set_value_range(value);
+        self.vb = self.vb.set_value_range(value);
         self
     }
 }

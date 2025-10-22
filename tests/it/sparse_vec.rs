@@ -3,7 +3,8 @@ use crate::for_test::helper;
 use crate::for_test::range;
 use crate::for_test::samples::*;
 use sparse_vector::prelude::*;
-use std::ops::{Index, Bound};
+use upget::Upget;
+use std::ops::{Bound, Index};
 use test_panic::prelude::*;
 
 #[test]
@@ -94,6 +95,25 @@ fn padding() {
         let target = builder.build();
         let result = target.padding();
         assert_eq!(result, &builder.padding());
+    }
+}
+
+#[test]
+fn clone_padding() {
+    with_default();
+    with_normal();
+
+    fn with_default() {
+        let target = SparseVec::<i32>::default();
+        let result = target.clone_padding();
+        assert_eq!(result, i32::default());
+    }
+
+    fn with_normal() {
+        let builder = SparseVecBuilder::new().set_padding(3);
+        let target = builder.build();
+        let result = target.clone_padding();
+        assert_eq!(result, builder.padding());
     }
 }
 
@@ -598,10 +618,59 @@ fn fill_with() {
 }
 
 #[test]
+fn splice() {
+    // Arrange.
+    let builder = SparseVecBuilder::new();
+    let target = &mut builder.build();
+    let range = range::normal(target.len());
+    let inserts = sample_vec::normal(range.len() / 2);
+
+    // Act.
+    let result = target.splice(range.clone(), inserts.clone());
+
+    // Assert result.
+    let values = builder.values();
+    let rhs = values[range.clone()].iter().copied();
+    assert!(result.eq(rhs));
+
+    // Assert target changes.
+    let rhs = values.clone().upget(|x| { x.splice(range.clone(), inserts); });
+    assert_eq!(target.to_vec(), rhs);
+}
+
+#[test]
 fn default() {
     let result = SparseVec::<i32>::default();
     assert_eq!(result.len(), 0);
     assert_eq!(result.padding(), &0);
+}
+
+#[test]
+fn extend() {
+    with_value();
+    with_ref();
+
+    fn with_value() {
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let vec = vec![1, 2, 3];
+        target.extend(vec.clone());
+
+        let sample_vec = builder.values();
+        let rhs = sample_vec.iter().chain(vec.iter());
+        assert!(target.iter().eq(rhs));
+    }
+
+    fn with_ref() {
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let vec = &vec![1, 2, 3];
+        target.extend(vec);
+
+        let sample_vec = builder.values();
+        let rhs = sample_vec.iter().chain(vec);
+        assert!(target.iter().eq(rhs));
+    }
 }
 
 #[test]
@@ -799,34 +868,6 @@ fn partial_cmp() {
         // Assert.
         assert_eq!(result_xy, None);
         assert_eq!(result_yx, None);
-    }
-}
-
-#[test]
-fn extend() {
-    with_value();
-    with_ref();
-
-    fn with_value() {
-        let builder = SparseVecBuilder::new();
-        let target = &mut builder.build();
-        let vec = vec![1, 2, 3];
-        target.extend(vec.clone());
-
-        let sample_vec = builder.values();
-        let rhs = sample_vec.iter().chain(vec.iter());
-        assert!(target.iter().eq(rhs));
-    }
-
-    fn with_ref() {
-        let builder = SparseVecBuilder::new();
-        let target = &mut builder.build();
-        let vec = &vec![1, 2, 3];
-        target.extend(vec);
-
-        let sample_vec = builder.values();
-        let rhs = sample_vec.iter().chain(vec);
-        assert!(target.iter().eq(rhs));
     }
 }
 

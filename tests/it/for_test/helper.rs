@@ -23,3 +23,13 @@ pub fn rand_without<R: Rng>(rng: &mut R, range: RangeInclusive<i32>, na: i32) ->
     let trial = rng.random_range(adjusted_range);
     if trial != na { trial } else { *range.end() }
 }
+
+pub fn rand_values<R: Rng>(rng: &mut R, range: RangeInclusive<i32>, n: usize) -> Vec<i32> {
+    let mut ret = Vec::new();
+    let len = rng.random_range(0..=n);
+    for _ in 0..len {
+        ret.push(rng.random_range(range.clone()));
+    }
+
+    ret
+}
