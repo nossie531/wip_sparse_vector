@@ -1,11 +1,11 @@
 use std::iter::FusedIterator;
 use std::vec::IntoIter;
 
-pub struct SizedIter<I>(Mode<I>)
+pub struct ExactSizeIter<I>(Mode<I>)
 where
     I: Iterator;
 
-impl<I> SizedIter<I>
+impl<I> ExactSizeIter<I>
 where
     I: Iterator,
 {
@@ -19,7 +19,7 @@ where
     }
 }
 
-impl<I> DoubleEndedIterator for SizedIter<I>
+impl<I> DoubleEndedIterator for ExactSizeIter<I>
 where
     I: DoubleEndedIterator,
 {
@@ -31,21 +31,21 @@ where
     }
 }
 
-impl<I> ExactSizeIterator for SizedIter<I>
+impl<I> ExactSizeIterator for ExactSizeIter<I>
 where
     I: Iterator,
 {
     // nop.
 }
 
-impl<I> FusedIterator for SizedIter<I>
+impl<I> FusedIterator for ExactSizeIter<I>
 where
     I: Iterator,
 {
     // nop.
 }
 
-impl<I> Iterator for SizedIter<I>
+impl<I> Iterator for ExactSizeIter<I>
 where
     I: Iterator,
 {

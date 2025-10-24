@@ -1,6 +1,6 @@
-pub(crate) use sized_iter::*;
+pub(crate) use exact_size_iter::*;
 
 pub(crate) mod msg;
 pub(crate) mod util;
 
-mod sized_iter;
+mod exact_size_iter;

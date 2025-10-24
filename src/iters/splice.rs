@@ -1,7 +1,7 @@
 use only_one::One;
 
 use crate::SparseVec;
-use crate::common::SizedIter;
+use crate::common::ExactSizeIter;
 use std::fmt::Debug;
 use std::iter::FusedIterator;
 use std::ops::{Range, RangeBounds};
@@ -44,8 +44,8 @@ where
     I::Item: PartialEq,
 {
     fn drop(&mut self) {
-        let iter = SizedIter::new(One::take(&mut self.iter));
-        let diff = iter.size_hint().0 as isize - self.range.len() as isize;
+        let iter = ExactSizeIter::new(One::take(&mut self.iter));
+        let diff = iter.len() as isize - self.range.len() as isize;
         let start = self.range.start_bound();
         let cursor = self.vec.map.lower_bound_mut(start);
         self.vec.len = (self.original_len as isize + diff) as usize;
