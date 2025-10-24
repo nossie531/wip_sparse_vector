@@ -1,5 +1,6 @@
 use rand::Rng;
 use sparse_vector::SparseWriter;
+use std::collections::HashSet;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::ops::RangeInclusive;
 
@@ -10,6 +11,21 @@ pub fn vec_from_sparse_writer<'a>(sw: &mut SparseWriter<'a, i32>) -> Vec<(usize,
     }
 
     ret
+}
+
+pub fn other_of<I>(values: I) -> i32
+where 
+    I: IntoIterator<Item = i32>,
+{
+    let set = values.into_iter().collect::<HashSet<_>>();
+    for val in 0.. {
+        if set.contains(&val) {
+            continue;
+        }
+        return val;
+    }
+
+    unreachable!()
 }
 
 pub fn hash<T: Hash>(target: &T) -> u64 {

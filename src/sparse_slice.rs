@@ -22,13 +22,43 @@ where
     T: PartialEq,
 {
     /// Returns `true` if slice is empty.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
     /// Returns slice length.
+    #[must_use]
     pub fn len(&self) -> usize {
         self.range.len()
+    }
+
+    /// Returns a vector with the same contents of this slice.
+    #[must_use]
+    pub fn to_vec(&self) -> Vec<T>
+    where
+        T: Clone,
+    {
+        Vec::from_iter(self.iter().cloned())
+    }
+
+    /// Returns a slice of specified range.
+    ///
+    /// # Panics
+    ///
+    /// Panics in the following cases.
+    ///
+    /// - Range start and end is reverse order
+    /// - Range end is greater than this slice length
+    pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
+    where
+        R: RangeBounds<usize>,
+    {
+        let vec = self.vec;
+        let len = self.range.len();
+        let range = util::normalize_range(range, len);
+        let range = (self.range.start + range.start)..(self.range.start + range.end);
+        Self { vec, range }
     }
 
     /// Returns an iterator.
@@ -42,33 +72,6 @@ where
         let slice_range = self.range.clone();
         let map_range = self.vec.map.range(slice_range);
         SparseReader::new(start, map_range)
-    }
-
-    /// Copies `self` into a new [`Vec`].
-    pub fn to_vec(&self) -> Vec<T>
-    where
-        T: Clone,
-    {
-        Vec::from_iter(self.iter().cloned())
-    }
-
-    /// Slice this slice.
-    ///
-    /// # Panics
-    ///
-    /// Panics in the following cases.
-    ///
-    /// - Range start and end is reverse order
-    /// - Range end is greater than this vector length
-    pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
-    where
-        R: RangeBounds<usize>,
-    {
-        let vec = self.vec;
-        let len = self.range.len();
-        let range = util::normalize_range(range, len);
-        let range = (self.range.start + range.start)..(self.range.start + range.end);
-        Self { vec, range }
     }
 
     /// Creates a new instance.

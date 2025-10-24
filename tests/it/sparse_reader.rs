@@ -95,8 +95,7 @@ fn next() {
 
 #[test]
 fn size_hint() {
-    // TODO:
-    // let vec = sample::normal();
+    // let vec = SparseVecSample::normal();
     // let target = vec.sparse_reader();
     // let result = target.size_hint();
     // assert_eq!(result, (vec.nnp(), Some(vec.nnp())));

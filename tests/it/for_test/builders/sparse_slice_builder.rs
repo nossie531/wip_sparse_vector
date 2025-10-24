@@ -25,6 +25,10 @@ impl SparseSliceBuilder {
         self.vb.padding()
     }
 
+    pub fn none_padding(&self) -> i32 {
+        self.vb.none_padding()
+    }
+
     pub fn set_len(mut self, value: usize) -> Self {
         self.vb = self.vb.set_len(value);
         self

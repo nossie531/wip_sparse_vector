@@ -1,3 +1,4 @@
+use crate::common::util;
 use crate::iters::*;
 use crate::prelude::*;
 use crate::values::*;
@@ -22,18 +23,46 @@ where
     T: PartialEq,
 {
     /// Returns `true` if slice is empty.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
     /// Returns slice length.
+    #[must_use]
     pub fn len(&self) -> usize {
         self.slice_ref().len()
+    }
+
+    /// Returns a vector with the same contents of this slice.
+    #[must_use]
+    pub fn to_vec(&self) -> Vec<T>
+    where
+        T: Clone,
+    {
+        self.slice_ref().to_vec()
     }
 
     /// Returns slice reference.
     pub fn slice_ref(&self) -> &SparseSlice<'_, T> {
         unsafe { mem::transmute(self) }
+    }
+
+    /// Returns a slice of specified range.
+    ///
+    /// # Panics
+    ///
+    /// Panics in the following cases.
+    ///
+    /// - Range start and end is reverse order
+    /// - Range end is greater than this slice length
+    pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
+    where
+        R: RangeBounds<usize>,
+    {
+        let len = self.range.len();
+        let range = util::normalize_range(range, len);
+        self.slice_ref().slice(range)
     }
 
     /// Returns an iterator.
@@ -44,22 +73,6 @@ where
     /// Returns none padding elements reader.
     pub fn sparse_reader(&self) -> SparseReader<'_, T> {
         self.slice_ref().sparse_reader()
-    }
-
-    /// Copies `self` into a new [`Vec`].
-    pub fn to_vec(&self) -> Vec<T>
-    where
-        T: Clone,
-    {
-        self.slice_ref().to_vec()
-    }
-
-    /// Slice this slice.
-    pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
-    where
-        R: RangeBounds<usize>,
-    {
-        self.slice_ref().slice(range)
     }
 
     /// Returns none padding elements writer.
@@ -73,8 +86,8 @@ where
     ///
     /// Panics if `index` is not less than vector length.
     pub fn take(&mut self, index: usize) -> T {
-        assert!(index + self.range.start < self.vec.len);
-        let removed = self.vec.map.remove(&(index + self.range.start));
+        assert!(index < self.range.len());
+        let removed = self.vec.map.remove(&(self.range.start + index));
         removed.unwrap_or(self.vec.clone_padding())
     }
 
@@ -84,10 +97,10 @@ where
     ///
     /// Panics if `index` is not less than vector length.
     pub fn edit(&mut self, index: usize) -> ValueEditor<'_, T> {
-        assert!(index + self.range.start < self.vec.len);
+        assert!(index < self.range.len());
         let padding = &self.vec.padding;
         let filler = self.vec.filler;
-        let entry = self.vec.map.entry(index + self.range.start);
+        let entry = self.vec.map.entry(self.range.start + index);
         ValueEditor::new(padding, filler, entry)
     }
 

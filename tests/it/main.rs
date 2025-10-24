@@ -3,5 +3,7 @@ mod into_iter;
 mod iter;
 mod sparse_reader;
 mod sparse_slice;
+mod sparse_slice_mut;
 mod sparse_vec;
 mod sparse_writer;
+mod value_editor;

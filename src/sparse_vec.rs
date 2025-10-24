@@ -102,17 +102,7 @@ where
         (self.filler)(&self.padding)
     }
 
-    /// Returns an iterator over this vector.
-    pub fn iter(&self) -> Iter<'_, T> {
-        Iter::new(self, 0..self.len)
-    }
-
-    /// Returns none padding elements reader.
-    pub fn sparse_reader(&self) -> SparseReader<'_, T> {
-        SparseReader::new(0, self.map.range(..))
-    }
-
-    /// Copies `self` into a new [`Vec`].
+    /// Returns a vector with the same contents of this sparse vector.
     #[must_use]
     pub fn to_vec(&self) -> Vec<T>
     where
@@ -135,6 +125,16 @@ where
     {
         let range = util::normalize_range(range, self.len);
         SparseSlice::new(self, range)
+    }
+
+    /// Returns an iterator over this vector.
+    pub fn iter(&self) -> Iter<'_, T> {
+        Iter::new(self, 0..self.len)
+    }
+
+    /// Returns none padding elements reader.
+    pub fn sparse_reader(&self) -> SparseReader<'_, T> {
+        SparseReader::new(0, self.map.range(..))
     }
 
     /// Sets vector length.
@@ -310,12 +310,7 @@ where
     where
         I: IntoIterator<Item = &'a T>,
     {
-        for item in iter.into_iter().copied() {
-            self.len += 1;
-            if item != self.padding {
-                self.map.insert(self.len - 1, item);
-            }
-        }
+        self.extend(iter.into_iter().copied());
     }
 }
 

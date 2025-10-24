@@ -21,11 +21,6 @@ impl<'a, T> ValueEditor<'a, T>
 where
     T: PartialEq,
 {
-    pub fn set(&mut self, value: T) -> &mut Self {
-        self.new_value = Some(value);
-        self
-    }
-
     pub(crate) fn new(padding: &'a T, filler: fn(&T) -> T, entry: Entry<'a, usize, T>) -> Self {
         Self {
             padding,
@@ -58,6 +53,7 @@ where
     T: PartialEq,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
+        dbg!(self.new_value.is_none());
         if self.new_value.is_none() {
             let padding = (self.filler)(self.padding);
             let value = match &mut *self.entry {

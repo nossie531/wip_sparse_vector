@@ -17,6 +17,10 @@ where
         Self { vec, range }
     }
 
+    pub fn vec(&self) -> &SparseVec<T> {
+        &self.vec
+    }
+
     pub fn fetch(&self) -> SparseSlice<'_, T> {
         self.vec.slice(self.range.clone())
     }

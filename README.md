@@ -42,9 +42,10 @@ Index で範囲を指定してスライスを取得できても良いのでは�
 
 ## TODO 1
 
-SparseSlice の可変分割について。
-slice::split_mut と同じ使用感を目指す。
-一つの値を二つの可変参照で覗くため unsafe は不可避。
+SparseSliceMut の可変分割について。以下が必要。
+- slice_mut 
+- split_mut
+後者は一つの値を二つの可変参照で覗くため unsafe は不可避。
 `Rc<RefCell<Map>>` のようにマップのラップが必要。
 
 ## TODO 2

@@ -2,7 +2,7 @@ use crate::for_test::builders::*;
 use crate::for_test::helper;
 use crate::for_test::range;
 use crate::for_test::samples::*;
-use std::ops::{Index, RangeFull};
+use std::ops::Index;
 use test_panic::prelude::*;
 
 #[test]
@@ -32,32 +32,6 @@ fn len() {
     let target = context.fetch();
     let result = target.len();
     assert_eq!(result, builder.slice_values().len());
-}
-
-#[test]
-fn iter() {
-    let builder = SparseSliceBuilder::new();
-    let context = builder.build();
-    let target = context.fetch();
-    let result = target.iter();
-    assert!(result.eq(builder.slice_values().iter()));
-}
-
-#[test]
-fn sparse_reader() {
-    // Arrange.
-    let builder = SparseSliceBuilder::new();
-    let context = builder.build();
-    let target = context.fetch();
-
-    // Act.
-    let result = target.sparse_reader();
-
-    // Assert.
-    let lhs = result.map(|e| (e.index(), *e.value()));
-    let elms = builder.slice_values().into_iter().enumerate();
-    let rhs = elms.filter(|e| e.1 != builder.padding());
-    assert!(lhs.eq(rhs));
 }
 
 #[test]
@@ -105,7 +79,7 @@ fn slice() {
         let builder = SparseSliceBuilder::new();
         let context = builder.build();
         let target = context.fetch();
-        let result = target.slice(RangeFull);
+        let result = target.slice(..);
         assert_eq!(result.to_vec(), builder.slice_values());
     }
 
@@ -117,6 +91,32 @@ fn slice() {
         let result = target.slice(range.clone());
         assert_eq!(result.to_vec(), builder.slice_values()[range]);
     }
+}
+
+#[test]
+fn iter() {
+    let builder = SparseSliceBuilder::new();
+    let context = builder.build();
+    let target = context.fetch();
+    let result = target.iter();
+    assert!(result.eq(builder.slice_values().iter()));
+}
+
+#[test]
+fn sparse_reader() {
+    // Arrange.
+    let builder = SparseSliceBuilder::new();
+    let context = builder.build();
+    let target = context.fetch();
+
+    // Act.
+    let result = target.sparse_reader();
+
+    // Assert.
+    let lhs = result.map(|e| (e.index(), *e.value()));
+    let elms = builder.slice_values().into_iter().enumerate();
+    let rhs = elms.filter(|e| e.1 != builder.padding());
+    assert!(lhs.eq(rhs));
 }
 
 #[test]
@@ -173,9 +173,9 @@ fn into_iter() {
 
 #[test]
 fn cmp() {
-    for pair in SparseSliceSample::pairs() {
+    for [xc, yc] in SparseSliceSample::pairs() {
         // Arrange.
-        let [x, y] = [pair[0].fetch(), pair[1].fetch()];
+        let [x, y] = [xc.fetch(), yc.fetch()];
 
         // Act.
         let result_xy = Ord::cmp(&x, &y);
@@ -195,9 +195,9 @@ fn eq() {
     with_nan();
 
     fn with_normal() {
-        for pair in SparseSliceSample::pairs() {
+        for [xc, yc] in SparseSliceSample::pairs() {
             // Arrange.
-            let [x, y] = [pair[0].fetch(), pair[1].fetch()];
+            let [x, y] = [xc.fetch(), yc.fetch()];
 
             // Act.
             let result_xy = PartialEq::eq(&x, &y);
@@ -235,9 +235,9 @@ fn partial_cmp() {
     with_nan();
 
     fn with_normal() {
-        for pair in SparseSliceSample::pairs() {
+        for [xc, yc] in SparseSliceSample::pairs() {
             // Arrange.
-            let [x, y] = [pair[0].fetch(), pair[1].fetch()];
+            let [x, y] = [xc.fetch(), yc.fetch()];
 
             // Act.
             let result_xy = PartialOrd::partial_cmp(&x, &y);

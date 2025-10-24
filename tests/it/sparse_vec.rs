@@ -118,29 +118,6 @@ fn clone_padding() {
 }
 
 #[test]
-fn iter() {
-    let builder = SparseVecBuilder::new();
-    let target = builder.build();
-    let result = target.iter();
-    assert!(result.eq(builder.values().iter()));
-}
-
-#[test]
-fn sparse_reader() {
-    // Arrange.
-    let builder = SparseVecBuilder::new();
-    let target = builder.build();
-
-    // Act.
-    let result = target.sparse_reader();
-
-    // Assert.
-    let lft = result.map(|e| (e.index(), *e.value()));
-    let rgt = builder.elms();
-    assert!(lft.eq(rgt));
-}
-
-#[test]
 fn to_vec() {
     let builder = SparseVecBuilder::new();
     let target = builder.build();
@@ -189,6 +166,29 @@ fn slice() {
         let result = target.slice(range.clone());
         assert_eq!(result.len(), range.len());
     }
+}
+
+#[test]
+fn iter() {
+    let builder = SparseVecBuilder::new();
+    let target = builder.build();
+    let result = target.iter();
+    assert!(result.eq(builder.values().iter()));
+}
+
+#[test]
+fn sparse_reader() {
+    // Arrange.
+    let builder = SparseVecBuilder::new();
+    let target = builder.build();
+
+    // Act.
+    let result = target.sparse_reader();
+
+    // Assert.
+    let lft = result.map(|e| (e.index(), *e.value()));
+    let rgt = builder.elms();
+    assert!(lft.eq(rgt));
 }
 
 #[test]
@@ -491,15 +491,12 @@ fn swap() {
 
     fn with_arg1_out_of_range() {
         // Arrange.
-        let builder = SparseVecBuilder::new();
-        let target = &mut builder.build();
-        let idx_x = builder.len();
-        let idx_y = builder.len() / 2;
+        let target = &mut SparseVecSample::normal();
+        let idx_x = target.len();
+        let idx_y = target.len() / 2;
 
         // Act.
-        let result = test_panic(|| {
-            target.swap(idx_x, idx_y);
-        });
+        let result = test_panic(|| target.swap(idx_x, idx_y));
 
         // Assert.
         assert!(result.is_panic());
@@ -507,15 +504,12 @@ fn swap() {
 
     fn with_arg2_out_of_range() {
         // Arrange.
-        let builder = SparseVecBuilder::new();
-        let target = &mut builder.build();
-        let idx_x = builder.len() / 2;
-        let idx_y = builder.len();
+        let target = &mut SparseVecSample::normal();
+        let idx_x = target.len() / 2;
+        let idx_y = target.len();
 
         // Act.
-        let result = test_panic(|| {
-            target.swap(idx_x, idx_y);
-        });
+        let result = test_panic(|| target.swap(idx_x, idx_y));
 
         // Assert.
         assert!(result.is_panic());
@@ -525,7 +519,7 @@ fn swap() {
         // Arrange.
         let builder = SparseVecBuilder::new();
         let target = &mut builder.build();
-        let idx = builder.len() / 2;
+        let idx = target.len() / 2;
 
         // Act.
         target.swap(idx, idx);
