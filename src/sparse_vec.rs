@@ -134,7 +134,7 @@ where
 
     /// Returns none padding elements reader.
     pub fn sparse_reader(&self) -> SparseReader<'_, T> {
-        SparseReader::new(0, self.map.range(..))
+        SparseReader::new(self, util::normalize_range(.., self.len))
     }
 
     /// Sets vector length.

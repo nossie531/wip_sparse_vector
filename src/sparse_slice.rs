@@ -68,10 +68,7 @@ where
 
     /// Returns none padding elements reader.
     pub fn sparse_reader(&self) -> SparseReader<'_, T> {
-        let start = self.range.start;
-        let slice_range = self.range.clone();
-        let map_range = self.vec.map.range(slice_range);
-        SparseReader::new(start, map_range)
+        SparseReader::new(self.vec, self.range.clone())
     }
 
     /// Creates a new instance.

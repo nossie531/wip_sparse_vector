@@ -1,24 +1,34 @@
 use crate::alias::*;
 use crate::common::*;
-use crate::values::ElmReader;
+use crate::prelude::*;
+use crate::values::*;
 use only_one::prelude::*;
 use std::iter::FusedIterator;
+use std::ops::Range;
 
 #[derive(Debug)]
 #[must_use = msg::iter_must_use!()]
-pub struct SparseReader<'a, T> {
-    offset: usize,
-    range: One<MapRange<'a, T>>,
+pub struct SparseReader<'a, T>
+where 
+    T: PartialEq,
+{
+    idx_range: Range<usize>,
+    map_range: One<MapRange<'a, T>>,
 }
 
-impl<'a, T> SparseReader<'a, T> {
-    pub(crate) fn new(offset: usize, range: MapRange<'a, T>) -> Self {
-        let range = One::new(range);
-        Self { offset, range }
+impl<'a, T> SparseReader<'a, T>
+where 
+    T: PartialEq,
+{
+    pub(crate) fn new(vec: &'a SparseVec<T>, range: Range<usize>) -> Self {
+        Self {
+            idx_range: range.clone(),
+            map_range: One::new(vec.map.range(range))
+        }
     }
 
     fn is_default(&self) -> bool {
-        !One::exists(&self.range)
+        !One::exists(&self.map_range)
     }
 }
 
@@ -33,17 +43,20 @@ where
 {
     fn clone(&self) -> Self {
         Self {
-            offset: self.offset,
-            range: self.range.clone(),
+            idx_range: self.idx_range.clone(),
+            map_range: self.map_range.clone(),
         }
     }
 }
 
-impl<T> Default for SparseReader<'_, T> {
+impl<T> Default for SparseReader<'_, T>
+where 
+    T: PartialEq,
+{
     fn default() -> Self {
         Self {
-            offset: Default::default(),
-            range: Default::default(),
+            idx_range: Default::default(),
+            map_range: Default::default(),
         }
     }
 }
@@ -66,8 +79,9 @@ where
             return None;
         }
 
-        let kv = self.range.next()?;
-        Some(ElmReader::new(*kv.0 - self.offset, kv.1))
+        let kv = self.map_range.next()?;
+        let offset = self.idx_range.start;
+        Some(ElmReader::new(*kv.0 - offset, kv.1))
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -75,7 +89,7 @@ where
             return (0, Some(0));
         }
 
-        self.range.size_hint()
+        self.map_range.size_hint()
     }
 }
 
@@ -88,7 +102,8 @@ where
             return None;
         }
 
-        let kv = self.range.next_back()?;
-        Some(ElmReader::new(*kv.0 - self.offset, kv.1))
+        let kv = self.map_range.next_back()?;
+        let offset = self.idx_range.start;
+        Some(ElmReader::new(*kv.0 - offset, kv.1))
     }
 }
