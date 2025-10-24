@@ -1,12 +1,13 @@
-use std::{iter::FusedIterator, vec::IntoIter};
+use std::iter::FusedIterator;
+use std::vec::IntoIter;
 
 pub struct SizedIter<I>(Mode<I>)
-where 
+where
     I: Iterator;
 
 impl<I> SizedIter<I>
-where 
-    I: Iterator
+where
+    I: Iterator,
 {
     pub fn new(iter: I) -> Self {
         let sh = iter.size_hint();
@@ -19,7 +20,7 @@ where
 }
 
 impl<I> DoubleEndedIterator for SizedIter<I>
-where 
+where
     I: DoubleEndedIterator,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
@@ -31,22 +32,22 @@ where
 }
 
 impl<I> ExactSizeIterator for SizedIter<I>
-where 
+where
     I: Iterator,
 {
     // nop.
 }
 
 impl<I> FusedIterator for SizedIter<I>
-where 
+where
     I: Iterator,
 {
     // nop.
 }
 
 impl<I> Iterator for SizedIter<I>
-where 
-    I: Iterator
+where
+    I: Iterator,
 {
     type Item = I::Item;
 
@@ -67,5 +68,5 @@ where
 
 enum Mode<I: Iterator> {
     IterMode(I),
-    VecMode(IntoIter<I::Item>)
+    VecMode(IntoIter<I::Item>),
 }

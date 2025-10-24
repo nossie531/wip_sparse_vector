@@ -1,7 +1,7 @@
 use only_one::One;
 
-use crate::common::SizedIter;
 use crate::SparseVec;
+use crate::common::SizedIter;
 use std::fmt::Debug;
 use std::iter::FusedIterator;
 use std::ops::{Range, RangeBounds};
@@ -77,7 +77,7 @@ where
     I::Item: PartialEq,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
-        if self.edges.len() == 0 {
+        if self.edges.is_empty() {
             return None;
         }
 
@@ -112,7 +112,7 @@ where
     type Item = I::Item;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.edges.len() == 0 {
+        if self.edges.is_empty() {
             return None;
         }
 

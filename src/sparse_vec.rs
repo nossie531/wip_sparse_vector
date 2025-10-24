@@ -256,7 +256,11 @@ where
     ///
     /// - Range start and end is reverse order
     /// - Range end is greater than this vector length
-    pub fn splice<R, I>(&mut self, range: R, replace_with: I) -> Splice<'_, <I as IntoIterator>::IntoIter>
+    pub fn splice<R, I>(
+        &mut self,
+        range: R,
+        replace_with: I,
+    ) -> Splice<'_, <I as IntoIterator>::IntoIter>
     where
         R: RangeBounds<usize>,
         I: IntoIterator<Item = T>,

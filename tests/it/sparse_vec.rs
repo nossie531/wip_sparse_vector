@@ -3,9 +3,9 @@ use crate::for_test::helper;
 use crate::for_test::range;
 use crate::for_test::samples::*;
 use sparse_vector::prelude::*;
-use upget::Upget;
 use std::ops::{Bound, Index};
 use test_panic::prelude::*;
+use upget::prelude::*;
 
 #[test]
 fn new() {
@@ -634,7 +634,9 @@ fn splice() {
     assert!(result.eq(rhs));
 
     // Assert target changes.
-    let rhs = values.clone().upget(|x| { x.splice(range.clone(), inserts); });
+    let rhs = values.clone().upget(|x| {
+        x.splice(range.clone(), inserts);
+    });
     assert_eq!(target.to_vec(), rhs);
 }
 
