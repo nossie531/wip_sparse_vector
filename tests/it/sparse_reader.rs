@@ -4,7 +4,7 @@ use sparse_vector::SparseReader;
 
 #[test]
 fn clone() {
-    let vec = sample_sv::normal();
+    let vec = SparseVecSample::normal();
     let target = vec.sparse_reader();
     let result = target.clone();
     assert!(result.eq(vec.sparse_reader()));
@@ -32,7 +32,7 @@ fn next() {
     }
 
     fn with_empty() {
-        let vec = sample_sv::default();
+        let vec = SparseVecSample::default();
         let target = &mut vec.sparse_reader();
         let result = target.next();
         assert_eq!(result, None);
@@ -40,7 +40,7 @@ fn next() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = sample_sv::normal();
+        let vec = SparseVecSample::normal();
         let target = &mut vec.sparse_reader();
         target.nth(vec.nnp() - 1);
 
@@ -117,7 +117,7 @@ fn next_back() {
     }
 
     fn with_empty() {
-        let vec = sample_sv::default();
+        let vec = SparseVecSample::default();
         let target = &mut vec.sparse_reader();
         let result = target.next_back();
         assert_eq!(result, None);
@@ -125,7 +125,7 @@ fn next_back() {
 
     fn with_overrun() {
         // Arrange.
-        let vec = sample_sv::normal();
+        let vec = SparseVecSample::normal();
         let target = &mut vec.sparse_reader();
         target.nth_back(vec.nnp() - 1);
 

@@ -119,25 +119,16 @@ where
         assert!(x < self.len());
         assert!(y < self.len());
 
-        if x == y {
-            return;
-        }
+        if x != y {
+            let xv = self.take(x);
+            let yv = self.take(y);
 
-        let xv = self.take(x);
-        let yv = self.take(y);
-        let x_is_padding = xv == self.vec.padding;
-        let y_is_padding = yv == self.vec.padding;
-        match (x_is_padding, y_is_padding) {
-            (true, true) => {}
-            (true, false) => {
-                *self.edit(x) = yv;
-            }
-            (false, true) => {
+            if xv != self.vec.padding {
                 *self.edit(y) = xv;
             }
-            (false, false) => {
+
+            if yv != self.vec.padding {
                 *self.edit(x) = yv;
-                *self.edit(y) = xv;
             }
         }
     }

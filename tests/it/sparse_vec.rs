@@ -33,13 +33,13 @@ fn is_empty() {
     with_some_len();
 
     fn with_zero_len() {
-        let target = sample_sv::default();
+        let target = SparseVecSample::default();
         let result = target.is_empty();
         assert_eq!(result, true);
     }
 
     fn with_some_len() {
-        let target = sample_sv::normal();
+        let target = SparseVecSample::normal();
         let result = target.is_empty();
         assert_eq!(result, false);
     }
@@ -51,13 +51,13 @@ fn is_all_padding() {
     with_some_values();
 
     fn with_all_padding() {
-        let target = sample_sv::all_padding();
+        let target = SparseVecSample::all_padding();
         let result = target.is_all_padding();
         assert_eq!(result, true);
     }
 
     fn with_some_values() {
-        let target = sample_sv::normal();
+        let target = SparseVecSample::normal();
         let result = target.is_all_padding();
         assert_eq!(result, false);
     }
@@ -157,34 +157,34 @@ fn slice() {
     with_normal();
 
     fn with_range_order_rev() {
-        let target = sample_sv::normal();
+        let target = SparseVecSample::normal();
         let range = range::rev_order(target.len());
         let result = test_panic(|| target.slice(range));
         assert!(result.is_panic());
     }
 
     fn with_range_end_gt_len() {
-        let target = sample_sv::normal();
+        let target = SparseVecSample::normal();
         let range = range::gt_len(target.len());
         let result = test_panic(|| target.slice(range));
         assert!(result.is_panic());
     }
 
     fn with_empty() {
-        let target = sample_sv::normal();
+        let target = SparseVecSample::normal();
         let range = range::empty(target.len());
         let result = target.slice(range);
         assert_eq!(result.len(), 0);
     }
 
     fn with_all() {
-        let target = sample_sv::normal();
+        let target = SparseVecSample::normal();
         let result = target.slice(..);
         assert_eq!(result.len(), target.len());
     }
 
     fn with_normal() {
-        let target = sample_sv::normal();
+        let target = SparseVecSample::normal();
         let range = range::normal(target.len());
         let result = target.slice(range.clone());
         assert_eq!(result.len(), range.len());
@@ -200,7 +200,7 @@ fn set_len() {
 
     fn with_same() {
         // Arrange.
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let value = target.len();
 
         // Act.
@@ -213,7 +213,7 @@ fn set_len() {
 
     fn with_longer() {
         // Arrange.
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let value = target.len() + 1;
         let padding = *target.padding();
         let original = target.iter().cloned().collect::<Vec<_>>();
@@ -228,7 +228,7 @@ fn set_len() {
 
     fn with_shorter() {
         // Arrange.
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let value = target.len() - 1;
 
         // Act.
@@ -241,7 +241,7 @@ fn set_len() {
 
     fn with_zero() {
         // Arrange.
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
 
         // Act.
         target.set_len(0);
@@ -261,34 +261,34 @@ fn slice_mut() {
     with_normal();
 
     fn with_range_order_rev() {
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let range = range::rev_order(target.len());
         let result = test_panic(|| target.slice_mut(range));
         assert!(result.is_panic());
     }
 
     fn with_range_end_gt_len() {
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let range = range::gt_len(target.len());
         let result = test_panic(|| target.slice_mut(range));
         assert!(result.is_panic());
     }
 
     fn with_empty() {
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let range = range::empty(target.len() / 2);
         let result = target.slice_mut(range);
         assert_eq!(result.len(), 0);
     }
 
     fn with_all() {
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let result = target.slice_mut(..);
         assert_eq!(result.len(), target.len());
     }
 
     fn with_normal() {
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let range = range::normal(target.len());
         let result = target.slice_mut(range.clone());
         assert_eq!(result.len(), range.len());
@@ -318,7 +318,7 @@ fn take() {
 
     fn with_out_of_range() {
         // Arrange.
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let index = target.len();
 
         // Act.
@@ -369,7 +369,7 @@ fn edit() {
 
     fn with_out_of_range() {
         // Arrange.
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let index = target.len();
 
         // Act.
@@ -414,7 +414,7 @@ fn pop() {
 
     fn with_empty() {
         // Arrange.
-        let target = &mut sample_sv::default();
+        let target = &mut SparseVecSample::default();
 
         // Act.
         let result = target.pop();
@@ -585,7 +585,7 @@ fn swap() {
 
 #[test]
 fn clear() {
-    let target = &mut sample_sv::normal();
+    let target = &mut SparseVecSample::normal();
     target.clear();
     assert!(target.is_empty());
 }
@@ -627,17 +627,17 @@ fn splice() {
     with_normal();
     
     fn with_range_order_rev() {
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let range = range::rev_order(target.len());
-        let inserts = sample_vec::normal(3);
+        let inserts = VecSample::normal(3);
         let result = test_panic(|| target.splice(range, inserts));
         assert!(result.is_panic());
     }
 
     fn with_range_end_gt_len() {
-        let target = &mut sample_sv::normal();
+        let target = &mut SparseVecSample::normal();
         let range = range::gt_len(target.len());
-        let inserts = sample_vec::normal(3);
+        let inserts = VecSample::normal(3);
         let result = test_panic(|| target.splice(range, inserts));
         assert!(result.is_panic());
     }
@@ -647,7 +647,7 @@ fn splice() {
         let builder = SparseVecBuilder::new();
         let target = &mut builder.build();
         let range = range::normal(target.len());
-        let inserts = sample_vec::normal(range.len() / 2);
+        let inserts = VecSample::normal(range.len() / 2);
 
         // Act.
         let result = target.splice(range.clone(), inserts.clone());
@@ -730,7 +730,7 @@ fn from_iter() {
 
 #[test]
 fn hash() {
-    for pair in sample_sv::pairs() {
+    for pair in SparseVecSample::pairs() {
         let [x, y] = pair;
         let result_x = helper::hash(&x);
         let result_y = helper::hash(&y);
@@ -746,7 +746,7 @@ fn index() {
 
     fn with_out_of_range() {
         // Arrange.
-        let target = sample_sv::normal();
+        let target = SparseVecSample::normal();
         let index = target.len();
 
         // Act.
@@ -805,7 +805,7 @@ fn into_iter() {
 
 #[test]
 fn cmp() {
-    for pair in sample_sv::pairs() {
+    for pair in SparseVecSample::pairs() {
         // Arrange.
         let [x, y] = pair;
 
@@ -827,7 +827,7 @@ fn eq() {
     with_nan();
 
     fn with_normal() {
-        for pair in sample_sv::pairs() {
+        for pair in SparseVecSample::pairs() {
             // Arrange.
             let [x, y] = pair;
 
@@ -845,8 +845,8 @@ fn eq() {
 
     fn with_nan() {
         // Arrange.
-        let x = &sample_sv::normal_floats();
-        let y = &mut sample_sv::normal_floats();
+        let x = &SparseVecSample::normal_floats();
+        let y = &mut SparseVecSample::normal_floats();
         *y.edit(x.len() / 2) = f32::NAN;
 
         // Act.
@@ -865,7 +865,7 @@ fn partial_cmp() {
     with_nan();
 
     fn with_normal() {
-        for pair in sample_sv::pairs() {
+        for pair in SparseVecSample::pairs() {
             // Arrange.
             let [x, y] = pair;
 
@@ -883,8 +883,8 @@ fn partial_cmp() {
 
     fn with_nan() {
         // Arrange.
-        let x = &sample_sv::normal_floats();
-        let y = &mut sample_sv::normal_floats();
+        let x = &SparseVecSample::normal_floats();
+        let y = &mut SparseVecSample::normal_floats();
         let index = y.len() / 2;
         *y.edit(index) = f32::NAN;
 
@@ -900,7 +900,7 @@ fn partial_cmp() {
 
 #[test]
 fn from_for_vec() {
-    let sparse_vec = sample_sv::normal();
+    let sparse_vec = SparseVecSample::normal();
     let result = <Vec<_> as From<SparseVec<_>>>::from(sparse_vec.clone());
     assert!(result.iter().eq(sparse_vec.iter()));
 }

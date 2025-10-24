@@ -44,7 +44,7 @@ fn next() {
     }
 
     fn with_empty() {
-        let vec = &mut sample_sv::default();
+        let vec = &mut SparseVecSample::default();
         let target = &mut vec.sparse_writer();
         let result = target.next();
         assert_eq!(result, None);
@@ -121,7 +121,7 @@ fn next_back() {
     }
 
     fn with_empty() {
-        let vec = &mut sample_sv::default();
+        let vec = &mut SparseVecSample::default();
         let target = &mut vec.sparse_writer();
         let result = target.next_back();
         assert_eq!(result, None);

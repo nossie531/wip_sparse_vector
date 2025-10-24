@@ -11,14 +11,14 @@ fn is_empty() {
     with_some_len();
 
     fn with_zero_len() {
-        let context = sample_ss::empty();
+        let context = SparseSliceSample::empty();
         let target = context.fetch();
         let result = target.is_empty();
         assert_eq!(result, true);
     }
 
     fn with_some_len() {
-        let context = sample_ss::normal();
+        let context = SparseSliceSample::normal();
         let target = context.fetch();
         let result = target.is_empty();
         assert_eq!(result, false);
@@ -78,7 +78,7 @@ fn slice() {
     with_normal();
 
     fn with_range_order_rev() {
-        let context = sample_ss::normal();
+        let context = SparseSliceSample::normal();
         let target = context.fetch();
         let range = range::rev_order(target.len());
         let result = test_panic(|| target.slice(range));
@@ -86,7 +86,7 @@ fn slice() {
     }
 
     fn with_range_end_gt_len() {
-        let context = sample_ss::normal();
+        let context = SparseSliceSample::normal();
         let target = context.fetch();
         let range = range::gt_len(target.len());
         let result = test_panic(|| target.slice(range));
@@ -94,7 +94,7 @@ fn slice() {
     }
 
     fn with_empty() {
-        let context = sample_ss::normal();
+        let context = SparseSliceSample::normal();
         let target = context.fetch();
         let range = range::empty(target.len());
         let result = target.slice(range);
@@ -121,12 +121,12 @@ fn slice() {
 
 #[test]
 fn hash() {
-    for [vx, vy] in sample_sv::pairs() {
-        let sx = vx.slice(range::normal(vx.len()));
-        let sy = vy.slice(range::normal(vy.len()));
-        let result_x = helper::hash(&sx);
-        let result_y = helper::hash(&sy);
-        assert!(!sx.eq(&sy) || result_x == result_y);
+    for [x, y] in SparseSliceSample::pairs() {
+        let target_x = x.fetch();
+        let target_y = y.fetch();
+        let result_x = helper::hash(&target_x);
+        let result_y = helper::hash(&target_y);
+        assert!(!target_x.eq(&target_y) || result_x == result_y);
     }
 }
 
@@ -137,7 +137,7 @@ fn index() {
     with_padding();
 
     fn with_out_of_range() {
-        let context = sample_ss::normal();
+        let context = SparseSliceSample::normal();
         let target = context.fetch();
         let result = test_panic(|| target.index(target.len()));
         assert!(result.is_panic());
@@ -173,7 +173,7 @@ fn into_iter() {
 
 #[test]
 fn cmp() {
-    for pair in sample_ss::pairs() {
+    for pair in SparseSliceSample::pairs() {
         // Arrange.
         let [x, y] = [pair[0].fetch(), pair[1].fetch()];
 
@@ -195,7 +195,7 @@ fn eq() {
     with_nan();
 
     fn with_normal() {
-        for pair in sample_ss::pairs() {
+        for pair in SparseSliceSample::pairs() {
             // Arrange.
             let [x, y] = [pair[0].fetch(), pair[1].fetch()];
 
@@ -213,8 +213,8 @@ fn eq() {
 
     fn with_nan() {
         // Arrange.
-        let x = &sample_ss::normal_floats();
-        let y = &mut sample_ss::normal_floats();
+        let x = &SparseSliceSample::normal_floats();
+        let y = &mut SparseSliceSample::normal_floats();
         let x = &x.fetch();
         let y = &mut y.fetch_mut();
         *y.edit(x.len() / 2) = f32::NAN;
@@ -235,7 +235,7 @@ fn partial_cmp() {
     with_nan();
 
     fn with_normal() {
-        for pair in sample_ss::pairs() {
+        for pair in SparseSliceSample::pairs() {
             // Arrange.
             let [x, y] = [pair[0].fetch(), pair[1].fetch()];
 
@@ -253,8 +253,8 @@ fn partial_cmp() {
 
     fn with_nan() {
         // Arrange.
-        let x = &sample_ss::normal_floats();
-        let y = &mut sample_ss::normal_floats();
+        let x = &SparseSliceSample::normal_floats();
+        let y = &mut SparseSliceSample::normal_floats();
         let x = &x.fetch();
         let y = &mut y.fetch_mut();
         let index = y.len() / 2;
