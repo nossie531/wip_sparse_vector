@@ -3,7 +3,7 @@ use crate::for_test::helper;
 use crate::for_test::range;
 use crate::for_test::samples::*;
 use sparse_vector::prelude::*;
-use std::ops::{Bound, Index};
+use std::ops::Index;
 use test_panic::prelude::*;
 use upget::prelude::*;
 
@@ -262,24 +262,22 @@ fn slice_mut() {
 
     fn with_range_order_rev() {
         let target = &mut sample_sv::normal();
-        let start = Bound::Excluded(target.len() / 2);
-        let end = Bound::Excluded(target.len() / 2);
-        let result = test_panic(|| target.slice_mut((start, end)));
+        let range = range::rev_order(target.len());
+        let result = test_panic(|| target.slice_mut(range));
         assert!(result.is_panic());
     }
 
     fn with_range_end_gt_len() {
         let target = &mut sample_sv::normal();
-        let start = target.len() / 2;
-        let end = target.len() + 1;
-        let result = test_panic(|| target.slice_mut(start..end));
+        let range = range::gt_len(target.len());
+        let result = test_panic(|| target.slice_mut(range));
         assert!(result.is_panic());
     }
 
     fn with_empty() {
         let target = &mut sample_sv::normal();
-        let index = target.len() / 2;
-        let result = target.slice_mut(index..index);
+        let range = range::empty(target.len() / 2);
+        let result = target.slice_mut(range);
         assert_eq!(result.len(), 0);
     }
 
@@ -291,9 +289,7 @@ fn slice_mut() {
 
     fn with_normal() {
         let target = &mut sample_sv::normal();
-        let start = target.len() / 3 * 1;
-        let end = target.len() / 3 * 2;
-        let range = start..end;
+        let range = range::normal(target.len());
         let result = target.slice_mut(range.clone());
         assert_eq!(result.len(), range.len());
     }
@@ -619,25 +615,47 @@ fn fill_with() {
 
 #[test]
 fn splice() {
-    // Arrange.
-    let builder = SparseVecBuilder::new();
-    let target = &mut builder.build();
-    let range = range::normal(target.len());
-    let inserts = sample_vec::normal(range.len() / 2);
+    with_range_order_rev();
+    with_range_end_gt_len();
+    with_normal();
+    
+    fn with_range_order_rev() {
+        let target = &mut sample_sv::normal();
+        let range = range::rev_order(target.len());
+        let inserts = sample_vec::normal(3);
+        let result = test_panic(|| target.splice(range, inserts));
+        assert!(result.is_panic());
+    }
 
-    // Act.
-    let result = target.splice(range.clone(), inserts.clone());
+    fn with_range_end_gt_len() {
+        let target = &mut sample_sv::normal();
+        let range = range::gt_len(target.len());
+        let inserts = sample_vec::normal(3);
+        let result = test_panic(|| target.splice(range, inserts));
+        assert!(result.is_panic());
+    }
 
-    // Assert result.
-    let values = builder.values();
-    let rhs = values[range.clone()].iter().copied();
-    assert!(result.eq(rhs));
+    fn with_normal() {
+        // Arrange.
+        let builder = SparseVecBuilder::new();
+        let target = &mut builder.build();
+        let range = range::normal(target.len());
+        let inserts = sample_vec::normal(range.len() / 2);
 
-    // Assert target changes.
-    let rhs = values.clone().upget(|x| {
-        x.splice(range.clone(), inserts);
-    });
-    assert_eq!(target.to_vec(), rhs);
+        // Act.
+        let result = target.splice(range.clone(), inserts.clone());
+
+        // Assert result.
+        let values = builder.values();
+        let rhs = values[range.clone()].iter().copied();
+        assert!(result.eq(rhs));
+
+        // Assert target changes.
+        let rhs = values.clone().upget(|x| {
+            x.splice(range.clone(), inserts);
+        });
+        assert_eq!(target.to_vec(), rhs);
+    }
 }
 
 #[test]
