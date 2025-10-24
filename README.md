@@ -63,3 +63,8 @@ len を n と r に分割した場合、新たな min_nnp は min_nnp - r、
 
 SparseSliceMut は SparseSlice に変換でき、かつ NNP が変化しうる。
 そのため、この経路についてはスライス長のみを根拠にすべき。
+
+## TODO 4
+
+SparseVec::drain も実装すべき。
+SparseVec::splice の亜種なので簡単に実装できるはず。
