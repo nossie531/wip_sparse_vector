@@ -68,3 +68,8 @@ SparseSliceMut は SparseSlice に変換でき、かつ NNP が変化しうる�
 
 SparseVec::drain も実装すべき。
 SparseVec::splice の亜種なので簡単に実装できるはず。
+
+## TODO 5
+
+SparseSlice と SparseSliceMut は互いに比較できるべきでは？
+
