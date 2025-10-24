@@ -584,6 +584,13 @@ fn swap() {
 }
 
 #[test]
+fn clear() {
+    let target = &mut sample_sv::normal();
+    target.clear();
+    assert!(target.is_empty());
+}
+
+#[test]
 fn fill() {
     // Arrange.
     let builder = SparseVecBuilder::new();

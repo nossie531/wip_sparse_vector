@@ -232,6 +232,12 @@ where
         self.slice_mut(..).swap(x, y);
     }
 
+    /// Clears the vector, removing all values.
+    pub fn clear(&mut self) {
+        self.len = 0;
+        self.map.clear();
+    }
+
     /// Fills `self` with elements by cloning `value`.
     pub fn fill(&mut self, value: T)
     where
