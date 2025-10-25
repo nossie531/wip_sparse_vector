@@ -6,4 +6,5 @@ mod sparse_slice;
 mod sparse_slice_mut;
 mod sparse_vec;
 mod sparse_writer;
+mod splice;
 mod value_editor;

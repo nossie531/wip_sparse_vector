@@ -70,6 +70,7 @@ impl SparseVecBuilder {
     }
 }
 
+// Reporting methods.
 impl SparseVecBuilder {
     pub fn values(&self) -> Vec<i32> {
         self.vb.values()
