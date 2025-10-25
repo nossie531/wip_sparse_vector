@@ -4,10 +4,10 @@ use std::iter::FusedIterator;
 use std::vec::IntoIter;
 
 /// An iterator wrapper to implement [`ExactSizeIterator`].
-/// 
+///
 /// If the target iterator's `size_hint` returns an accurate value,
 /// use it. Otherwise, preload all items into an internal vector.
-/// 
+///
 /// [`size_hint`]: Iterator::size_hint
 pub struct ExactSizeIter<I>(Mode<I>)
 where

@@ -9,7 +9,7 @@ pub fn range_for(len: usize) -> RangeFor {
 
 /// [`Range`] sample creator.
 pub struct RangeFor {
-    len: usize
+    len: usize,
 }
 
 impl RangeFor {
@@ -55,7 +55,7 @@ impl RangeFor {
 
     /// Returns sample range with specified length.
     pub fn with_len(&self, len: usize) -> Range<usize> {
-        assert!(len <= self.len);    
+        assert!(len <= self.len);
         let side_len = (self.len - len) / 2;
         side_len..(side_len + len)
     }

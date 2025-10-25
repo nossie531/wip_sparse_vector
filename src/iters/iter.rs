@@ -8,7 +8,7 @@ use std::iter::FusedIterator;
 use std::ops::Range;
 
 /// An iterator over the elements of a [`SparseVec`].
-/// 
+///
 /// This type is created by [`SparseVec::iter`].
 /// See its documentation for more.
 #[derive(Debug)]

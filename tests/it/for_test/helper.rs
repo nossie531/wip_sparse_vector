@@ -18,7 +18,7 @@ pub fn elm_tuples_from_sw<'a>(sw: &mut SparseWriter<'a, i32>) -> Vec<(usize, i32
 
 /// Returns some value not contained in `values`.
 pub fn some_other_of<I>(values: I) -> i32
-where 
+where
     I: IntoIterator<Item = i32>,
 {
     let set = values.into_iter().collect::<HashSet<_>>();

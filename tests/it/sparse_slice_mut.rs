@@ -1,8 +1,8 @@
+use crate::for_test::builders::*;
 use crate::for_test::helper;
 use crate::for_test::samples::*;
-use crate::for_test::builders::*;
-use test_panic::prelude::*;
 use std::ops::Index;
+use test_panic::prelude::*;
 
 #[test]
 fn is_empty() {

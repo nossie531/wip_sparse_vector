@@ -1,6 +1,6 @@
-use std::mem;
 use crate::for_test::builders::*;
 use crate::for_test::samples::*;
+use std::mem;
 
 #[test]
 fn drop() {
@@ -22,7 +22,7 @@ fn drop() {
         // Assert.
         let rhs = &mut builder.values();
         rhs.splice(range.clone(), inserts.clone());
-        assert_eq!(&vec.to_vec(), rhs);        
+        assert_eq!(&vec.to_vec(), rhs);
     }
 
     fn with_values_remained() {

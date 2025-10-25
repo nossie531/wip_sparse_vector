@@ -1,14 +1,14 @@
 //! Provider of [`Splice`].
 
-use only_one::One;
 use crate::SparseVec;
 use crate::common::ExactSizeIter;
+use only_one::One;
 use std::fmt::Debug;
 use std::iter::FusedIterator;
 use std::ops::{Range, RangeBounds};
 
 /// A splicing iterator for [`SparseVec`].
-/// 
+///
 /// This type is created by [`SparseVec::splice`].
 /// See its documentation for more.
 #[derive(Debug)]

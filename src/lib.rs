@@ -1,8 +1,8 @@
 //! Vector for sparse values.
-//! 
+//!
 //! _The author of this crate is not good at English._  
 //! _Forgive me if the document is hard to read._
-//! 
+//!
 //! This crate provides a vector like type `SparseVec`.
 //! This type is efficient when most elements have same value.
 

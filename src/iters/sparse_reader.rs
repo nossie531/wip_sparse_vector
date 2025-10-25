@@ -9,13 +9,13 @@ use std::iter::FusedIterator;
 use std::ops::Range;
 
 /// A sparse iterator over the elements of a [`SparseVec`].
-/// 
+///
 /// This type is created by [`SparseVec::sparse_reader`].
 /// See its documentation for more.
 #[derive(Debug)]
 #[must_use = msg::iter_must_use!()]
 pub struct SparseReader<'a, T>
-where 
+where
     T: PartialEq,
 {
     /// Underlying sparse vector length.
@@ -32,7 +32,7 @@ where
 }
 
 impl<'a, T> SparseReader<'a, T>
-where 
+where
     T: PartialEq,
 {
     /// Creates a new instance.
@@ -41,7 +41,7 @@ where
             len: vec.len(),
             nnp: vec.nnp(),
             idx_range: range.clone(),
-            map_range: One::new(vec.map.range(range))
+            map_range: One::new(vec.map.range(range)),
         }
     }
 
@@ -71,7 +71,7 @@ where
 }
 
 impl<T> Default for SparseReader<'_, T>
-where 
+where
     T: PartialEq,
 {
     fn default() -> Self {

@@ -1,7 +1,7 @@
-use std::mem;
-use std::ops::{Deref, DerefMut};
 use crate::for_test::builders::*;
 use crate::for_test::helper;
+use std::mem;
+use std::ops::{Deref, DerefMut};
 
 #[test]
 fn deref() {

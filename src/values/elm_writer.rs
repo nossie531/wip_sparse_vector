@@ -1,11 +1,11 @@
 use std::fmt::Debug;
 
 /// Element writer.
-/// 
+///
 /// This type is created by the [`next`] method on
 /// [`SparseWriter`] (provided by the [`Iterator`] trait).
 /// See its documentation for more.
-/// 
+///
 /// [`next`]: crate::iters::SparseWriter::next
 /// [`SparseWriter`]: crate::iters::SparseWriter
 #[derive(Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

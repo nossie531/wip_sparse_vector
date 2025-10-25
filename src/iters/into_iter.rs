@@ -7,11 +7,11 @@ use std::iter::FusedIterator;
 use std::ops::Range;
 
 /// An owning iterator over the elements of a [`SparseVec`].
-/// 
+///
 /// This type is created by the [`into_iter`] method on
 /// [`SparseVec`] (provided by the [`IntoIterator`] trait).
 /// See its documentation for more.
-/// 
+///
 /// [`into_iter`]: crate::SparseVec::into_iter
 #[derive(Clone, Debug)]
 pub struct IntoIter<T>

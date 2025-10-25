@@ -126,7 +126,7 @@ fn size_hint() {
             // Assert.
             assert_eq!(result.0, nnp_len.saturating_sub(side_len));
             assert_eq!(result.1, Some(usize::min(nnp_len, slice_len)));
-        };
+        }
     }
 }
 

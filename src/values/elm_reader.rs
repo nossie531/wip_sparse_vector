@@ -1,11 +1,11 @@
 //! Provider of [`ElmReader`].
 
 /// Element reader.
-/// 
+///
 /// This type is created by the [`next`] method on
 /// [`SparseReader`] (provided by the [`Iterator`] trait).
 /// See its documentation for more.
-/// 
+///
 /// [`next`]: crate::iters::SparseReader::next
 /// [`SparseReader`]: crate::iters::SparseReader
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

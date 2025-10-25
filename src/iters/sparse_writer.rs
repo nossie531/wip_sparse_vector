@@ -10,7 +10,7 @@ use std::iter::FusedIterator;
 use std::ops::{Bound, Range};
 
 /// A mutable sparse iterator over the elements of a [`SparseVec`].
-/// 
+///
 /// This type is created by [`SparseVec::sparse_writer`].
 /// See its documentation for more.
 #[derive(Debug)]

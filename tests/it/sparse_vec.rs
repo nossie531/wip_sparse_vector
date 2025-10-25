@@ -618,7 +618,7 @@ fn splice() {
     with_range_order_rev();
     with_range_out_bounds();
     with_normal();
-    
+
     fn with_range_order_rev() {
         let target = &mut SparseVecSample::normal();
         let range = range_for(target.len()).rev_order();

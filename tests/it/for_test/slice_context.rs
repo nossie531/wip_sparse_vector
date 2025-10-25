@@ -2,7 +2,7 @@ use sparse_vector::prelude::*;
 use std::ops::Range;
 
 /// Sparse slice context.
-/// 
+///
 /// This type holds instances of [`SparseVec`] and [`Range`]. From
 /// these, [`SparseSlice`] and [`SparseSliceMut`] can be created.
 pub struct SliceContext<T>
