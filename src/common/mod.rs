@@ -1,3 +1,5 @@
+//! Crate's common items.
+
 pub(crate) use exact_size_iter::*;
 
 pub(crate) mod msg;

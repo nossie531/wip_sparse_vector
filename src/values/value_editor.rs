@@ -11,9 +11,16 @@ pub struct ValueEditor<'a, T>
 where
     T: PartialEq,
 {
+    /// Padding value reference.
     padding: &'a T,
+
+    /// Padding value duplicator.
     filler: fn(&T) -> T,
+
+    /// Edited new value.
     new_value: Option<T>,
+
+    /// Editing target entry of underlying map.
     entry: One<Entry<'a, usize, T>>,
 }
 
@@ -21,6 +28,7 @@ impl<'a, T> ValueEditor<'a, T>
 where
     T: PartialEq,
 {
+    /// Creates a new instance.
     pub(crate) fn new(padding: &'a T, filler: fn(&T) -> T, entry: Entry<'a, usize, T>) -> Self {
         Self {
             padding,

@@ -1,3 +1,5 @@
+//! Sample value builders.
+
 pub use sparse_slice_builder::*;
 pub use sparse_vec_builder::*;
 pub use values_builder::*;

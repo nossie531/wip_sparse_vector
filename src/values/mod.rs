@@ -1,3 +1,5 @@
+//! Sparse elements and values.
+
 pub use elm_reader::*;
 pub use elm_writer::*;
 pub use value_editor::*;

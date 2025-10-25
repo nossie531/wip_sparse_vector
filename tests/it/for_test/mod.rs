@@ -1,6 +1,5 @@
 pub mod builders;
 pub mod helper;
-pub mod range;
 pub mod samples;
 pub mod stepper;
 

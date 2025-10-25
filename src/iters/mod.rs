@@ -1,3 +1,5 @@
+//! Iterators.
+
 pub use into_iter::*;
 pub use iter::*;
 pub use sparse_reader::*;

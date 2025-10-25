@@ -1,3 +1,5 @@
+//! Provider of [`SparseSliceMut`].
+
 use crate::common::util;
 use crate::iters::*;
 use crate::prelude::*;
@@ -7,6 +9,7 @@ use std::hash::{Hash, Hasher};
 use std::mem;
 use std::ops::{Index, Range, RangeBounds};
 
+/// A mutable slice for [`SparseVec`].
 #[repr(C)]
 #[must_use]
 #[derive(Debug, Eq)]
@@ -14,7 +17,10 @@ pub struct SparseSliceMut<'a, T>
 where
     T: PartialEq,
 {
+    /// Target sparse vector.
     vec: &'a mut SparseVec<T>,
+
+    /// Slicing range.
     range: Range<usize>,
 }
 

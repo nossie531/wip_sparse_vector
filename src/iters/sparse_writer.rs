@@ -1,4 +1,6 @@
-use crate::alias::*;
+//! Provider of [`SparseWriter`].
+
+use crate::aliases::*;
 use crate::common::*;
 use crate::prelude::*;
 use crate::values::*;
@@ -7,17 +9,32 @@ use std::fmt::Debug;
 use std::iter::FusedIterator;
 use std::ops::{Bound, Range};
 
+/// A mutable sparse iterator over the elements of a [`SparseVec`].
+/// 
+/// This type is created by [`SparseVec::sparse_writer`].
+/// See its documentation for more.
 #[derive(Debug)]
 #[must_use = msg::iter_must_use!()]
 pub struct SparseWriter<'a, T>
 where
     T: PartialEq,
 {
+    /// Underlying sparse vector length.
     len: usize,
+
+    /// Underlying sparse vector NNP.
     nnp: usize,
+
+    /// Padding value reference.
     padding: One<&'a T>,
+
+    /// Slicing range.
     idx_range: Range<usize>,
+
+    /// Iterating range of underlying sparse vector map.
     map_range: One<MapRangeMut<'a, T>>,
+
+    /// Map pointer (Used only after [`Self::map_range`] is droped.)
     map: *mut Map<T>,
 }
 
@@ -25,6 +42,7 @@ impl<'a, T> SparseWriter<'a, T>
 where
     T: PartialEq,
 {
+    /// Creates a new instance.
     pub(crate) fn new(vec: &'a mut SparseVec<T>, range: Range<usize>) -> Self {
         let map_ptr = (&mut vec.map) as *mut _;
         Self {
@@ -37,6 +55,7 @@ where
         }
     }
 
+    /// Returns `true` if this is default instance.
     fn is_default(&self) -> bool {
         !One::exists(&self.map_range)
     }

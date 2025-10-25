@@ -1,20 +1,35 @@
-use crate::alias::*;
+//! Provider of [`Iter`].
+
+use crate::aliases::*;
 use crate::common::*;
 use crate::prelude::*;
 use only_one::prelude::*;
 use std::iter::FusedIterator;
 use std::ops::Range;
 
+/// An iterator over the elements of a [`SparseVec`].
+/// 
+/// This type is created by [`SparseVec::iter`].
+/// See its documentation for more.
 #[derive(Debug)]
 #[must_use = msg::iter_must_use!()]
 pub struct Iter<'a, T>
 where
     T: PartialEq,
 {
+    /// Padding value.
     padding: One<&'a T>,
+
+    /// Underlying map range.
     map_range: One<MapRange<'a, T>>,
+
+    /// Iterating range.
     idx_range: Range<usize>,
+
+    /// Iterating head memo.
     head_memo: Option<(&'a usize, &'a T)>,
+
+    /// Iterating tail memo.
     tail_memo: Option<(&'a usize, &'a T)>,
 }
 
@@ -22,6 +37,7 @@ impl<'a, T> Iter<'a, T>
 where
     T: PartialEq,
 {
+    /// Creates a new instance.
     pub(crate) fn new(vec: &'a SparseVec<T>, range: Range<usize>) -> Self {
         Self {
             padding: One::new(&vec.padding),
@@ -32,12 +48,9 @@ where
         }
     }
 
+    /// Returns `true` if the iterator is empty.
     fn is_end(&self) -> bool {
         self.size_hint().1.unwrap() == 0
-    }
-
-    fn iter(&mut self) -> &mut MapRange<'a, T> {
-        &mut self.map_range
     }
 }
 
@@ -101,9 +114,8 @@ where
             return None;
         }
 
-        let head_memo = self.head_memo.as_ref();
-        if head_memo.is_none() {
-            self.head_memo = self.iter().next();
+        if self.head_memo.as_ref().is_none() {
+            self.head_memo = self.map_range.next();
         }
 
         let head_memo = self.head_memo.as_ref();
@@ -134,9 +146,8 @@ where
             return None;
         }
 
-        let tail_memo = self.tail_memo.as_ref();
-        if tail_memo.is_none() {
-            self.tail_memo = self.iter().next_back();
+        if self.tail_memo.as_ref().is_none() {
+            self.tail_memo = self.map_range.next_back();
         }
 
         let tail_pos = self.idx_range.end.checked_sub(1);

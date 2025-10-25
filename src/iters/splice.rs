@@ -1,21 +1,35 @@
-use only_one::One;
+//! Provider of [`Splice`].
 
+use only_one::One;
 use crate::SparseVec;
 use crate::common::ExactSizeIter;
 use std::fmt::Debug;
 use std::iter::FusedIterator;
 use std::ops::{Range, RangeBounds};
 
+/// A splicing iterator for [`SparseVec`].
+/// 
+/// This type is created by [`SparseVec::splice`].
+/// See its documentation for more.
 #[derive(Debug)]
 pub struct Splice<'a, I>
 where
     I: Iterator + 'a,
     I::Item: PartialEq,
 {
+    /// Underlying sparse vector.
     vec: &'a mut SparseVec<I::Item>,
+
+    /// Range for remove.
     range: Range<usize>,
+
+    /// Iterating edges for remove range.
     edges: Range<usize>,
+
+    /// New values provider.
     iter: One<I>,
+
+    /// Original length of underlying sparse vector.
     original_len: usize,
 }
 

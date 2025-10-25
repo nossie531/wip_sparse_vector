@@ -1,6 +1,5 @@
 use crate::for_test::builders::*;
 use crate::for_test::helper;
-use crate::for_test::range;
 use crate::for_test::samples::*;
 use std::ops::Index;
 use test_panic::prelude::*;
@@ -46,7 +45,7 @@ fn to_vec() {
 #[test]
 fn slice() {
     with_range_order_rev();
-    with_range_end_gt_len();
+    with_range_out_bounds();
     with_empty();
     with_all();
     with_normal();
@@ -54,15 +53,15 @@ fn slice() {
     fn with_range_order_rev() {
         let context = SparseSliceSample::normal();
         let target = context.fetch();
-        let range = range::rev_order(target.len());
+        let range = range_for(target.len()).rev_order();
         let result = test_panic(|| target.slice(range));
         assert!(result.is_panic());
     }
 
-    fn with_range_end_gt_len() {
+    fn with_range_out_bounds() {
         let context = SparseSliceSample::normal();
         let target = context.fetch();
-        let range = range::gt_len(target.len());
+        let range = range_for(target.len()).out_bounds();
         let result = test_panic(|| target.slice(range));
         assert!(result.is_panic());
     }
@@ -70,7 +69,7 @@ fn slice() {
     fn with_empty() {
         let context = SparseSliceSample::normal();
         let target = context.fetch();
-        let range = range::empty(target.len());
+        let range = range_for(target.len()).empty();
         let result = target.slice(range);
         assert!(result.is_empty());
     }
@@ -87,7 +86,7 @@ fn slice() {
         let builder = SparseSliceBuilder::new();
         let context = builder.build();
         let target = context.fetch();
-        let range = range::normal(target.len());
+        let range = range_for(target.len()).normal();
         let result = target.slice(range.clone());
         assert_eq!(result.to_vec(), builder.slice_values()[range]);
     }

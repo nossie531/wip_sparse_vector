@@ -132,7 +132,7 @@ fn drop() {
         let vec = &mut builder.build();
         let index = builder.some_npad_indexs(1)[0];
         let mut target = vec.edit(index);
-        let value = helper::other_of([*target, builder.padding()]);
+        let value = helper::some_other_of([*target, builder.padding()]);
         *target = value;
 
         // Act.

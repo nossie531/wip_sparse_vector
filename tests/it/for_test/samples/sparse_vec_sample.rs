@@ -1,9 +1,12 @@
+//! Provider of [`SparseVecSample`].
+
 use crate::for_test::builders::*;
 use sparse_vector::prelude::*;
 use std::iter::{self, repeat_with};
 
 const RANDOM_TEST_SIZE: usize = 64;
 
+/// Samples for [`SparseVec`].
 pub struct SparseVecSample();
 
 impl SparseVecSample {

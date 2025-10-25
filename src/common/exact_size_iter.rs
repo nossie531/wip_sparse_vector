@@ -1,6 +1,14 @@
+//! Provider of [`ExactSizeIter`].
+
 use std::iter::FusedIterator;
 use std::vec::IntoIter;
 
+/// An iterator wrapper to implement [`ExactSizeIterator`].
+/// 
+/// If the target iterator's `size_hint` returns an accurate value,
+/// use it. Otherwise, preload all items into an internal vector.
+/// 
+/// [`size_hint`]: Iterator::size_hint
 pub struct ExactSizeIter<I>(Mode<I>)
 where
     I: Iterator;
@@ -9,6 +17,7 @@ impl<I> ExactSizeIter<I>
 where
     I: Iterator,
 {
+    /// Creates a new instance.
     pub fn new(iter: I) -> Self {
         let sh = iter.size_hint();
         if Some(sh.0) == sh.1 {
@@ -66,7 +75,10 @@ where
     }
 }
 
+/// Iteration mode.
 enum Mode<I: Iterator> {
+    /// Base iterator mode.
     IterMode(I),
+    /// Vector preloading mode.
     VecMode(IntoIter<I::Item>),
 }

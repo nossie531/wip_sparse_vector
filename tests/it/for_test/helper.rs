@@ -1,10 +1,13 @@
+//! Helper methods for test.
+
 use rand::Rng;
 use sparse_vector::SparseWriter;
 use std::collections::HashSet;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::ops::RangeInclusive;
 
-pub fn vec_from_sparse_writer<'a>(sw: &mut SparseWriter<'a, i32>) -> Vec<(usize, i32)> {
+/// Returns element tuples from sparse writer.
+pub fn elm_tuples_from_sw<'a>(sw: &mut SparseWriter<'a, i32>) -> Vec<(usize, i32)> {
     let mut ret = Vec::new();
     while let Some(elm) = sw.next() {
         ret.push((elm.index(), *elm.value()));
@@ -13,7 +16,8 @@ pub fn vec_from_sparse_writer<'a>(sw: &mut SparseWriter<'a, i32>) -> Vec<(usize,
     ret
 }
 
-pub fn other_of<I>(values: I) -> i32
+/// Returns some value not contained in `values`.
+pub fn some_other_of<I>(values: I) -> i32
 where 
     I: IntoIterator<Item = i32>,
 {
@@ -28,18 +32,21 @@ where
     unreachable!()
 }
 
+/// Returns target hash value with default hasher.
 pub fn hash<T: Hash>(target: &T) -> u64 {
     let hasher = &mut DefaultHasher::new();
     target.hash(hasher);
     hasher.finish()
 }
 
+/// Returns a random value within the range excluding `na`.
 pub fn rand_without<R: Rng>(rng: &mut R, range: RangeInclusive<i32>, na: i32) -> i32 {
     let adjusted_range = *range.start()..=(*range.end() - 1);
     let trial = rng.random_range(adjusted_range);
     if trial != na { trial } else { *range.end() }
 }
 
+/// Returns random values within the range.
 pub fn rand_values<R: Rng>(rng: &mut R, range: RangeInclusive<i32>, n: usize) -> Vec<i32> {
     let mut ret = Vec::new();
     let len = rng.random_range(0..=n);

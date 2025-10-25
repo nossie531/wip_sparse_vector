@@ -1,6 +1,6 @@
 # sparse_vector (WIP)
 
-A vector for sparse elements.
+Vector like type for sparse values.
 
 _The author of this crate is not good at English._  
 _Forgive me if the document is hard to read._

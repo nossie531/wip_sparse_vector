@@ -1,5 +1,4 @@
 use crate::for_test::builders::*;
-use crate::for_test::range;
 use crate::for_test::samples::*;
 use permute::permutations_of;
 use sparse_vector::SparseReader;
@@ -108,16 +107,17 @@ fn size_hint() {
 
     fn with_normal() {
         for mut values in permutations_of(&[5, 10, 15]) {
-            // prepare lengths.
+            // prepare test parameters.
             let nnp_len = *values.next().unwrap();
             let side_len = *values.next().unwrap();
             let slice_len = *values.next().unwrap();
             let vec_len = slice_len + side_len;
+            let range = range_for(vec_len).with_len(slice_len);
 
             // Arrange.
             let builder = SparseVecBuilder::new().set_len(vec_len).set_nnp(nnp_len);
             let vec = builder.build();
-            let slice = vec.slice(range::len_in(slice_len, vec.len()));
+            let slice = vec.slice(range);
             let target = slice.sparse_reader();
 
             // Act.

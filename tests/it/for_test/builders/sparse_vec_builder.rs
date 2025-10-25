@@ -1,7 +1,10 @@
+//! Provider of [`SparseVecBuilder`].
+
 use crate::for_test::builders::ValuesBuilder;
 use sparse_vector::prelude::*;
 use std::{collections::BTreeSet, ops::RangeInclusive};
 
+/// Builder for [`SparseVec`].
 #[derive(Default)]
 pub struct SparseVecBuilder {
     vb: ValuesBuilder,

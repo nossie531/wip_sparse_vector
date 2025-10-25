@@ -1,6 +1,5 @@
 use crate::for_test::builders::*;
 use crate::for_test::helper;
-use crate::for_test::range;
 use crate::for_test::samples::*;
 use sparse_vector::prelude::*;
 use std::ops::Index;
@@ -128,28 +127,28 @@ fn to_vec() {
 #[test]
 fn slice() {
     with_range_order_rev();
-    with_range_end_gt_len();
+    with_range_out_bounds();
     with_empty();
     with_all();
     with_normal();
 
     fn with_range_order_rev() {
         let target = SparseVecSample::normal();
-        let range = range::rev_order(target.len());
+        let range = range_for(target.len()).rev_order();
         let result = test_panic(|| target.slice(range));
         assert!(result.is_panic());
     }
 
-    fn with_range_end_gt_len() {
+    fn with_range_out_bounds() {
         let target = SparseVecSample::normal();
-        let range = range::gt_len(target.len());
+        let range = range_for(target.len()).out_bounds();
         let result = test_panic(|| target.slice(range));
         assert!(result.is_panic());
     }
 
     fn with_empty() {
         let target = SparseVecSample::normal();
-        let range = range::empty(target.len());
+        let range = range_for(target.len()).empty();
         let result = target.slice(range);
         assert_eq!(result.len(), 0);
     }
@@ -162,7 +161,7 @@ fn slice() {
 
     fn with_normal() {
         let target = SparseVecSample::normal();
-        let range = range::normal(target.len());
+        let range = range_for(target.len()).normal();
         let result = target.slice(range.clone());
         assert_eq!(result.len(), range.len());
     }
@@ -255,28 +254,28 @@ fn set_len() {
 #[test]
 fn slice_mut() {
     with_range_order_rev();
-    with_range_end_gt_len();
+    with_range_out_bounds();
     with_empty();
     with_all();
     with_normal();
 
     fn with_range_order_rev() {
         let target = &mut SparseVecSample::normal();
-        let range = range::rev_order(target.len());
+        let range = range_for(target.len()).rev_order();
         let result = test_panic(|| target.slice_mut(range));
         assert!(result.is_panic());
     }
 
-    fn with_range_end_gt_len() {
+    fn with_range_out_bounds() {
         let target = &mut SparseVecSample::normal();
-        let range = range::gt_len(target.len());
+        let range = range_for(target.len()).out_bounds();
         let result = test_panic(|| target.slice_mut(range));
         assert!(result.is_panic());
     }
 
     fn with_empty() {
         let target = &mut SparseVecSample::normal();
-        let range = range::empty(target.len() / 2);
+        let range = range_for(target.len()).empty();
         let result = target.slice_mut(range);
         assert_eq!(result.len(), 0);
     }
@@ -289,7 +288,7 @@ fn slice_mut() {
 
     fn with_normal() {
         let target = &mut SparseVecSample::normal();
-        let range = range::normal(target.len());
+        let range = range_for(target.len()).normal();
         let result = target.slice_mut(range.clone());
         assert_eq!(result.len(), range.len());
     }
@@ -305,7 +304,7 @@ fn sparse_writer() {
     let result = &mut target.sparse_writer();
 
     // Assert.
-    let lhs = helper::vec_from_sparse_writer(result);
+    let lhs = helper::elm_tuples_from_sw(result);
     let rhs = builder.elms();
     assert_eq!(lhs, rhs);
 }
@@ -617,21 +616,21 @@ fn fill_with() {
 #[test]
 fn splice() {
     with_range_order_rev();
-    with_range_end_gt_len();
+    with_range_out_bounds();
     with_normal();
     
     fn with_range_order_rev() {
         let target = &mut SparseVecSample::normal();
-        let range = range::rev_order(target.len());
-        let inserts = VecSample::normal(3);
+        let range = range_for(target.len()).rev_order();
+        let inserts = sparse_values(3);
         let result = test_panic(|| target.splice(range, inserts));
         assert!(result.is_panic());
     }
 
-    fn with_range_end_gt_len() {
+    fn with_range_out_bounds() {
         let target = &mut SparseVecSample::normal();
-        let range = range::gt_len(target.len());
-        let inserts = VecSample::normal(3);
+        let range = range_for(target.len()).out_bounds();
+        let inserts = sparse_values(3);
         let result = test_panic(|| target.splice(range, inserts));
         assert!(result.is_panic());
     }
@@ -640,8 +639,8 @@ fn splice() {
         // Arrange.
         let builder = SparseVecBuilder::new();
         let target = &mut builder.build();
-        let range = range::normal(target.len());
-        let inserts = VecSample::normal(range.len() / 2);
+        let range = range_for(target.len()).normal();
+        let inserts = sparse_values(range.len() / 2);
 
         // Act.
         let result = target.splice(range.clone(), inserts.clone());

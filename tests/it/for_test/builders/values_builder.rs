@@ -1,3 +1,5 @@
+//! Provider of [`ValuesBuilder`].
+
 use crate::for_test::helper;
 use crate::for_test::stepper::Stepper;
 use rand::SeedableRng;
@@ -11,6 +13,7 @@ static NNP: usize = 5;
 static PADDING: i32 = -1;
 static VALUE_RANGE: RangeInclusive<i32> = -99..=99;
 
+/// Builder for common sparse values.
 #[derive(Default)]
 pub struct ValuesBuilder {
     seed: u64,

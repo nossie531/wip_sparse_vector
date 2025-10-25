@@ -1,9 +1,12 @@
+//! Provider of [`SparseSliceBuilder`].
+
 use crate::for_test::SliceContext;
 use crate::for_test::builders::ValuesBuilder;
 use sparse_vector::prelude::*;
 use std::collections::BTreeSet;
 use std::ops::Range;
 
+/// Builder for [`SparseSlice`] and [`SparseSliceMut`].
 #[derive(Default)]
 pub struct SparseSliceBuilder {
     vb: ValuesBuilder,

@@ -1,4 +1,6 @@
-use crate::alias::*;
+//! Provider of [`SparseVec`].
+
+use crate::aliases::*;
 use crate::common::*;
 use crate::iters::*;
 use crate::prelude::*;
@@ -8,7 +10,7 @@ use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 use std::ops::{Index, RangeBounds};
 
-/// Sparse vector.
+/// A sparse vector.
 ///
 /// This vector has [`padding`] value as elements default value. We can
 /// save padding value as vector element value without using memory. So,
@@ -27,7 +29,7 @@ where
     /// Padding value.
     pub(crate) padding: T,
 
-    /// Padding duplicator.
+    /// Padding value duplicator.
     pub(crate) filler: fn(&T) -> T,
 
     /// None padding elements map.

@@ -1,3 +1,5 @@
+//! Provider of [`SparseSlice`].
+
 use crate::common::*;
 use crate::iters::*;
 use crate::prelude::*;
@@ -6,6 +8,7 @@ use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::ops::{Index, Range, RangeBounds};
 
+/// A slice for [`SparseVec`].
 #[repr(C)]
 #[must_use]
 #[derive(Debug, Eq)]
@@ -13,7 +16,10 @@ pub struct SparseSlice<'a, T>
 where
     T: PartialEq,
 {
+    /// Target sparse vector.
     vec: &'a SparseVec<T>,
+
+    /// Slicing range.
     range: Range<usize>,
 }
 

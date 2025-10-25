@@ -1,3 +1,5 @@
+//! Provider of [`SparseSliceSample`].
+
 use crate::for_test::SliceContext;
 use crate::for_test::builders::*;
 use crate::for_test::helper;
@@ -10,6 +12,7 @@ use std::ops::RangeInclusive;
 const SIDE_LEN: usize = 5;
 const SIDE_VAL_RANGE: RangeInclusive<i32> = -2..=2;
 
+/// Samples for [`SliceContext`].
 pub struct SparseSliceSample();
 
 impl SparseSliceSample {
