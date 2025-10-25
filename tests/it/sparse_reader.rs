@@ -1,5 +1,7 @@
 use crate::for_test::builders::*;
+use crate::for_test::range;
 use crate::for_test::samples::*;
+use permute::permutations_of;
 use sparse_vector::SparseReader;
 
 #[test]
@@ -95,10 +97,37 @@ fn next() {
 
 #[test]
 fn size_hint() {
-    // let vec = SparseVecSample::normal();
-    // let target = vec.sparse_reader();
-    // let result = target.size_hint();
-    // assert_eq!(result, (vec.nnp(), Some(vec.nnp())));
+    with_default();
+    with_normal();
+
+    fn with_default() {
+        let target = SparseReader::<i32>::default();
+        let result = target.size_hint();
+        assert_eq!(result, (0, Some(0)))
+    }
+
+    fn with_normal() {
+        for mut values in permutations_of(&[5, 10, 15]) {
+            // prepare lengths.
+            let nnp_len = *values.next().unwrap();
+            let side_len = *values.next().unwrap();
+            let slice_len = *values.next().unwrap();
+            let vec_len = slice_len + side_len;
+
+            // Arrange.
+            let builder = SparseVecBuilder::new().set_len(vec_len).set_nnp(nnp_len);
+            let vec = builder.build();
+            let slice = vec.slice(range::len_in(slice_len, vec.len()));
+            let target = slice.sparse_reader();
+
+            // Act.
+            let result = target.size_hint();
+
+            // Assert.
+            assert_eq!(result.0, nnp_len.saturating_sub(side_len));
+            assert_eq!(result.1, Some(usize::min(nnp_len, slice_len)));
+        };
+    }
 }
 
 #[test]

@@ -55,22 +55,9 @@ IterMut があっても良いのでは？
 
 ## TODO 3
 
-size_hint を SparseSlice で予測できないだろうか？
-BTreeMap の Range では size_hint があてにならない。
-
-SparseSlice 内の nnp の範囲を [min_nnp, max_nnp] とする。
-len を n と r に分割した場合、新たな min_nnp は min_nnp - r、
-新たな max_nnp は max_nnp.min(n) となる。
-
-SparseSliceMut は SparseSlice に変換でき、かつ NNP が変化しうる。
-そのため、この経路についてはスライス長のみを根拠にすべき。
-
-## TODO 4
-
 SparseVec::drain も実装すべき。
 SparseVec::splice の亜種なので簡単に実装できるはず。
 
-## TODO 5
+## TODO 4
 
 SparseSlice と SparseSliceMut は互いに比較できるべきでは？
-

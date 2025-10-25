@@ -24,3 +24,9 @@ pub fn normal(len: usize) -> Range<usize> {
     let max = (div * 2.0).round() as usize;
     min..((max + 1).min(len))
 }
+
+pub fn len_in(range_len: usize, len: usize) -> Range<usize> {
+    assert!(range_len <= len);    
+    let side_len = (len - range_len) / 2;
+    side_len..(side_len + range_len)
+}

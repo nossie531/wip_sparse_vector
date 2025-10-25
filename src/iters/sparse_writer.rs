@@ -13,6 +13,8 @@ pub struct SparseWriter<'a, T>
 where
     T: PartialEq,
 {
+    len: usize,
+    nnp: usize,
     padding: One<&'a T>,
     idx_range: Range<usize>,
     map_range: One<MapRangeMut<'a, T>>,
@@ -26,6 +28,8 @@ where
     pub(crate) fn new(vec: &'a mut SparseVec<T>, range: Range<usize>) -> Self {
         let map_ptr = (&mut vec.map) as *mut _;
         Self {
+            len: vec.len(),
+            nnp: vec.nnp(),
             padding: One::new(&vec.padding),
             idx_range: range.clone(),
             map_range: One::new(vec.map.range_mut(range)),
@@ -44,6 +48,8 @@ where
 {
     fn default() -> Self {
         Self {
+            len: Default::default(),
+            nnp: Default::default(),
             padding: Default::default(),
             idx_range: Default::default(),
             map_range: Default::default(),
@@ -106,7 +112,9 @@ where
             return (0, Some(0));
         }
 
-        self.map_range.size_hint()
+        let min = self.nnp.saturating_sub(self.len - self.idx_range.len());
+        let max = usize::min(self.nnp, self.idx_range.len());
+        (min, Some(max))
     }
 }
 

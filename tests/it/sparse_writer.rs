@@ -1,5 +1,7 @@
 use crate::for_test::builders::*;
+use crate::for_test::range;
 use crate::for_test::samples::*;
+use permute::permutations_of;
 use sparse_vector::SparseWriter;
 use std::mem;
 
@@ -103,6 +105,41 @@ fn next() {
         let rhs_val = builder.slice_values()[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);
         assert_eq!(lhs_val, rhs_val);
+    }
+}
+
+#[test]
+fn size_hint() {
+    with_default();
+    with_normal();
+
+    fn with_default() {
+        let target = SparseWriter::<i32>::default();
+        let result = target.size_hint();
+        assert_eq!(result, (0, Some(0)))
+    }
+
+    fn with_normal() {
+        for mut values in permutations_of(&[5, 10, 15]) {
+            // prepare lengths.
+            let nnp_len = *values.next().unwrap();
+            let side_len = *values.next().unwrap();
+            let slice_len = *values.next().unwrap();
+            let vec_len = slice_len + side_len;
+
+            // Arrange.
+            let builder = SparseVecBuilder::new().set_len(vec_len).set_nnp(nnp_len);
+            let vec = &mut builder.build();
+            let slice = &mut vec.slice_mut(range::len_in(slice_len, vec.len()));
+            let target = slice.sparse_writer();
+
+            // Act.
+            let result = target.size_hint();
+
+            // Assert.
+            assert_eq!(result.0, nnp_len.saturating_sub(side_len));
+            assert_eq!(result.1, Some(usize::min(nnp_len, slice_len)));
+        };
     }
 }
 
