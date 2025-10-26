@@ -27,7 +27,7 @@ where
     edges: Range<usize>,
 
     /// New values provider.
-    iter: One<I>,
+    news: One<I>,
 
     /// Original length of underlying sparse vector.
     original_len: usize,
@@ -38,15 +38,15 @@ where
     I: Iterator + 'a,
     I::Item: PartialEq,
 {
-    pub(crate) fn new(vec: &'a mut SparseVec<I::Item>, range: Range<usize>, iter: I) -> Self {
+    pub(crate) fn new(vec: &'a mut SparseVec<I::Item>, range: Range<usize>, news: I) -> Self {
         let edges = range.clone();
         let original_len = vec.len();
-        let iter = One::new(iter);
+        let news = One::new(news);
         Self {
             vec,
             range,
             edges,
-            iter,
+            news,
             original_len,
         }
     }
@@ -58,8 +58,8 @@ where
     I::Item: PartialEq,
 {
     fn drop(&mut self) {
-        let iter = ExactSizeIter::new(One::take(&mut self.iter));
-        let diff = iter.len() as isize - self.range.len() as isize;
+        let news = ExactSizeIter::new(One::take(&mut self.news));
+        let diff = news.len() as isize - self.range.len() as isize;
         let start = self.range.start_bound();
         let cursor = self.vec.map.lower_bound_mut(start);
         self.vec.len = (self.original_len as isize + diff) as usize;
@@ -78,7 +78,7 @@ where
             }
         }
 
-        for (i, item) in iter.enumerate() {
+        for (i, item) in news.enumerate() {
             let pos = self.range.start + i;
             self.vec.map.insert(pos, item);
         }
