@@ -86,7 +86,7 @@ where
         self.len
     }
 
-    /// Returns nnp (the Number of None Padding elements).
+    /// Returns NNP (the Number of None Padding elements).
     #[must_use]
     pub fn nnp(&self) -> usize {
         self.map.len()
