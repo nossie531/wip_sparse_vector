@@ -5,7 +5,6 @@ edition = "2024"
 
 [dependencies]
 pstd = "1"
-nameof = "1"
 only_one = { git = "https://github.com/nossie531/only_one" }
 
 [dev-dependencies]

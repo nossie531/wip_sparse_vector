@@ -4,23 +4,6 @@ use crate::common::*;
 use std::ops::{Bound, Range, RangeBounds};
 use std::panic::panic_any;
 
-/// Returns filed name.
-macro_rules! name_of {
-    ($n:ident in $t:ty) => {
-        ::nameof::name_of!($n in $t)
-    };
-}
-
-/// Returns type name.
-macro_rules! name_of_type {
-    ($t:ty) => {
-        ::nameof::name_of_type!($t).split("<").next().unwrap()
-    };
-}
-
-pub(crate) use name_of;
-pub(crate) use name_of_type;
-
 /// Normalize range for index.
 ///
 /// # Panics

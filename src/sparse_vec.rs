@@ -379,9 +379,7 @@ where
     /// ```
     pub fn edit(&mut self, index: usize) -> ValueEditor<'_, T> {
         assert!(index < self.len);
-        let padding = &self.padding;
-        let entry = self.map.entry(index);
-        ValueEditor::new(padding, entry)
+        ValueEditor::new(self, index)
     }
 
     /// Removes the last element from and returns it, or `None` if it is empty.

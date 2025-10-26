@@ -226,9 +226,7 @@ where
     /// ```
     pub fn edit(&mut self, index: usize) -> ValueEditor<'_, T> {
         assert!(index < self.range.len());
-        let padding = &self.vec.padding;
-        let entry = self.vec.map.entry(self.range.start + index);
-        ValueEditor::new(padding, entry)
+        ValueEditor::new(self.vec, self.range.start + index)
     }
 
     /// Fills `self` with elements by cloning `value`.
