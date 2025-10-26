@@ -48,8 +48,14 @@ assert_eq!(v.to_vec(), vec![2, 0, 4, 0, 6]);
 ## MEMO 1
 
 Index で範囲を指定してスライスを取得できても良いのでは？
-これは無理！Index の結果は参照なので SparseSlice を
+無理！Index の結果は参照なので SparseSlice を
 どこかに配置しておかないといけない。
+
+## MEMO 2
+
+IterMut があっても良いのでは？
+無理！パディング値から通常値にした場合の保存先がない。
+もし実装するなら借用イテレータ形式でないと。
 
 ## TODO 1
 
@@ -61,14 +67,9 @@ SparseSliceMut の可変分割について。以下が必要。
 
 ## TODO 2
 
-IterMut があっても良いのでは？
-走査位置さえあればできそう。
-
-## TODO 3
-
 SparseVec::drain も実装すべき。
 SparseVec::splice の亜種なので簡単に実装できるはず。
 
-## TODO 4
+## TODO 3
 
 SparseSlice と SparseSliceMut は互いに比較できるべきでは？
