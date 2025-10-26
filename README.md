@@ -63,7 +63,8 @@ SparseSliceMut の可変分割について。以下が必要。
 - slice_mut 
 - split_mut
 後者は一つの値を二つの可変参照で覗くため unsafe は不可避。
-`Rc<RefCell<Map>>` のようにマップのラップが必要。
+高次元による分割も考えるとより複雑に…。
+SparseSliceMut から SparseVec へはポインタでの接続に変えるべきかも。
 
 ## TODO 2
 
