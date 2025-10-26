@@ -121,7 +121,7 @@ fn sparse_reader() {
     let result = target.sparse_reader();
 
     // Assert.
-    let lhs = result.map(|e| (e.index(), *e.value()));
+    let lhs = result.map(|e| (e.0, *e.1));
     let elms = builder.slice_values().into_iter().enumerate();
     let rhs = elms.filter(|e| e.1 != builder.padding());
     assert!(lhs.eq(rhs));
@@ -138,7 +138,7 @@ fn sparse_writer() {
     let result = target.sparse_writer();
 
     // Assert.
-    let lhs = result.map(|e| (e.index(), *e.value()));
+    let lhs = result.map(|e| (e.0, *e.1));
     let elms = builder.slice_values().into_iter().enumerate();
     let rhs = elms.filter(|e| e.1 != builder.padding());
     assert!(lhs.eq(rhs));

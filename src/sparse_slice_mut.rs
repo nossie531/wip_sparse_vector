@@ -3,7 +3,7 @@
 use crate::common::util;
 use crate::iters::*;
 use crate::prelude::*;
-use crate::values::*;
+use crate::ValueEditor;
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::mem;

@@ -1,20 +1,9 @@
 //! Helper methods for test.
 
 use rand::Rng;
-use sparse_vector::SparseWriter;
 use std::collections::HashSet;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::ops::RangeInclusive;
-
-/// Returns element tuples from sparse writer.
-pub fn elm_tuples_from_sw<'a>(sw: &mut SparseWriter<'a, i32>) -> Vec<(usize, i32)> {
-    let mut ret = Vec::new();
-    while let Some(elm) = sw.next() {
-        ret.push((elm.index(), *elm.value()));
-    }
-
-    ret
-}
 
 /// Returns some value not contained in `values`.
 pub fn some_other_of<I>(values: I) -> i32

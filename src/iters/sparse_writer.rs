@@ -3,7 +3,6 @@
 use crate::aliases::*;
 use crate::common::*;
 use crate::prelude::*;
-use crate::values::*;
 use only_one::prelude::*;
 use std::fmt::Debug;
 use std::iter::FusedIterator;
@@ -114,7 +113,7 @@ impl<'a, T> Iterator for SparseWriter<'a, T>
 where
     T: PartialEq,
 {
-    type Item = ElmWriter<'a, T>;
+    type Item = (usize, &'a mut T);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.is_default() {
@@ -123,7 +122,7 @@ where
 
         let kv = self.map_range.next()?;
         let offset = self.idx_range.start;
-        Some(ElmWriter::new(*kv.0 - offset, kv.1))
+        Some((*kv.0 - offset, kv.1))
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -148,6 +147,6 @@ where
 
         let kv = self.map_range.next_back()?;
         let offset = self.idx_range.start;
-        Some(ElmWriter::new(*kv.0 - offset, kv.1))
+        Some((*kv.0 - offset, kv.1))
     }
 }

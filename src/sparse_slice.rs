@@ -3,7 +3,6 @@
 use crate::common::*;
 use crate::iters::*;
 use crate::prelude::*;
-use crate::values::*;
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::ops::{Index, Range, RangeBounds};
@@ -97,8 +96,8 @@ where
 
         for elm in self.sparse_reader() {
             let next_index = last_index.map_or(0, |x| x + 1);
-            let padding_len = elm.index() - next_index;
-            let value_changed = padding_len > 0 || Some(elm.value()) != last_value;
+            let padding_len = elm.0 - next_index;
+            let value_changed = padding_len > 0 || Some(elm.1) != last_value;
 
             if value_changed {
                 if value_len > 0 {
@@ -109,8 +108,8 @@ where
                 }
             }
 
-            last_index = Some(elm.index());
-            last_value = Some(elm.value());
+            last_index = Some(elm.0);
+            last_value = Some(elm.1);
             value_len = if value_changed { 1 } else { value_len + 1 };
         }
 
@@ -178,20 +177,20 @@ where
         let mut i = 0;
         let mut s_reader = self.sparse_reader();
         let mut o_reader = other.sparse_reader();
-        let mut s_memo = None as Option<ElmReader<'_, T>>;
-        let mut o_memo = None as Option<ElmReader<'_, T>>;
+        let mut s_memo = None as Option<(usize, &T)>;
+        let mut o_memo = None as Option<(usize, &T)>;
 
         // Loop shared part.
         while i < len {
             // Update memos for index.
-            let s_fresh = s_memo.as_ref().is_some_and(|x| x.index() >= i);
-            let o_fresh = o_memo.as_ref().is_some_and(|x| x.index() >= i);
+            let s_fresh = s_memo.as_ref().is_some_and(|x| x.0 >= i);
+            let o_fresh = o_memo.as_ref().is_some_and(|x| x.0 >= i);
             s_memo = if s_fresh { s_memo } else { s_reader.next() };
             o_memo = if o_fresh { o_memo } else { o_reader.next() };
 
             // Update indexs.
-            let s_index = s_memo.as_ref().map(|x| x.index()).unwrap_or(len);
-            let o_index = o_memo.as_ref().map(|x| x.index()).unwrap_or(len);
+            let s_index = s_memo.as_ref().map(|x| x.0).unwrap_or(len);
+            let o_index = o_memo.as_ref().map(|x| x.0).unwrap_or(len);
             let c_index = usize::min(s_index, o_index);
             let s_hit = c_index == s_index;
             let o_hit = c_index == o_index;
@@ -202,8 +201,8 @@ where
             }
 
             // Update values.
-            let s_value = s_memo.as_ref().map(|x| x.value()).unwrap_or(s_padding);
-            let o_value = o_memo.as_ref().map(|x| x.value()).unwrap_or(o_padding);
+            let s_value = s_memo.as_ref().map(|x| x.1).unwrap_or(s_padding);
+            let o_value = o_memo.as_ref().map(|x| x.1).unwrap_or(o_padding);
             let s_value = if s_hit { s_value } else { s_padding };
             let o_value = if o_hit { o_value } else { o_padding };
 
@@ -236,20 +235,20 @@ where
         let mut i = 0;
         let mut s_reader = self.sparse_reader();
         let mut o_reader = other.sparse_reader();
-        let mut s_memo = None as Option<ElmReader<'_, T>>;
-        let mut o_memo = None as Option<ElmReader<'_, T>>;
+        let mut s_memo = None as Option<(usize, &T)>;
+        let mut o_memo = None as Option<(usize, &T)>;
 
         // Loop shared part.
         while i < len {
             // Update memos for index.
-            let s_fresh = s_memo.as_ref().is_some_and(|x| x.index() >= i);
-            let o_fresh = o_memo.as_ref().is_some_and(|x| x.index() >= i);
+            let s_fresh = s_memo.as_ref().is_some_and(|x| x.0 >= i);
+            let o_fresh = o_memo.as_ref().is_some_and(|x| x.0 >= i);
             s_memo = if s_fresh { s_memo } else { s_reader.next() };
             o_memo = if o_fresh { o_memo } else { o_reader.next() };
 
             // Update indexs.
-            let s_index = s_memo.as_ref().map(|x| x.index()).unwrap_or(len);
-            let o_index = o_memo.as_ref().map(|x| x.index()).unwrap_or(len);
+            let s_index = s_memo.as_ref().map(|x| x.0).unwrap_or(len);
+            let o_index = o_memo.as_ref().map(|x| x.0).unwrap_or(len);
             let c_index = usize::min(s_index, o_index);
             let s_hit = c_index == s_index;
             let o_hit = c_index == o_index;
@@ -263,8 +262,8 @@ where
             }
 
             // Update values.
-            let s_value = s_memo.as_ref().map(|x| x.value()).unwrap_or(s_padding);
-            let o_value = o_memo.as_ref().map(|x| x.value()).unwrap_or(o_padding);
+            let s_value = s_memo.as_ref().map(|x| x.1).unwrap_or(s_padding);
+            let o_value = o_memo.as_ref().map(|x| x.1).unwrap_or(o_padding);
             let s_value = if s_hit { s_value } else { s_padding };
             let o_value = if o_hit { o_value } else { o_padding };
 

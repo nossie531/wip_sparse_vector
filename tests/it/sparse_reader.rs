@@ -65,8 +65,8 @@ fn next() {
         let result = target.next();
 
         // Assert.
-        let lhs_idx = result.as_ref().unwrap().index();
-        let lhs_val = *result.as_ref().unwrap().value();
+        let lhs_idx = result.as_ref().unwrap().0;
+        let lhs_val = *result.as_ref().unwrap().1;
         let rhs_idx = *indexs.iter().nth(index_pos).unwrap();
         let rhs_val = vec[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);
@@ -85,8 +85,8 @@ fn next() {
 
         // Assert.
         let indexs = builder.npad_indexs();
-        let lhs_idx = result.as_ref().unwrap().index();
-        let lhs_val = *result.as_ref().unwrap().value();
+        let lhs_idx = result.as_ref().unwrap().0;
+        let lhs_val = *result.as_ref().unwrap().1;
         let rhs_idx = *indexs.first().unwrap();
         let rhs_val = builder.slice_values()[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);
@@ -178,8 +178,8 @@ fn next_back() {
         let result = target.next_back();
 
         // Assert.
-        let lhs_idx = result.as_ref().unwrap().index();
-        let lhs_val = *result.as_ref().unwrap().value();
+        let lhs_idx = result.as_ref().unwrap().0;
+        let lhs_val = *result.as_ref().unwrap().1;
         let rhs_idx = *indexs.iter().nth(index_pos).unwrap();
         let rhs_val = vec[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);
@@ -198,8 +198,8 @@ fn next_back() {
 
         // Assert.
         let indexs = builder.npad_indexs();
-        let lhs_idx = result.as_ref().unwrap().index();
-        let lhs_val = *result.as_ref().unwrap().value();
+        let lhs_idx = result.as_ref().unwrap().0;
+        let lhs_val = *result.as_ref().unwrap().1;
         let rhs_idx = *indexs.last().unwrap();
         let rhs_val = builder.slice_values()[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);

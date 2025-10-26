@@ -3,7 +3,6 @@
 use crate::aliases::*;
 use crate::common::*;
 use crate::prelude::*;
-use crate::values::*;
 use only_one::prelude::*;
 use std::iter::FusedIterator;
 use std::ops::Range;
@@ -95,7 +94,7 @@ impl<'a, T> Iterator for SparseReader<'a, T>
 where
     T: PartialEq,
 {
-    type Item = ElmReader<'a, T>;
+    type Item = (usize, &'a T);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.is_default() {
@@ -104,7 +103,7 @@ where
 
         let kv = self.map_range.next()?;
         let offset = self.idx_range.start;
-        Some(ElmReader::new(*kv.0 - offset, kv.1))
+        Some((*kv.0 - offset, kv.1))
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -129,6 +128,6 @@ where
 
         let kv = self.map_range.next_back()?;
         let offset = self.idx_range.start;
-        Some(ElmReader::new(*kv.0 - offset, kv.1))
+        Some((*kv.0 - offset, kv.1))
     }
 }

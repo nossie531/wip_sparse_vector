@@ -185,7 +185,7 @@ fn sparse_reader() {
     let result = target.sparse_reader();
 
     // Assert.
-    let lft = result.map(|e| (e.index(), *e.value()));
+    let lft = result.map(|e| (e.0, *e.1));
     let rgt = builder.elms();
     assert!(lft.eq(rgt));
 }
@@ -304,7 +304,7 @@ fn sparse_writer() {
     let result = &mut target.sparse_writer();
 
     // Assert.
-    let lhs = helper::elm_tuples_from_sw(result);
+    let lhs = result.map(|x| (x.0, *x.1)).collect::<Vec<_>>();
     let rhs = builder.elms();
     assert_eq!(lhs, rhs);
 }
