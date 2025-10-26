@@ -13,7 +13,18 @@ This type is efficient when most elements have same value.
 ## Examples
 
 ```rust
-// TODO:
+let mut v = SparseVec::new(5);
+*v.edit(0) = 1;
+*v.edit(2) = 3;
+*v.edit(4) = 5;
+
+assert_eq!(v.to_vec(), vec![1, 0, 3, 0, 5]);
+
+for (_idx, val) in v.sparse_writer() {
+    *val += 1;
+}
+
+assert_eq!(v.to_vec(), vec![2, 0, 4, 0, 6]);
 ```
 
 ## Future task 1
