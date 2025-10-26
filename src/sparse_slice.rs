@@ -207,8 +207,7 @@ where
 
     fn index(&self, index: usize) -> &Self::Output {
         assert!(index < self.range.len());
-        let index = index + self.range.start;
-        self.vec.map.get(&index).unwrap_or(self.vec.padding_ref())
+        self.vec.index(index + self.range.start)
     }
 }
 
