@@ -69,6 +69,7 @@ SparseSliceMut の可変分割について。以下が必要。
 
 SparseVec::drain も実装すべき。
 SparseVec::splice の亜種なので簡単に実装できるはず。
+SparseVec::erase でパディングで埋めれてもいいかも。
 
 ## TODO 3
 
