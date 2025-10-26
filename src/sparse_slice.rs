@@ -99,9 +99,10 @@ where
     ///
     /// ```
     /// # use sparse_vector::prelude::*;
-    /// let v = SparseVec::from_iter([1, 2, 3, 4, 5]);
-    /// let s = v.slice(1..4);
-    /// assert_eq!(s.to_vec(), vec![2, 3, 4]);
+    /// let v = SparseVec::from_iter([1, 2, 3, 4, 5, 6]);
+    /// let s1 = v.slice(1..5);
+    /// let s2 = s1.slice(1..3);
+    /// assert_eq!(s2.to_vec(), vec![3, 4]);
     /// ```
     pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
     where
@@ -120,12 +121,12 @@ where
     ///
     /// ```
     /// # use sparse_vector::prelude::*;
-    /// let v = SparseVec::from_iter([1, 2, 3, 4, 5]);
+    /// let v = SparseVec::from_iter([1, 0, 2, 0, 3]);
     /// let s = v.slice(1..4);
     /// let iter = &mut s.iter();
+    /// assert_eq!(iter.next(), Some(&0));
     /// assert_eq!(iter.next(), Some(&2));
-    /// assert_eq!(iter.next(), Some(&3));
-    /// assert_eq!(iter.next(), Some(&4));
+    /// assert_eq!(iter.next(), Some(&0));
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn iter(&self) -> Iter<'_, T> {
@@ -133,6 +134,8 @@ where
     }
 
     /// Returns none padding elements reader.
+    ///
+    /// # Examples
     ///
     /// ```
     /// # use sparse_vector::prelude::*;

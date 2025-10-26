@@ -30,8 +30,8 @@ use std::ops::{Index, RangeBounds};
 ///
 /// assert_eq!(v.to_vec(), vec![1, 0, 3, 0, 5]);
 ///
-/// for (_i, v) in v.sparse_writer() {
-///     *v += 1;
+/// for (_idx, val) in v.sparse_writer() {
+///     *val += 1;
 /// }
 ///
 /// assert_eq!(v.to_vec(), vec![2, 0, 4, 0, 6]);
@@ -337,12 +337,9 @@ where
     /// # use sparse_vector::prelude::*;
     /// #
     /// let mut v = SparseVec::from_iter([1, 0, 3, 0, 5]);
-    /// let mut iter = v.sparse_writer();
-    /// while let Some(mut item) = iter.next() {
-    ///     *item.1 += 1;
+    /// for (_idx, val) in v.sparse_writer() {
+    ///     *val += 1;
     /// }
-    ///
-    /// drop(iter);
     ///
     /// assert_eq!(v.to_vec(), vec![2, 0, 4, 0, 6]);
     /// ```
