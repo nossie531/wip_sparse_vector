@@ -65,6 +65,9 @@ SparseSliceMut の可変分割について。以下が必要。
 後者は一つの値を二つの可変参照で覗くため unsafe は不可避。
 高次元による分割も考えるとより複雑に…。
 SparseSliceMut から SparseVec へはポインタでの接続に変えるべきかも。
+だけど 二つの SparseSliceMut から SparseWriter を作ると、
+結局 MapRangeMut が二つになっちゃう…。
+MapRangeMut の代わりに MapRange を使って削除や登録は別経路にすべきかも。
 
 ## TODO 2
 
