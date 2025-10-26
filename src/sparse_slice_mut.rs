@@ -206,7 +206,7 @@ where
     pub fn take(&mut self, index: usize) -> T {
         assert!(index < self.range.len());
         let removed = self.vec.map.remove(&(self.range.start + index));
-        removed.unwrap_or(self.vec.clone_padding())
+        removed.unwrap_or(self.vec.padding_val())
     }
 
     /// Returns value editor.
@@ -227,9 +227,8 @@ where
     pub fn edit(&mut self, index: usize) -> ValueEditor<'_, T> {
         assert!(index < self.range.len());
         let padding = &self.vec.padding;
-        let filler = self.vec.filler;
         let entry = self.vec.map.entry(self.range.start + index);
-        ValueEditor::new(padding, filler, entry)
+        ValueEditor::new(padding, entry)
     }
 
     /// Fills `self` with elements by cloning `value`.
@@ -294,11 +293,11 @@ where
             let xv = self.take(x);
             let yv = self.take(y);
 
-            if xv != self.vec.padding {
+            if &xv != self.vec.padding_ref() {
                 *self.edit(y) = xv;
             }
 
-            if yv != self.vec.padding {
+            if &yv != self.vec.padding_ref() {
                 *self.edit(x) = yv;
             }
         }

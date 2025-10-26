@@ -97,7 +97,7 @@ where
 
         let ret = self.vec.map.remove(&(self.edges.end - 1));
         self.edges.end -= 1;
-        Some(ret.unwrap_or(self.vec.clone_padding()))
+        Some(ret.unwrap_or(self.vec.padding_val()))
     }
 }
 
@@ -131,7 +131,7 @@ where
 
         let ret = self.vec.map.remove(&self.edges.start);
         self.edges.start += 1;
-        Some(ret.unwrap_or(self.vec.clone_padding()))
+        Some(ret.unwrap_or(self.vec.padding_val()))
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {

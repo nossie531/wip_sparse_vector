@@ -1,5 +1,6 @@
 //! Provider of [`SparseVec`].
 
+use crate::Padding;
 use crate::ValueEditor;
 use crate::aliases::*;
 use crate::common::*;
@@ -12,12 +13,12 @@ use std::ops::{Index, RangeBounds};
 
 /// A sparse vector.
 ///
-/// This vector has [`padding`] value as elements default value. We can
+/// This vector has [padding value] as elements default value. We can
 /// save padding value as vector element value without using memory. So,
 /// more percentage of padding values in the vector results in lower
 /// memory usage and speedy iteration.
 ///
-/// [`padding`]: Self::padding()
+/// [padding value]: Self::padding_val()
 ///
 /// # Examples
 ///
@@ -36,7 +37,7 @@ use std::ops::{Index, RangeBounds};
 ///
 /// assert_eq!(v.to_vec(), vec![2, 0, 4, 0, 6]);
 /// ```
-#[derive(Clone, Debug, Eq)]
+#[derive(Clone, Debug)]
 pub struct SparseVec<T>
 where
     T: PartialEq,
@@ -45,10 +46,7 @@ where
     pub(crate) len: usize,
 
     /// Padding value.
-    pub(crate) padding: T,
-
-    /// Padding value duplicator.
-    pub(crate) filler: fn(&T) -> T,
+    pub(crate) padding: Padding<T>,
 
     /// None padding elements map.
     pub(crate) map: Map<T>,
@@ -66,7 +64,7 @@ where
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::<i32>::new(10);
     /// assert_eq!(v.len(), 10);
-    /// assert_eq!(v.padding(), &0);
+    /// assert_eq!(v.padding_ref(), &0);
     /// assert_eq!(v[5], 0);
     /// ```
     #[must_use]
@@ -76,8 +74,7 @@ where
     {
         Self {
             len,
-            padding: T::default(),
-            filler: util::default_like_clone,
+            padding: Padding::by_default(),
             map: Map::new(),
         }
     }
@@ -90,7 +87,7 @@ where
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::<i32>::with_padding(10, 42);
     /// assert_eq!(v.len(), 10);
-    /// assert_eq!(v.padding(), &42);
+    /// assert_eq!(v.padding_ref(), &42);
     /// assert_eq!(v[5], 42);
     /// ```
     #[must_use]
@@ -100,8 +97,7 @@ where
     {
         Self {
             len,
-            padding,
-            filler: T::clone,
+            padding: Padding::by_clone(padding),
             map: Map::new(),
         }
     }
@@ -178,11 +174,11 @@ where
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::<i32>::with_padding(10, 42);
-    /// assert_eq!(v.padding(), &42);
+    /// assert_eq!(v.padding_ref(), &42);
     /// ```
     #[must_use]
-    pub fn padding(&self) -> &T {
-        &self.padding
+    pub fn padding_ref(&self) -> &T {
+        self.padding.refs()
     }
 
     /// Returns cloned padding value.
@@ -192,11 +188,11 @@ where
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::<i32>::with_padding(10, 42);
-    /// assert_eq!(v.clone_padding(), 42);
+    /// assert_eq!(v.padding_val(), 42);
     /// ```
     #[must_use]
-    pub fn clone_padding(&self) -> T {
-        (self.filler)(&self.padding)
+    pub fn padding_val(&self) -> T {
+        self.padding.value()
     }
 
     /// Returns a vector with the same contents of this sparse vector.
@@ -384,9 +380,8 @@ where
     pub fn edit(&mut self, index: usize) -> ValueEditor<'_, T> {
         assert!(index < self.len);
         let padding = &self.padding;
-        let filler = self.filler;
         let entry = self.map.entry(index);
-        ValueEditor::new(padding, filler, entry)
+        ValueEditor::new(padding, entry)
     }
 
     /// Removes the last element from and returns it, or `None` if it is empty.
@@ -407,7 +402,7 @@ where
 
         let last_index = self.len - 1;
         let last_from_map = self.map.remove(&last_index);
-        let ret = last_from_map.unwrap_or_else(|| self.clone_padding());
+        let ret = last_from_map.unwrap_or_else(|| self.padding_val());
         self.len -= 1;
         Some(ret)
     }
@@ -423,7 +418,7 @@ where
     /// assert_eq!(v.to_vec(), vec![1, 2, 3]);
     /// ```
     pub fn push(&mut self, value: T) {
-        if self.padding != value {
+        if &value != self.padding.refs() {
             let new_index = self.len;
             self.map.insert(new_index, value);
         }
@@ -548,6 +543,13 @@ where
     }
 }
 
+impl<T> Eq for SparseVec<T>
+where
+    T: Eq,
+{
+    // nop.
+}
+
 impl<T> Extend<T> for SparseVec<T>
 where
     T: PartialEq,
@@ -558,7 +560,7 @@ where
     {
         for item in iter {
             self.len += 1;
-            if item != self.padding {
+            if &item != self.padding.refs() {
                 self.map.insert(self.len - 1, item);
             }
         }
@@ -632,7 +634,7 @@ where
 
     fn index(&self, index: usize) -> &Self::Output {
         assert!(index < self.len);
-        self.map.get(&index).unwrap_or(&self.padding)
+        self.map.get(&index).unwrap_or(self.padding.refs())
     }
 }
 

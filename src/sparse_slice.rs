@@ -163,7 +163,7 @@ where
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         let len = self.range.len();
-        let padding = &self.vec.padding;
+        let padding = self.vec.padding_ref();
         let mut last_index = None;
         let mut last_value = None;
         let mut value_len = 0usize;
@@ -208,7 +208,7 @@ where
     fn index(&self, index: usize) -> &Self::Output {
         assert!(index < self.range.len());
         let index = index + self.range.start;
-        self.vec.map.get(&index).unwrap_or(&self.vec.padding)
+        self.vec.map.get(&index).unwrap_or(self.vec.padding_ref())
     }
 }
 
@@ -244,8 +244,8 @@ where
 
         // Prepare common values.
         let len = self.range.len();
-        let s_padding = &self.vec.padding;
-        let o_padding = &other.vec.padding;
+        let s_padding = self.vec.padding_ref();
+        let o_padding = other.vec.padding_ref();
 
         // Prepare loop variables.
         let mut i = 0;
@@ -298,8 +298,8 @@ where
 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         // Prepare common values.
-        let s_padding = &self.vec.padding;
-        let o_padding = &other.vec.padding;
+        let s_padding = self.vec.padding_ref();
+        let o_padding = other.vec.padding_ref();
         let s_len = self.range.len();
         let o_len = other.range.len();
         let len = usize::min(s_len, o_len);

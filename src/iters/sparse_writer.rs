@@ -47,7 +47,7 @@ where
         Self {
             len: vec.len(),
             nnp: vec.nnp(),
-            padding: One::new(&vec.padding),
+            padding: One::new(vec.padding.refs()),
             idx_range: range.clone(),
             map_range: One::new(vec.map.range_mut(range)),
             map: map_ptr,

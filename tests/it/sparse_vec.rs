@@ -12,7 +12,7 @@ fn new() {
     let result = SparseVec::<i32>::new(builder.len());
     assert_eq!(result.len(), builder.len());
     assert_eq!(result.nnp(), 0);
-    assert_eq!(result.padding(), &i32::default());
+    assert_eq!(result.padding_ref(), &i32::default());
 }
 
 #[test]
@@ -23,7 +23,7 @@ fn with_padding() {
     let result = SparseVec::with_padding(len, padding);
     assert_eq!(result.len(), len);
     assert_eq!(result.nnp(), 0);
-    assert_eq!(result.padding(), &padding);
+    assert_eq!(result.padding_ref(), &padding);
 }
 
 #[test]
@@ -85,33 +85,33 @@ fn padding() {
 
     fn with_default() {
         let target = SparseVec::<i32>::default();
-        let result = target.padding();
+        let result = target.padding_ref();
         assert_eq!(result, &i32::default());
     }
 
     fn with_normal() {
         let builder = SparseVecBuilder::new().set_padding(3);
         let target = builder.build();
-        let result = target.padding();
+        let result = target.padding_ref();
         assert_eq!(result, &builder.padding());
     }
 }
 
 #[test]
-fn clone_padding() {
+fn padding_val() {
     with_default();
     with_normal();
 
     fn with_default() {
         let target = SparseVec::<i32>::default();
-        let result = target.clone_padding();
+        let result = target.padding_val();
         assert_eq!(result, i32::default());
     }
 
     fn with_normal() {
         let builder = SparseVecBuilder::new().set_padding(3);
         let target = builder.build();
-        let result = target.clone_padding();
+        let result = target.padding_val();
         assert_eq!(result, builder.padding());
     }
 }
@@ -214,7 +214,7 @@ fn set_len() {
         // Arrange.
         let target = &mut SparseVecSample::normal();
         let value = target.len() + 1;
-        let padding = *target.padding();
+        let padding = *target.padding_ref();
         let original = target.iter().cloned().collect::<Vec<_>>();
 
         // Act.
@@ -662,7 +662,7 @@ fn splice() {
 fn default() {
     let result = SparseVec::<i32>::default();
     assert_eq!(result.len(), 0);
-    assert_eq!(result.padding(), &0);
+    assert_eq!(result.padding_ref(), &0);
 }
 
 #[test]

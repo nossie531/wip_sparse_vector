@@ -40,7 +40,7 @@ where
     /// Creates a new instance.
     pub(crate) fn new(vec: &'a SparseVec<T>, range: Range<usize>) -> Self {
         Self {
-            padding: One::new(&vec.padding),
+            padding: One::new(vec.padding_ref()),
             map_range: One::new(vec.map.range(range.clone())),
             idx_range: range,
             head_memo: None,

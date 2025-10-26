@@ -1,5 +1,6 @@
 //! Provider of [`ValueEditor`].
 
+use crate::Padding;
 use crate::common::*;
 use only_one::prelude::*;
 use pstd::collections::btree_map::Entry;
@@ -13,11 +14,8 @@ pub struct ValueEditor<'a, T>
 where
     T: PartialEq,
 {
-    /// Padding value reference.
-    padding: &'a T,
-
-    /// Padding value duplicator.
-    filler: fn(&T) -> T,
+    /// Padding value.
+    padding: &'a Padding<T>,
 
     /// Edited new value.
     new_value: Option<T>,
@@ -31,10 +29,9 @@ where
     T: PartialEq,
 {
     /// Creates a new instance.
-    pub(crate) fn new(padding: &'a T, filler: fn(&T) -> T, entry: Entry<'a, usize, T>) -> Self {
+    pub(crate) fn new(padding: &'a Padding<T>, entry: Entry<'a, usize, T>) -> Self {
         Self {
             padding,
-            filler,
             new_value: None,
             entry: One::new(entry),
         }
@@ -53,7 +50,7 @@ where
         match (new_value, entry) {
             (Some(x), _) => x,
             (None, Entry::Occupied(e)) => e.get(),
-            (None, Entry::Vacant(_)) => self.padding,
+            (None, Entry::Vacant(_)) => self.padding.refs(),
         }
     }
 }
@@ -65,7 +62,7 @@ where
     fn deref_mut(&mut self) -> &mut Self::Target {
         dbg!(self.new_value.is_none());
         if self.new_value.is_none() {
-            let padding = (self.filler)(self.padding);
+            let padding = self.padding.value();
             let value = match &mut *self.entry {
                 Entry::Vacant(_) => padding,
                 Entry::Occupied(x) => mem::replace(x.get_mut(), padding),
@@ -87,12 +84,12 @@ where
         match (new_value, entry) {
             (None, _) => {}
             (Some(v), Entry::Vacant(e)) => {
-                if v != *self.padding {
+                if &v != self.padding.refs() {
                     e.insert(v);
                 }
             }
             (Some(v), Entry::Occupied(mut e)) => {
-                if v == *self.padding {
+                if &v == self.padding.refs() {
                     let _ = e.remove();
                 } else {
                     e.insert(v);

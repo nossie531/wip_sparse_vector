@@ -21,14 +21,6 @@ macro_rules! name_of_type {
 pub(crate) use name_of;
 pub(crate) use name_of_type;
 
-/// Call [`Default::default`] on `T`.
-///
-/// This function mimics [`Clone::clone`] method signature.
-/// Therefore we can substitute [`Clone::clone`] with this function.
-pub fn default_like_clone<T: Default>(_x: &T) -> T {
-    T::default()
-}
-
 /// Normalize range for index.
 ///
 /// # Panics
