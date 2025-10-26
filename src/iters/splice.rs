@@ -96,7 +96,6 @@ where
         }
 
         let ret = self.vec.map.remove(&(self.edges.end - 1));
-        self.vec.len -= 1;
         self.edges.end -= 1;
         Some(ret.unwrap_or(self.vec.clone_padding()))
     }
@@ -131,7 +130,6 @@ where
         }
 
         let ret = self.vec.map.remove(&self.edges.start);
-        self.vec.len -= 1;
         self.edges.start += 1;
         Some(ret.unwrap_or(self.vec.clone_padding()))
     }

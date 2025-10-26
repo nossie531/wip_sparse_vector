@@ -264,6 +264,14 @@ where
     ///
     /// - Range start and end is reverse order
     /// - Range end is greater than this vector length
+    ///
+    /// # Leaking
+    ///
+    /// If the returned iterator goes out of scope without being dropped
+    /// (due to [`mem::forget`], for example), only action performed is
+    /// just setting the values within the `range` to padding values.
+    ///
+    /// [`mem::forget`]: std::mem::forget
     pub fn splice<R, I>(
         &mut self,
         range: R,
