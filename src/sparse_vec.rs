@@ -1,10 +1,10 @@
 //! Provider of [`SparseVec`].
 
+use crate::ValueEditor;
 use crate::aliases::*;
 use crate::common::*;
 use crate::iters::*;
 use crate::prelude::*;
-use crate::ValueEditor;
 use std::cmp::Ordering;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
@@ -18,6 +18,24 @@ use std::ops::{Index, RangeBounds};
 /// memory usage and speedy iteration.
 ///
 /// [`padding`]: Self::padding()
+///
+/// # Examples
+///
+/// ```
+/// # use sparse_vector::prelude::*;
+/// let mut v = SparseVec::new(5);
+/// *v.edit(0) = 1;
+/// *v.edit(2) = 3;
+/// *v.edit(4) = 5;
+///
+/// assert_eq!(v.to_vec(), vec![1, 0, 3, 0, 5]);
+///
+/// for (_i, v) in v.sparse_writer() {
+///     *v += 1;
+/// }
+///
+/// assert_eq!(v.to_vec(), vec![2, 0, 4, 0, 6]);
+/// ```
 #[derive(Clone, Debug, Eq)]
 pub struct SparseVec<T>
 where
@@ -41,9 +59,9 @@ where
     T: PartialEq,
 {
     /// Creates a new instance with default padding value.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::<i32>::new(10);
@@ -65,9 +83,9 @@ where
     }
 
     /// Creates a new instance with padding value.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::<i32>::with_padding(10, 42);
@@ -89,14 +107,14 @@ where
     }
 
     /// Returns `true` if this contains no elements.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::<i32>::new(0);
     /// assert!(v.is_empty());
-    /// 
+    ///
     /// v.push(1);
     /// assert!(!v.is_empty());
     /// ```
@@ -106,14 +124,14 @@ where
     }
 
     /// Returns `true` if this contains no none padding elements.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::<i32>::new(10);
     /// assert!(v.is_all_padding());
-    /// 
+    ///
     /// *v.edit(5) = 1;
     /// assert!(!v.is_all_padding());
     /// ```
@@ -123,9 +141,9 @@ where
     }
 
     /// Returns the number of elements.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::<i32>::new(10);
@@ -137,14 +155,14 @@ where
     }
 
     /// Returns NNP (the Number of None Padding elements).
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::<i32>::new(10);
     /// assert_eq!(v.nnp(), 0);
-    /// 
+    ///
     /// *v.edit(5) = 1;
     /// assert_eq!(v.nnp(), 1);
     /// ```
@@ -154,9 +172,9 @@ where
     }
 
     /// Returns the padding reference.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::<i32>::with_padding(10, 42);
@@ -168,9 +186,9 @@ where
     }
 
     /// Returns cloned padding value.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::<i32>::with_padding(10, 42);
@@ -182,9 +200,9 @@ where
     }
 
     /// Returns a vector with the same contents of this sparse vector.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::from_iter([1, 2, 3]);
@@ -206,9 +224,9 @@ where
     ///
     /// - Range start and end is reverse order
     /// - Range end is greater than this vector length
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::from_iter([1, 2, 3, 4, 5]);
@@ -224,9 +242,9 @@ where
     }
 
     /// Returns an iterator over this vector.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::from_iter([1, 2, 3]);
@@ -241,9 +259,9 @@ where
     }
 
     /// Returns none padding elements reader.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let v = SparseVec::from_iter([1, 0, 3, 0, 5]);
@@ -263,9 +281,9 @@ where
     /// this vector will become shorter. If specifed value is greater
     /// than this vector current length, this vector will become longer
     /// and new elements are filled by padding value.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::from_iter([1, 2, 3]);
@@ -291,9 +309,9 @@ where
     ///
     /// - Range start and end is reverse order
     /// - Range end is greater than this vector length
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::from_iter([1, 2, 3, 4, 5]);
@@ -312,9 +330,9 @@ where
     }
 
     /// Returns a none padding elements writer.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// #
@@ -323,9 +341,9 @@ where
     /// while let Some(mut item) = iter.next() {
     ///     *item.1 += 1;
     /// }
-    /// 
+    ///
     /// drop(iter);
-    /// 
+    ///
     /// assert_eq!(v.to_vec(), vec![2, 0, 4, 0, 6]);
     /// ```
     pub fn sparse_writer(&mut self) -> SparseWriter<'_, T> {
@@ -337,9 +355,9 @@ where
     /// # Panics
     ///
     /// Panics if `index` is not less than vector length.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::from_iter([1, 2, 3]);
@@ -357,9 +375,9 @@ where
     /// # Panics
     ///
     /// Panics if `index` is not less than vector length.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::from_iter([1, 2, 3]);
@@ -375,9 +393,9 @@ where
     }
 
     /// Removes the last element from and returns it, or `None` if it is empty.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::from_iter([1, 2, 3]);
@@ -398,9 +416,9 @@ where
     }
 
     /// Appends new last element.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::from_iter([1, 2]);
@@ -421,9 +439,9 @@ where
     /// # Panics
     ///
     /// Panics if `a` or `b` are out of bounds.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::from_iter(["a", "b", "c", "d", "e"]);
@@ -437,9 +455,9 @@ where
     }
 
     /// Clears the vector, removing all values.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::from_iter([1, 2, 3]);
@@ -452,9 +470,9 @@ where
     }
 
     /// Fills `self` with elements by cloning `value`.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::from_iter([1, 2, 3]);
@@ -469,9 +487,9 @@ where
     }
 
     /// Fills `self` with elements returned by calling a closure repeatedly.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::from_iter([1, 2, 3]);
@@ -501,9 +519,9 @@ where
     /// just setting the values within the `range` to padding values.
     ///
     /// [`mem::forget`]: std::mem::forget
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// let mut v = SparseVec::from_iter([1, 2, 3, 4, 5]);

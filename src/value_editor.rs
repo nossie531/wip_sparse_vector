@@ -1,3 +1,5 @@
+//! Provider of [`ValueEditor`].
+
 use crate::common::*;
 use only_one::prelude::*;
 use pstd::collections::btree_map::Entry;

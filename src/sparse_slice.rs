@@ -8,6 +8,15 @@ use std::hash::{Hash, Hasher};
 use std::ops::{Index, Range, RangeBounds};
 
 /// A slice for [`SparseVec`].
+///
+/// # Examples
+///
+/// ```
+/// # use sparse_vector::prelude::*;
+/// let v = SparseVec::from_iter([0, 1, 0, 3, 0]);
+/// let s = v.slice(1..4);
+/// assert_eq!(s[2], 3);
+/// ```
 #[repr(C)]
 #[must_use]
 #[derive(Debug, Eq)]
@@ -27,18 +36,48 @@ where
     T: PartialEq,
 {
     /// Returns `true` if slice is empty.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use sparse_vector::prelude::*;
+    /// let v = SparseVec::from_iter([1, 2, 3, 4, 5]);
+    /// let s = v.slice(3..3);
+    /// assert!(s.is_empty());
+    ///
+    /// let s = v.slice(1..4);
+    /// assert!(!s.is_empty());
+    /// ```
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
     /// Returns slice length.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use sparse_vector::prelude::*;
+    /// let v = SparseVec::from_iter([1, 2, 3, 4, 5]);
+    /// let s = v.slice(1..4);
+    /// assert_eq!(s.len(), 3);
+    /// ```
     #[must_use]
     pub fn len(&self) -> usize {
         self.range.len()
     }
 
     /// Returns a vector with the same contents of this slice.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use sparse_vector::prelude::*;
+    /// let v = SparseVec::from_iter([1, 2, 3, 4, 5]);
+    /// let s = v.slice(1..4);
+    /// assert_eq!(s.to_vec(), vec![2, 3, 4]);
+    /// ```
     #[must_use]
     pub fn to_vec(&self) -> Vec<T>
     where
@@ -55,6 +94,15 @@ where
     ///
     /// - Range start and end is reverse order
     /// - Range end is greater than this slice length
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use sparse_vector::prelude::*;
+    /// let v = SparseVec::from_iter([1, 2, 3, 4, 5]);
+    /// let s = v.slice(1..4);
+    /// assert_eq!(s.to_vec(), vec![2, 3, 4]);
+    /// ```
     pub fn slice<R>(&self, range: R) -> SparseSlice<'_, T>
     where
         R: RangeBounds<usize>,
@@ -67,11 +115,34 @@ where
     }
 
     /// Returns an iterator.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use sparse_vector::prelude::*;
+    /// let v = SparseVec::from_iter([1, 2, 3, 4, 5]);
+    /// let s = v.slice(1..4);
+    /// let iter = &mut s.iter();
+    /// assert_eq!(iter.next(), Some(&2));
+    /// assert_eq!(iter.next(), Some(&3));
+    /// assert_eq!(iter.next(), Some(&4));
+    /// assert_eq!(iter.next(), None);
+    /// ```
     pub fn iter(&self) -> Iter<'_, T> {
         Iter::new(self.vec, self.range.clone())
     }
 
     /// Returns none padding elements reader.
+    ///
+    /// ```
+    /// # use sparse_vector::prelude::*;
+    /// let v = SparseVec::from_iter([1, 2, 0, 4, 5]);
+    /// let s = v.slice(1..4);
+    /// let iter = &mut s.sparse_reader();
+    /// assert_eq!(iter.next(), Some((0, &2)));
+    /// assert_eq!(iter.next(), Some((2, &4)));
+    /// assert_eq!(iter.next(), None);
+    /// ```
     pub fn sparse_reader(&self) -> SparseReader<'_, T> {
         SparseReader::new(self.vec, self.range.clone())
     }
