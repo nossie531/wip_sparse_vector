@@ -34,6 +34,25 @@ SparseWriter を破棄したあともそこから得た参照を編集できる�
 対策1: 借用イテレータにする？
 対策2: ValueEditor のような値を生成する？
 
+## ❌ TODO!!
+
+SparseSliceMut の可変分割について。以下が必要。
+- slice_mut 
+- split_mut
+後者は一つの値を二つの可変参照で覗くため unsafe は不可避。
+高次元による分割も考えるとより複雑に…。
+SparseSliceMut から SparseVec へはポインタでの接続に変えるべきかも。
+だけど 二つの SparseSliceMut から SparseWriter を作ると、
+結局 MapRangeMut が二つになっちゃう…。
+マップに複数の経路から書込できないとどうにもならない。
+(要素の増減を抑えた複数の経路からの書込ならマップを自作すればできる？)
+
+## ❌ TODO!!
+
+SparseVec::drain も実装すべき。
+SparseVec::splice の亜種なので簡単に実装できるはず。
+SparseVec::erase でパディングで埋めれてもいいかも。
+
 ## Future task 1
 
 以下の実装はどれも `T` が制約されすぎている。
@@ -63,25 +82,3 @@ Index で範囲を指定してスライスを取得できても良いのでは�
 IterMut があっても良いのでは？
 無理！パディング値から通常値にした場合の保存先がない。
 もし実装するなら借用イテレータ形式でないと。
-
-## TODO 1
-
-SparseSliceMut の可変分割について。以下が必要。
-- slice_mut 
-- split_mut
-後者は一つの値を二つの可変参照で覗くため unsafe は不可避。
-高次元による分割も考えるとより複雑に…。
-SparseSliceMut から SparseVec へはポインタでの接続に変えるべきかも。
-だけど 二つの SparseSliceMut から SparseWriter を作ると、
-結局 MapRangeMut が二つになっちゃう…。
-MapRangeMut の代わりに MapRange を使って削除や登録は別経路にすべきかも。
-
-## TODO 2
-
-SparseVec::drain も実装すべき。
-SparseVec::splice の亜種なので簡単に実装できるはず。
-SparseVec::erase でパディングで埋めれてもいいかも。
-
-## TODO 3
-
-SparseSlice と SparseSliceMut は互いに比較できるべきでは？
