@@ -27,6 +27,13 @@ for (_idx, val) in v.sparse_writer() {
 assert_eq!(v.to_vec(), vec![2, 0, 4, 0, 6]);
 ```
 
+## ❌ Buggy!!
+
+SparseWriter を破棄したあともそこから得た参照を編集できる。
+これによりドロップ処理が空ぶる。
+対策1: 借用イテレータにする？
+対策2: ValueEditor のような値を生成する？
+
 ## Future task 1
 
 以下の実装はどれも `T` が制約されすぎている。
