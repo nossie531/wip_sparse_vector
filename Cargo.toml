@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-pstd = "1"
 only_one = { git = "https://github.com/nossie531/only_one" }
+pstd = "1"
 
 [dev-dependencies]
 permute = "0.2"
