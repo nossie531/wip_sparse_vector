@@ -1,6 +1,7 @@
-use std::iter::FusedIterator;
+//! Provider of [`SparseWriterMap`].
 
 use crate::iters::*;
+use std::iter::FusedIterator;
 
 /// Sparse writer item mapper.
 ///
@@ -10,7 +11,10 @@ pub struct SparseWriterMap<'a, T, F>
 where
     T: PartialEq,
 {
+    // Base object.
     base: SparseWriter<'a, T>,
+
+    // Mapping closure.
     f: F,
 }
 
