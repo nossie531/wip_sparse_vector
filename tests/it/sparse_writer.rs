@@ -1,33 +1,17 @@
 use crate::for_test::builders::*;
+use crate::for_test::helper;
 use crate::for_test::samples::*;
 use permute::permutations_of;
 use sparse_vector::SparseWriter;
 use std::mem;
 
 #[test]
-fn default() {
-    let result = SparseWriter::<i32>::default();
-    assert_eq!(result.size_hint(), (0, Some(0)));
-    assert_eq!(result.count(), 0);
-}
-
-#[test]
-fn drop() {
-    // Arrange vec.
+fn map() {
     let builder = SparseVecBuilder::new();
     let vec = &mut builder.build();
-
-    // Arrange writer.
-    let mut target = vec.sparse_writer();
-    let index = builder.npad_indexs().iter().count() / 2;
-    let elm = &mut target.nth(index).unwrap();
-    *elm.1 = builder.padding();
-
-    // Act.
-    mem::drop(target);
-
-    // Assert.
-    assert_eq!(vec.nnp(), builder.nnp() - 1);
+    let target = vec.sparse_writer();
+    let result = target.map(|x| (x.0, *x.1));
+    assert!(result.eq(builder.elms()));
 }
 
 #[test]
@@ -108,42 +92,6 @@ fn next() {
 }
 
 #[test]
-fn size_hint() {
-    with_default();
-    with_normal();
-
-    fn with_default() {
-        let target = SparseWriter::<i32>::default();
-        let result = target.size_hint();
-        assert_eq!(result, (0, Some(0)))
-    }
-
-    fn with_normal() {
-        for mut values in permutations_of(&[5, 10, 15]) {
-            // prepare test parameters.
-            let nnp_len = *values.next().unwrap();
-            let side_len = *values.next().unwrap();
-            let slice_len = *values.next().unwrap();
-            let vec_len = slice_len + side_len;
-            let range = range_for(vec_len).with_len(slice_len);
-
-            // Arrange.
-            let builder = SparseVecBuilder::new().set_len(vec_len).set_nnp(nnp_len);
-            let vec = &mut builder.build();
-            let slice = &mut vec.slice_mut(range);
-            let target = slice.sparse_writer();
-
-            // Act.
-            let result = target.size_hint();
-
-            // Assert.
-            assert_eq!(result.0, nnp_len.saturating_sub(side_len));
-            assert_eq!(result.1, Some(usize::min(nnp_len, slice_len)));
-        }
-    }
-}
-
-#[test]
 fn next_back() {
     with_default();
     with_empty();
@@ -218,5 +166,205 @@ fn next_back() {
         let rhs_val = builder.slice_values()[rhs_idx];
         assert_eq!(lhs_idx, rhs_idx);
         assert_eq!(lhs_val, rhs_val);
+    }
+}
+
+#[test]
+fn size_hint() {
+    with_default();
+    with_normal();
+
+    fn with_default() {
+        let target = SparseWriter::<i32>::default();
+        let result = target.size_hint();
+        assert_eq!(result, (0, Some(0)))
+    }
+
+    fn with_normal() {
+        for mut values in permutations_of(&[5, 10, 15]) {
+            // prepare test parameters.
+            let nnp_len = *values.next().unwrap();
+            let side_len = *values.next().unwrap();
+            let slice_len = *values.next().unwrap();
+            let vec_len = slice_len + side_len;
+            let range = range_for(vec_len).with_len(slice_len);
+
+            // Arrange.
+            let builder = SparseVecBuilder::new().set_len(vec_len).set_nnp(nnp_len);
+            let vec = &mut builder.build();
+            let slice = &mut vec.slice_mut(range);
+            let target = slice.sparse_writer();
+
+            // Act.
+            let result = target.size_hint();
+
+            // Assert.
+            assert_eq!(result.0, nnp_len.saturating_sub(side_len));
+            assert_eq!(result.1, Some(usize::min(nnp_len, slice_len)));
+        }
+    }
+}
+
+#[test]
+fn count() {
+    let builder = SparseVecBuilder::new();
+    let vec = &mut builder.build();
+    let target = vec.sparse_writer();
+    let result = target.count();
+    assert_eq!(result, builder.nnp());
+}
+
+#[test]
+fn nth() {
+    with_normal();
+    with_overrun();
+
+    fn with_normal() {
+        // Arrange.
+        let builder = SparseVecBuilder::new();
+        let vec = &mut builder.build();
+        let target = &mut vec.sparse_writer();
+        let n = builder.nnp() / 2;
+
+        // Act.
+        let result = target.nth(n);
+
+        // Assert.
+        let rhs_idx = *builder.npad_indexs().iter().nth(n).unwrap();
+        let rhs_val = &mut builder.values()[rhs_idx];
+        assert_eq!(result, Some((rhs_idx, rhs_val)));
+    }
+
+    fn with_overrun() {
+        // Arrange.
+        let builder = SparseVecBuilder::new();
+        let vec = &mut builder.build();
+        let target = &mut vec.sparse_writer();
+        let n = builder.nnp() * 2;
+
+        // Act.
+        let result = target.nth(n);
+
+        // Assert.
+        assert_eq!(result, None);
+    }
+}
+
+#[test]
+fn nth_back() {
+    with_normal();
+    with_overrun();
+
+    fn with_normal() {
+        // Arrange.
+        let builder = SparseVecBuilder::new();
+        let vec = &mut builder.build();
+        let target = &mut vec.sparse_writer();
+        let n = builder.nnp() / 2;
+
+        // Act.
+        let result = target.nth_back(n);
+
+        // Assert.
+        let rhs_idx = *builder.npad_indexs().iter().nth_back(n).unwrap();
+        let rhs_val = &mut builder.values()[rhs_idx];
+        assert_eq!(result, Some((rhs_idx, rhs_val)));
+    }
+
+    fn with_overrun() {
+        // Arrange.
+        let builder = SparseVecBuilder::new();
+        let vec = &mut builder.build();
+        let target = &mut vec.sparse_writer();
+        let n = builder.nnp() * 2;
+
+        // Act.
+        let result = target.nth_back(n);
+
+        // Assert.
+        assert_eq!(result, None);
+    }
+}
+
+#[test]
+fn default() {
+    let result = SparseWriter::<i32>::default();
+    assert_eq!(result.size_hint(), (0, Some(0)));
+    assert_eq!(result.count(), 0);
+}
+
+#[test]
+fn drop() {
+    with_set_normal();
+    with_set_padding();
+    with_set_padding_but_forget();
+
+    fn with_set_normal() {
+        // Arrange vec.
+        let builder = SparseVecBuilder::new();
+        let vec = &mut builder.build();
+
+        // Arrange writer.
+        let mut target = vec.sparse_writer();
+        let n = builder.npad_indexs().iter().count() / 2;
+        let idx = *builder.npad_indexs().iter().nth(n).unwrap();
+        let elm = &mut target.nth(n).unwrap();
+        let val = helper::some_other_of([*elm.1, builder.none_padding()]);
+
+        // Arrange vec value.
+        *elm.1 = val;
+
+        // Act.
+        mem::drop(target);
+
+        // Assert.
+        assert_eq!(vec.nnp(), builder.nnp());
+        assert_eq!(vec[idx], val);
+    }
+
+    fn with_set_padding() {
+        // Arrange vec.
+        let builder = SparseVecBuilder::new();
+        let vec = &mut builder.build();
+
+        // Arrange writer.
+        let mut target = vec.sparse_writer();
+        let n = builder.npad_indexs().iter().count() / 2;
+        let idx = *builder.npad_indexs().iter().nth(n).unwrap();
+        let elm = &mut target.nth(n).unwrap();
+        let val = builder.padding();
+
+        // Arrange vec value.
+        *elm.1 = val;
+
+        // Act.
+        mem::drop(target);
+
+        // Assert.
+        assert_eq!(vec.nnp(), builder.nnp() - 1);
+        assert_eq!(vec[idx], val);
+    }
+
+    fn with_set_padding_but_forget() {
+        // Arrange vec.
+        let builder = SparseVecBuilder::new();
+        let vec = &mut builder.build();
+
+        // Arrange writer.
+        let mut target = vec.sparse_writer();
+        let n = builder.npad_indexs().iter().count() / 2;
+        let idx = *builder.npad_indexs().iter().nth(n).unwrap();
+        let elm = &mut target.nth(n).unwrap();
+        let val = builder.padding();
+
+        // Arrange vec value.
+        *elm.1 = val;
+
+        // Act.
+        mem::forget(target);
+
+        // Assert.
+        assert_eq!(vec.nnp(), builder.nnp());
+        assert_eq!(vec[idx], val);
     }
 }

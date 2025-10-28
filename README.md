@@ -27,13 +27,6 @@ for (_idx, val) in v.sparse_writer() {
 assert_eq!(v.to_vec(), vec![2, 0, 4, 0, 6]);
 ```
 
-## ❌ Buggy!!
-
-SparseWriter を破棄したあともそこから得た参照を編集できる。
-これによりドロップ処理が空ぶる。
-対策1: 借用イテレータにする？
-対策2: ValueEditor のような値を生成する？
-
 ## ❌ TODO!!
 
 SparseSliceMut の可変分割について。以下が必要。
@@ -71,6 +64,14 @@ SparseVec::erase でパディングで埋めれてもいいかも。
 [`btree_cursors`]: https://doc.rust-lang.org/beta/unstable-book/library-features/btree-cursors.html
 [`pstd`]: https://crates.io/crates/pstd
 [my_pr]: https://github.com/georgebarwood/pstd/pull/2
+
+## MEMO 0
+
+SparseWriter は通常のイテレータと異なる (一方、SparseReader は通常のイテレータである)。
+SparseWriter から得られるアイテムのライフタイムはイテレータ側と紐づいている。
+これは _lending iterator_ とよばれる類いのものである。
+そのため for-in ループ構文などが使えないので要注意。
+map メソッドで通常のイテレータに変換できる。
 
 ## MEMO 1
 

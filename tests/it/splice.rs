@@ -1,22 +1,23 @@
 use crate::for_test::builders::*;
+use crate::for_test::helper;
 use crate::for_test::samples::*;
 use std::iter;
 use std::mem;
 
 #[test]
 fn drop() {
-    with_values_removed();
-    with_values_remained();
+    with_items_consumed();
+    with_items_remained();
     with_forget();
 
-    fn with_values_removed() {
+    fn with_items_consumed() {
         // Arrange.
         let builder = SparseVecBuilder::new();
         let vec = &mut builder.build();
         let range = range_for(builder.len()).include(builder.some_npad_indexs(1)[0]);
         let inserts = sparse_values(range.len() / 2);
         let mut target = vec.splice(range.clone(), inserts.clone());
-        let _ = target.all(|_| true);
+        helper::consume_all_items(&mut target, true);
 
         // Act.
         mem::drop(target);
@@ -27,13 +28,14 @@ fn drop() {
         assert_eq!(&vec.to_vec(), rhs);
     }
 
-    fn with_values_remained() {
+    fn with_items_remained() {
         // Arrange.
         let builder = SparseVecBuilder::new();
         let vec = &mut builder.build();
         let range = range_for(builder.len()).include(builder.some_npad_indexs(1)[0]);
         let inserts = sparse_values(range.len() / 2);
-        let target = vec.splice(range.clone(), inserts.clone());
+        let mut target = vec.splice(range.clone(), inserts.clone());
+        helper::consume_all_items(&mut target, false);
 
         // Act.
         mem::drop(target);

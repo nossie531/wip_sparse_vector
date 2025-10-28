@@ -301,7 +301,7 @@ fn sparse_writer() {
     let target = &mut builder.build();
 
     // Act.
-    let result = &mut target.sparse_writer();
+    let result = target.sparse_writer();
 
     // Assert.
     let lhs = result.map(|x| (x.0, *x.1)).collect::<Vec<_>>();

@@ -31,8 +31,11 @@ use std::ops::{Index, RangeBounds};
 ///
 /// assert_eq!(v.to_vec(), vec![1, 0, 3, 0, 5]);
 ///
-/// for (_idx, val) in v.sparse_writer() {
-///     *val += 1;
+/// {
+///     let mut w = v.sparse_writer();
+///     while let Some((_idx, val)) = w.next() {
+///         *val += 1;
+///     }
 /// }
 ///
 /// assert_eq!(v.to_vec(), vec![2, 0, 4, 0, 6]);
@@ -327,14 +330,25 @@ where
 
     /// Returns a none padding elements writer.
     ///
+    /// # Leaking
+    ///
+    /// If the returned iterator goes out of scope without being dropped
+    /// (due to [`mem::forget`], for example), new padding value will be
+    /// remain in vector.
+    ///
+    /// [`mem::forget`]: std::mem::forget
+    ///
     /// # Examples
     ///
     /// ```
     /// # use sparse_vector::prelude::*;
     /// #
     /// let mut v = SparseVec::from_iter([1, 0, 3, 0, 5]);
-    /// for (_idx, val) in v.sparse_writer() {
-    ///     *val += 1;
+    /// {
+    ///     let mut w = v.sparse_writer();
+    ///     while let Some((_idx, val)) = w.next() {
+    ///         *val += 1;
+    ///     }
     /// }
     ///
     /// assert_eq!(v.to_vec(), vec![2, 0, 4, 0, 6]);

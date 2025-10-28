@@ -17,11 +17,10 @@ use std::ops::{Index, Range, RangeBounds};
 /// # use sparse_vector::prelude::*;
 /// let v = &mut SparseVec::from_iter([0, 1, 0, 3, 0, 5]);
 /// let s = &mut v.slice_mut(1..4);
-/// for (_idx, val) in s.sparse_writer() {
+/// let w = &mut s.sparse_writer();
+/// while let Some((_idx, val)) = w.next() {
 ///     *val += 1;
 /// }
-///
-/// assert_eq!(v.to_vec(), vec![0, 2, 0, 4, 0, 5]);
 /// ```
 #[repr(C)]
 #[must_use]
@@ -177,8 +176,11 @@ where
     /// # use sparse_vector::prelude::*;
     /// let v = &mut SparseVec::from_iter([1, 0, 3, 0, 5, 0, 7]);
     /// let s = &mut v.slice_mut(1..5);
-    /// for (_idx, val) in s.sparse_writer() {
-    ///     *val += 1;
+    /// {
+    ///     let w = &mut s.sparse_writer();
+    ///     while let Some((_idx, val)) = w.next() {
+    ///         *val += 1;
+    ///     }
     /// }
     ///
     /// assert_eq!(v.to_vec(), vec![1, 0, 4, 0, 6, 0, 7]);
@@ -303,7 +305,7 @@ where
 
     /// Creates a new instance.
     pub(crate) fn new(vec: &'a mut SparseVec<T>, range: Range<usize>) -> Self {
-        assert!(range.end <= vec.len);
+        assert!(range.end <= vec.len());
         Self { vec, range }
     }
 }

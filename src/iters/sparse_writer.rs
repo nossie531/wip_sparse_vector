@@ -2,10 +2,10 @@
 
 use crate::aliases::*;
 use crate::common::*;
+use crate::iters::*;
 use crate::prelude::*;
 use only_one::prelude::*;
 use std::fmt::Debug;
-use std::iter::FusedIterator;
 use std::ops::{Bound, Range};
 
 /// A mutable sparse iterator over the elements of a [`SparseVec`].
@@ -41,6 +41,24 @@ impl<'a, T> SparseWriter<'a, T>
 where
     T: PartialEq,
 {
+    /// Returns item mapper.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use sparse_vector::prelude::*;
+    /// let mut vec = SparseVec::from_iter([1, 0, 3, 0, 5]);
+    /// let mut writer = vec.sparse_writer();
+    /// let map = writer.map(|x| (x.0, *x.1));
+    /// assert!(map.eq([(0, 1), (2, 3), (4, 5)]));
+    /// ```
+    pub fn map<B, F>(self, f: F) -> SparseWriterMap<'a, T, F>
+    where
+        F: FnMut((usize, &mut T)) -> B,
+    {
+        SparseWriterMap::new(self, f)
+    }
+
     /// Creates a new instance.
     pub(crate) fn new(vec: &'a mut SparseVec<T>, range: Range<usize>) -> Self {
         let map_ptr = (&mut vec.map) as *mut _;
@@ -57,6 +75,86 @@ where
     /// Returns `true` if this is default instance.
     fn is_default(&self) -> bool {
         !One::exists(&self.map_range)
+    }
+}
+
+/// Methods like normal iterator.
+impl<'a, T> SparseWriter<'a, T>
+where
+    T: PartialEq,
+{
+    /// Advances the iterator and returns the next value.
+    ///
+    /// This method is similar to [`Iterator::next`].
+    /// See its documentation for more.
+    pub fn next(&mut self) -> Option<(usize, &mut T)> {
+        if self.is_default() {
+            return None;
+        }
+
+        let kv = self.map_range.next()?;
+        let offset = self.idx_range.start;
+        Some((*kv.0 - offset, kv.1))
+    }
+
+    /// Returns the nth element from the end of the iterator.
+    ///
+    /// This method is similar to [`DoubleEndedIterator::next_back`].
+    /// See its documentation for more.
+    pub fn next_back(&mut self) -> Option<(usize, &mut T)> {
+        if self.is_default() {
+            return None;
+        }
+
+        let kv = self.map_range.next_back()?;
+        let offset = self.idx_range.start;
+        Some((*kv.0 - offset, kv.1))
+    }
+
+    /// Returns the bounds on the remaining length of the iterator.
+    ///
+    /// This method is similar to [`Iterator::size_hint`].
+    /// See its documentation for more.
+    pub fn size_hint(&self) -> (usize, Option<usize>) {
+        if self.is_default() {
+            return (0, Some(0));
+        }
+
+        let min = self.nnp.saturating_sub(self.len - self.idx_range.len());
+        let max = usize::min(self.nnp, self.idx_range.len());
+        (min, Some(max))
+    }
+
+    /// Consumes the iterator, counting the number of iterations and returning it.
+    ///
+    /// This method is similar to [`Iterator::count`].
+    /// See its documentation for more.
+    pub fn count(self) -> usize {
+        self.map(|_| ()).count()
+    }
+
+    /// Returns the `n`th element of the iterator.
+    ///
+    /// This method is similar to [`Iterator::nth`].
+    /// See its documentation for more.
+    pub fn nth(&mut self, n: usize) -> Option<(usize, &mut T)> {
+        for _ in 0..n {
+            self.next()?;
+        }
+
+        self.next()
+    }
+
+    /// Returns the `n`th element from the end of the iterator.
+    ///
+    /// This method is similar to [`DoubleEndedIterator::nth_back`].
+    /// See its documentation for more.
+    pub fn nth_back(&mut self, n: usize) -> Option<(usize, &mut T)> {
+        for _ in 0..n {
+            self.next_back()?;
+        }
+
+        self.next_back()
     }
 }
 
@@ -99,54 +197,5 @@ where
                 }
             }
         }
-    }
-}
-
-impl<T> FusedIterator for SparseWriter<'_, T>
-where
-    T: PartialEq,
-{
-    // nop.
-}
-
-impl<'a, T> Iterator for SparseWriter<'a, T>
-where
-    T: PartialEq,
-{
-    type Item = (usize, &'a mut T);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.is_default() {
-            return None;
-        }
-
-        let kv = self.map_range.next()?;
-        let offset = self.idx_range.start;
-        Some((*kv.0 - offset, kv.1))
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        if self.is_default() {
-            return (0, Some(0));
-        }
-
-        let min = self.nnp.saturating_sub(self.len - self.idx_range.len());
-        let max = usize::min(self.nnp, self.idx_range.len());
-        (min, Some(max))
-    }
-}
-
-impl<'a, T> DoubleEndedIterator for SparseWriter<'a, T>
-where
-    T: PartialEq,
-{
-    fn next_back(&mut self) -> Option<Self::Item> {
-        if self.is_default() {
-            return None;
-        }
-
-        let kv = self.map_range.next_back()?;
-        let offset = self.idx_range.start;
-        Some((*kv.0 - offset, kv.1))
     }
 }

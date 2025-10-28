@@ -21,6 +21,16 @@ where
     unreachable!()
 }
 
+/// Consume all items of iterator.
+pub fn consume_all_items<I>(values: &mut I, flag: bool)
+where
+    I: Iterator,
+{
+    if flag {
+        let _ = values.all(|_| true);
+    }
+}
+
 /// Returns target hash value with default hasher.
 pub fn hash<T: Hash>(target: &T) -> u64 {
     let hasher = &mut DefaultHasher::new();
