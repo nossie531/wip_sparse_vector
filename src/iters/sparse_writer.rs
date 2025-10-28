@@ -184,6 +184,7 @@ where
         }
 
         if !self.map.is_null() {
+            // TODO: 計算時間！idx_range と map_range の間だけ消せばいい。
             let map = unsafe { &mut *self.map };
             let start = Bound::Included(&self.idx_range.start);
             let cursor = &mut map.lower_bound_mut(start);
