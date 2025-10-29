@@ -618,13 +618,7 @@ where
         I: IntoIterator<Item = T>,
     {
         let mut ret = SparseVec::default();
-        for (i, item) in iter.into_iter().enumerate() {
-            ret.len += 1;
-            if item != T::default() {
-                ret.map.insert(i, item);
-            }
-        }
-
+        ret.extend(iter);
         ret
     }
 }
