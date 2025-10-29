@@ -20,6 +20,7 @@ pub use value_editor::*;
 mod aliases;
 mod common;
 mod iters;
+mod shared_map;
 mod padding;
 mod sparse_slice;
 mod sparse_slice_mut;

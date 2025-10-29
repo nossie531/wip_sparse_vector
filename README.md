@@ -41,6 +41,11 @@ SparseSliceMut から SparseVec へはポインタでの接続に変えるべき
 (要素の増減を抑えた複数の経路からの書込ならマップを自作すればできる？)
 (それか MapRange で運用して値だけ unsafe で書込に対応させる？)
 
+🤔 SharedMap による改良計画
+- SparseSliceMut がどうやって SparseVec の共有するかが問題点
+- SparseVec の中身をバラバラにして持った方がいいのかもしれない。
+- SparseWriter と ValueEditor にはそれらのバラバラの部品で作業する。
+
 ## ❌ TODO!!
 
 SparseVec::drain も実装すべき。

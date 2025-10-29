@@ -1,9 +1,9 @@
 //! Type aliases.
 
-use pstd::collections::btree_map::{BTreeMap, Range, RangeMut};
+use crate::shared_map::*;
 
 /// Map for sparse vector.
-pub type Map<T> = BTreeMap<usize, T>;
+pub type Map<T> = SharedMap<usize, T>;
 
 /// Map range iterator for sparse vector.
 pub type MapRange<'a, T> = Range<'a, usize, T>;
