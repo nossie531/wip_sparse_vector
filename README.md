@@ -43,8 +43,9 @@ SparseSliceMut から SparseVec へはポインタでの接続に変えるべき
 
 🤔 SharedMap による改良計画
 - SparseSliceMut がどうやって SparseVec の共有するかが問題点
-- SparseVec の中身をバラバラにして持った方がいいのかもしれない。
-- SparseWriter と ValueEditor にはそれらのバラバラの部品で作業する。
+ - SparseVec の中身をバラバラにして持った方がいいのかもしれない。
+  - SparseWriter と ValueEditor にはそれらのバラバラの部品で作業する。
+ - SharedMapSlice のような型を作るアイデアもある。
 
 ## ❌ TODO!!
 
