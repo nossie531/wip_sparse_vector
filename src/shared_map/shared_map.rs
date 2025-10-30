@@ -1,20 +1,19 @@
-use std::{borrow::Borrow, ops::{Bound, RangeBounds}};
+use std::borrow::Borrow;
+use std::ops::{Bound, RangeBounds};
 use pstd::collections::BTreeMap;
 use crate::shared_map::*;
 
 #[derive(Clone, Debug)]
-pub(crate) struct SharedMap<K, V> {
-    base: BTreeMap<K, MapCell<V>>,
-}
+pub(crate) struct SharedMap<K, V>(BTreeMap<K, MapCell<V>>);
 
 /// Methods like [`BTreeMap`].
 impl<K, V> SharedMap<K, V> {
     pub fn new() -> Self {
-        Self { base: Default::default() }
+        Self(Default::default())
     }
 
     pub fn len(&self) -> usize {
-        self.base.len()
+        self.0.len()
     }
 
     pub fn get<Q>(&self, key: &Q) -> Option<&V>
@@ -22,7 +21,7 @@ impl<K, V> SharedMap<K, V> {
         K: Borrow<Q> + Ord,
         Q: Ord + ?Sized,
     {
-        self.base.get(key).map(|x| x.get())
+        self.0.get(key).map(|x| x.get())
     }
 
     pub fn get_mut<Q>(&mut self, key: &Q) -> Option<&mut V>
@@ -30,25 +29,25 @@ impl<K, V> SharedMap<K, V> {
         K: Borrow<Q> + Ord,
         Q: Ord + ?Sized,
     {
-        self.base.get_mut(key).map(|x| x.get_mut())
+        self.0.get_mut(key).map(|x| x.get_mut())
     }
 
     pub fn clear(&mut self) {
-        self.base.clear();
+        self.0.clear();
     }
 
     pub fn last_entry(&mut self) -> Option<OccupiedEntry<'_, K, V>>
     where
         K: Ord,
     {
-        self.base.last_entry().map(|x| OccupiedEntry(x))
+        self.0.last_entry().map(|x| OccupiedEntry(x))
     }
 
     pub fn insert(&mut self, key: K, value: V) -> Option<V>
     where
         K: Ord,
     {
-        let ret = self.base.insert(key, MapCell::new(value));
+        let ret = self.0.insert(key, MapCell::new(value));
         ret.map(|x| x.into_inner())
     }
 
@@ -57,7 +56,7 @@ impl<K, V> SharedMap<K, V> {
         K: Borrow<Q> + Ord,
         Q: Ord + ?Sized,
     {
-        self.base.remove(key).map(|x| x.into_inner())
+        self.0.remove(key).map(|x| x.into_inner())
     }
 
     pub fn range<T, R>(&self, range: R) -> Range<'_, K, V>
@@ -66,7 +65,7 @@ impl<K, V> SharedMap<K, V> {
         K: Borrow<T> + Ord,
         R: RangeBounds<T>,
     {
-        Range(self.base.range(range))
+        Range(self.0.range(range))
     }
 
     pub fn range_mut<T, R>(&mut self, range: R) -> RangeMut<'_, K, V>
@@ -75,7 +74,7 @@ impl<K, V> SharedMap<K, V> {
         K: Borrow<T> + Ord,
         R: RangeBounds<T>,
     {
-        RangeMut(self.base.range_mut(range))
+        RangeMut(self.0.range_mut(range))
     }
 }
 
@@ -86,6 +85,6 @@ impl<K, V> SharedMap<K, V> {
             K: Borrow<Q> + Ord,
             Q: Ord + ?Sized,
     {
-        CursorMut(self.base.lower_bound_mut(bound))
+        CursorMut(self.0.lower_bound_mut(bound))
     }
 }
