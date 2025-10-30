@@ -22,7 +22,7 @@ impl<T> MapCell<T> {
 }
 
 impl<T> Clone for MapCell<T>
-where 
+where
     T: Clone,
 {
     fn clone(&self) -> Self {

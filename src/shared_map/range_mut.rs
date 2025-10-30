@@ -1,5 +1,5 @@
-use pstd::collections::btree_map::RangeMut as StdRangeMut;
 use crate::shared_map::MapCell;
+use pstd::collections::btree_map::RangeMut as StdRangeMut;
 
 #[derive(Debug)]
 pub(crate) struct RangeMut<'a, K, V>(pub StdRangeMut<'a, K, MapCell<V>>)

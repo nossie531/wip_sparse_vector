@@ -1,5 +1,5 @@
-use pstd::collections::btree_map::Range as StdRange;
 use crate::shared_map::MapCell;
+use pstd::collections::btree_map::Range as StdRange;
 
 #[derive(Clone, Debug)]
 pub(crate) struct Range<'a, K, V>(pub StdRange<'a, K, MapCell<V>>)

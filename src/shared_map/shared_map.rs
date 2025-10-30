@@ -1,7 +1,7 @@
+use crate::shared_map::*;
+use pstd::collections::BTreeMap;
 use std::borrow::Borrow;
 use std::ops::{Bound, RangeBounds};
-use pstd::collections::BTreeMap;
-use crate::shared_map::*;
 
 #[derive(Clone, Debug)]
 pub(crate) struct SharedMap<K, V>(BTreeMap<K, MapCell<V>>);
@@ -81,9 +81,9 @@ impl<K, V> SharedMap<K, V> {
 /// Methods like [`BTreeMap`] nightly.
 impl<K, V> SharedMap<K, V> {
     pub fn lower_bound_mut<Q>(&mut self, bound: Bound<&Q>) -> CursorMut<'_, K, V>
-        where
-            K: Borrow<Q> + Ord,
-            Q: Ord + ?Sized,
+    where
+        K: Borrow<Q> + Ord,
+        Q: Ord + ?Sized,
     {
         CursorMut(self.0.lower_bound_mut(bound))
     }

@@ -1,5 +1,5 @@
-use pstd::collections::btree_map::CursorMut as StdCursorMut;
 use crate::shared_map::*;
+use pstd::collections::btree_map::CursorMut as StdCursorMut;
 
 pub(crate) struct CursorMut<'a, K, V>(pub StdCursorMut<'a, K, MapCell<V>>)
 where

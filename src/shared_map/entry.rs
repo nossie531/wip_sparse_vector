@@ -1,5 +1,5 @@
-use pstd::collections::btree_map::OccupiedEntry as StdOccupiedEntry;
 use crate::shared_map::MapCell;
+use pstd::collections::btree_map::OccupiedEntry as StdOccupiedEntry;
 
 pub(crate) struct OccupiedEntry<'a, K, V>(pub StdOccupiedEntry<'a, K, MapCell<V>>);
 
