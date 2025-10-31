@@ -74,7 +74,7 @@ impl<K, V> SharedMap<K, V> {
         K: Borrow<T> + Ord,
         R: RangeBounds<T>,
     {
-        RangeMut(self.0.range_mut(range))
+        RangeMut(self.0.range(range))
     }
 }
 

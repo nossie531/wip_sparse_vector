@@ -16,6 +16,10 @@ impl<T> MapCell<T> {
         self.0.get_mut()
     }
 
+    pub fn get_mut_ptr(&self) -> *mut T {
+        self.0.get()
+    }
+
     pub fn into_inner(self) -> T {
         self.0.into_inner()
     }
